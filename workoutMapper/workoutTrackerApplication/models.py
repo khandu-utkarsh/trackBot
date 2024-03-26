@@ -12,8 +12,6 @@ class Users(models.Model):
     email = models.EmailField(max_length=254, verbose_name = "Email of the user")
     username = models.CharField(max_length=20, verbose_name = "Username of the user")  # Assuming username max length is 20 characters
 
-# Find a way to update the date time from the manual data provided by the user
-
 #Can't be none
 class Weight(models.Model):
     time_stamp = models.DateTimeField(auto_now=False, auto_now_add=False, verbose_name = "Timestamp")  # Auto now is responsible for auto-saving the time object is created.

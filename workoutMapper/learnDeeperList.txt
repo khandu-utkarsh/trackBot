@@ -11,3 +11,9 @@
 11. Deeper understanding of one to one relationships, many to one relationships and many to many relationships in the data models.
 12. Difference between django-admin and manage.py
 
+
+
+
+Things to do:
+1. Class based views
+2. Understanding Django Models and Making Queries
