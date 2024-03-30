@@ -10,7 +10,18 @@
 10. The syntax _("") is typically used in Django projects for internationalization and localization (i18n). The _() function is a common alias for the django.utils.translation.ugettext() function, which is used to mark strings for translation to different languages. By wrapping a string within _(), you indicate to Django's translation system that this string should be translated if translations are available.
 11. Deeper understanding of one to one relationships, many to one relationships and many to many relationships in the data models.
 12. Difference between django-admin and manage.py
-
+13. Add this to the git in a private repository
+14. What are enumeration classes in Python?
+15. Positional arguments in Python?
+16. Recursive relationships in Django or SQL
+17. pass keyword in Django
+18. Backward related objects?
+19. Many to many, one to one  and many to one relationships
+20. decorators in Python. 
+21. f string in python
+22. Python magic method __str__()
+23. over riding methods in Django
+24. *args vs **kwargs in Python
 
 
 
