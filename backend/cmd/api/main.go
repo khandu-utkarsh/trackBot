@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"workout_app_backend/internal/database"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -11,8 +12,19 @@ import (
 
 func main() {
 	// Load environment variables
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load("../../.env"); err != nil {
 		log.Println("No .env file found")
+	}
+
+	//!Connect to database
+	db, err := database.GetInstance()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Ping the database to ensure connection
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
 	}
 
 	// Initialize router
@@ -48,4 +60,4 @@ func main() {
 	if err := http.ListenAndServe(":"+port, r); err != nil {
 		log.Fatal(err)
 	}
-} 
+}

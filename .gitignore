@@ -27,6 +27,15 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+#No executable files
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+workoutBackend
+
 # IDE
 .idea/
 .vscode/
