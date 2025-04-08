@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"workout_app_backend/internal/database"
+	"workout_app_backend/internal/models"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -25,6 +26,12 @@ func main() {
 	// Ping the database to ensure connection
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
+	} else {
+		log.Println("Database connected successfully")
+		// Initialize models
+		log.Println("Initializing models")
+		models.InitializeModels(db)
+
 	}
 
 	// Initialize router
