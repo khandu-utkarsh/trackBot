@@ -8,14 +8,11 @@ import (
 	"workout_app_backend/internal/handlers"
 	"workout_app_backend/internal/models"
 	"workout_app_backend/internal/routes"
-
-	"github.com/joho/godotenv"
+	"workout_app_backend/internal/utils"
 )
 
 func main() {
-	if err := godotenv.Load("./.env"); err != nil {
-		log.Println("No .env file found")
-	}
+	utils.LoadEnv()
 
 	db, err := database.GetInstance()
 	if err != nil {
