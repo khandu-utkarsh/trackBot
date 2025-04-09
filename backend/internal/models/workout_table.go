@@ -18,12 +18,13 @@ type Workout struct {
 
 // WorkoutModel handles workout-related database operations
 type WorkoutModel struct {
-	db database.Database
+	db   database.Database
+	name string
 }
 
 // GetWorkoutModelInstance creates a new WorkoutModel instance
-func GetWorkoutModelInstance(db database.Database) *WorkoutModel {
-	return &WorkoutModel{db: db}
+func GetWorkoutModelInstance(db database.Database, name string) *WorkoutModel {
+	return &WorkoutModel{db: db, name: name}
 }
 
 // Initialize creates the workouts table if it doesn't exist
@@ -35,20 +36,21 @@ func (m *WorkoutModel) Initialize(ctx context.Context) error {
 		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 	`
 
-	return m.db.CreateTable(ctx, "workouts", schema)
+	return m.db.CreateTable(ctx, m.name, schema)
 }
 
 // Create creates a new workout
 func (m *WorkoutModel) Create(ctx context.Context, workout *Workout) error {
 	query := `
-		INSERT INTO workouts (user_id, created_at, updated_at)
-		VALUES ($1, $2, $3)
+		INSERT INTO $1 (user_id, created_at, updated_at)
+		VALUES ($2, $3, $4)
 		RETURNING id, created_at, updated_at
 	`
 
 	err := m.db.QueryRowContext(
 		ctx,
 		query,
+		m.name,
 		workout.UserID,
 		workout.CreatedAt,
 		workout.UpdatedAt,
@@ -64,13 +66,13 @@ func (m *WorkoutModel) Create(ctx context.Context, workout *Workout) error {
 // Get retrieves a workout by ID
 func (m *WorkoutModel) Get(ctx context.Context, id int64) (*Workout, error) {
 	query := `
-		SELECT id, user_id, name, description, date, duration, created_at, updated_at
-		FROM workouts
-		WHERE id = $1
+		SELECT id, user_id, created_at, updated_at
+		FROM $1
+		WHERE id = $2
 	`
 
 	workout := &Workout{}
-	err := m.db.QueryRowContext(ctx, query, id).Scan(
+	err := m.db.QueryRowContext(ctx, query, m.name, id).Scan(
 		&workout.ID,
 		&workout.UserID,
 		&workout.CreatedAt,
@@ -91,12 +93,12 @@ func (m *WorkoutModel) Get(ctx context.Context, id int64) (*Workout, error) {
 func (m *WorkoutModel) List(ctx context.Context, userID int64) ([]*Workout, error) {
 	query := `
 		SELECT id, user_id, created_at, updated_at
-		FROM workouts
-		WHERE user_id = $1
+		FROM $1
+		WHERE user_id = $2
 		ORDER BY date DESC
 	`
 
-	rows, err := m.db.QueryContext(ctx, query, userID)
+	rows, err := m.db.QueryContext(ctx, query, m.name, userID)
 	if err != nil {
 		return nil, fmt.Errorf("error listing workouts: %v", err)
 	}
@@ -125,11 +127,11 @@ func (m *WorkoutModel) List(ctx context.Context, userID int64) ([]*Workout, erro
 }
 
 func (m *WorkoutModel) Update(ctx context.Context, workout *Workout) error {
-	_, err := m.db.ExecContext(ctx, "UPDATE workouts SET user_id = $1, updated_at = $2 WHERE id = $3", workout.UserID, time.Now(), workout.ID)
+	_, err := m.db.ExecContext(ctx, "UPDATE $4 SET user_id = $1, updated_at = $2 WHERE id = $3", workout.UserID, time.Now(), workout.ID, m.name)
 	return err
 }
 
 func (m *WorkoutModel) Delete(ctx context.Context, id int64) error {
-	_, err := m.db.ExecContext(ctx, "DELETE FROM workouts WHERE id = $1", id)
+	_, err := m.db.ExecContext(ctx, "DELETE FROM $1 WHERE id = $2", m.name, id)
 	return err
 }

@@ -8,13 +8,13 @@ import (
 )
 
 func TestUserModel_Create(t *testing.T) {
-	t.Skip("Skipping this test temporarily")
+	//	t.Skip("Skipping this test temporarily")
 	db, cleanup := testutils.SetupTestDB(t)
 	defer cleanup()
 	fmt.Println("db", db)
 
 	ctx := context.Background()
-	userModel := GetUserModelInstance(db)
+	userModel := GetUserModelInstance(db, "users_test")
 
 	// Initialize the users table
 	if err := userModel.Initialize(ctx); err != nil {
@@ -52,7 +52,7 @@ func TestUserModel_Create(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := userModel.Create(ctx, tt.user)
+			_, err := userModel.Create(ctx, tt.user)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UserModel.Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -61,12 +61,12 @@ func TestUserModel_Create(t *testing.T) {
 }
 
 func TestUserModel_Get(t *testing.T) {
-	t.Skip("Skipping this test temporarily")
+	//t.Skip("Skipping this test temporarily")
 	db, cleanup := testutils.SetupTestDB(t)
 	defer cleanup()
 
 	ctx := context.Background()
-	userModel := GetUserModelInstance(db)
+	userModel := GetUserModelInstance(db, "users_test")
 
 	// Initialize the users table
 	if err := userModel.Initialize(ctx); err != nil {
@@ -77,9 +77,11 @@ func TestUserModel_Get(t *testing.T) {
 	testUser := &User{
 		Email: "test@example.com",
 	}
-	if err := userModel.Create(ctx, testUser); err != nil {
+	id, err := userModel.Create(ctx, testUser)
+	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
+	testUser.ID = id
 
 	// Test cases
 	tests := []struct {
@@ -114,12 +116,11 @@ func TestUserModel_Get(t *testing.T) {
 }
 
 func TestUserModel_List(t *testing.T) {
-	t.Skip("Skipping this test temporarily")
 	db, cleanup := testutils.SetupTestDB(t)
 	defer cleanup()
 
 	ctx := context.Background()
-	userModel := GetUserModelInstance(db)
+	userModel := GetUserModelInstance(db, "users_test")
 
 	// Initialize the users table
 	if err := userModel.Initialize(ctx); err != nil {
@@ -134,7 +135,8 @@ func TestUserModel_List(t *testing.T) {
 	}
 
 	for _, user := range users {
-		if err := userModel.Create(ctx, user); err != nil {
+		_, err := userModel.Create(ctx, user)
+		if err != nil {
 			t.Fatalf("Failed to create test user: %v", err)
 		}
 	}

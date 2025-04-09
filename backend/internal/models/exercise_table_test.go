@@ -12,7 +12,7 @@ func TestExerciseModel_CreateCardio(t *testing.T) {
 	defer cleanup()
 
 	ctx := context.Background()
-	exerciseModel := GetExerciseModelInstance(db)
+	exerciseModel := GetExerciseModelInstance(db, "exercises_test")
 
 	// Initialize the table
 	if err := exerciseModel.Initialize(ctx); err != nil {
@@ -20,7 +20,7 @@ func TestExerciseModel_CreateCardio(t *testing.T) {
 	}
 
 	// Create a test user first
-	userModel := GetUserModelInstance(db)
+	userModel := GetUserModelInstance(db, "users_test")
 	if err := userModel.Initialize(ctx); err != nil {
 		t.Fatalf("Failed to initialize users table: %v", err)
 	}
@@ -28,12 +28,13 @@ func TestExerciseModel_CreateCardio(t *testing.T) {
 	testUser := &User{
 		Email: "test@example.com",
 	}
-	if err := userModel.Create(ctx, testUser); err != nil {
+	_, err := userModel.Create(ctx, testUser)
+	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
 
 	// Create a test workout
-	workoutModel := GetWorkoutModelInstance(db)
+	workoutModel := GetWorkoutModelInstance(db, "workouts_test")
 	if err := workoutModel.Initialize(ctx); err != nil {
 		t.Fatalf("Failed to initialize workouts table: %v", err)
 	}
@@ -96,7 +97,7 @@ func TestExerciseModel_CreateWeights(t *testing.T) {
 	defer cleanup()
 
 	ctx := context.Background()
-	exerciseModel := GetExerciseModelInstance(db)
+	exerciseModel := GetExerciseModelInstance(db, "exercises_test")
 
 	// Initialize the table
 	if err := exerciseModel.Initialize(ctx); err != nil {
@@ -104,7 +105,7 @@ func TestExerciseModel_CreateWeights(t *testing.T) {
 	}
 
 	// Create a test user first
-	userModel := GetUserModelInstance(db)
+	userModel := GetUserModelInstance(db, "users_test")
 	if err := userModel.Initialize(ctx); err != nil {
 		t.Fatalf("Failed to initialize users table: %v", err)
 	}
@@ -112,12 +113,13 @@ func TestExerciseModel_CreateWeights(t *testing.T) {
 	testUser := &User{
 		Email: "test@example.com",
 	}
-	if err := userModel.Create(ctx, testUser); err != nil {
+	_, err := userModel.Create(ctx, testUser)
+	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
 
 	// Create a test workout
-	workoutModel := GetWorkoutModelInstance(db)
+	workoutModel := GetWorkoutModelInstance(db, "workouts_test")
 	if err := workoutModel.Initialize(ctx); err != nil {
 		t.Fatalf("Failed to initialize workouts table: %v", err)
 	}
@@ -182,7 +184,7 @@ func TestExerciseModel_ListByWorkout(t *testing.T) {
 	defer cleanup()
 
 	ctx := context.Background()
-	exerciseModel := GetExerciseModelInstance(db)
+	exerciseModel := GetExerciseModelInstance(db, "exercises_test")
 
 	// Initialize the table
 	if err := exerciseModel.Initialize(ctx); err != nil {
@@ -190,7 +192,7 @@ func TestExerciseModel_ListByWorkout(t *testing.T) {
 	}
 
 	// Create a test user first
-	userModel := GetUserModelInstance(db)
+	userModel := GetUserModelInstance(db, "users_test")
 	if err := userModel.Initialize(ctx); err != nil {
 		t.Fatalf("Failed to initialize users table: %v", err)
 	}
@@ -198,12 +200,13 @@ func TestExerciseModel_ListByWorkout(t *testing.T) {
 	testUser := &User{
 		Email: "test@example.com",
 	}
-	if err := userModel.Create(ctx, testUser); err != nil {
+	_, err := userModel.Create(ctx, testUser)
+	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
 
 	// Create a test workout
-	workoutModel := GetWorkoutModelInstance(db)
+	workoutModel := GetWorkoutModelInstance(db, "workouts_test")
 	if err := workoutModel.Initialize(ctx); err != nil {
 		t.Fatalf("Failed to initialize workouts table: %v", err)
 	}

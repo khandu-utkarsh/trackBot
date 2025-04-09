@@ -44,12 +44,13 @@ type WeightExercise struct {
 
 // ExerciseModel handles exercise-related database operations
 type ExerciseModel struct {
-	db database.Database
+	db   database.Database
+	name string
 }
 
 // GetExerciseModelInstance creates a new ExerciseModel instance
-func GetExerciseModelInstance(db database.Database) *ExerciseModel {
-	return &ExerciseModel{db: db}
+func GetExerciseModelInstance(db database.Database, name string) *ExerciseModel {
+	return &ExerciseModel{db: db, name: name}
 }
 
 // Initialize creates the exercises table if it doesn't exist
@@ -74,23 +75,24 @@ func (m *ExerciseModel) Initialize(ctx context.Context) error {
 		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 	`
 
-	return m.db.CreateTable(ctx, "exercises", schema)
+	return m.db.CreateTable(ctx, m.name, schema)
 }
 
 // CreateCardio creates a new cardio exercise
 func (m *ExerciseModel) CreateCardio(ctx context.Context, exercise *CardioExercise) error {
 	query := `
-		INSERT INTO exercises (
+		INSERT INTO $1 (
 			workout_id, name, type, notes,
 			distance, duration
 		)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		VALUES ($2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at
 	`
 
 	err := m.db.QueryRowContext(
 		ctx,
 		query,
+		m.name,
 		exercise.WorkoutID,
 		exercise.Name,
 		ExerciseTypeCardio,
@@ -109,17 +111,18 @@ func (m *ExerciseModel) CreateCardio(ctx context.Context, exercise *CardioExerci
 // CreateWeights creates a new weight training exercise
 func (m *ExerciseModel) CreateWeights(ctx context.Context, exercise *WeightExercise) error {
 	query := `
-		INSERT INTO exercises (
+		INSERT INTO $1 (
 			workout_id, name, type, notes,
 			sets, reps, weight
 		)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		VALUES ($2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at, updated_at
 	`
 
 	err := m.db.QueryRowContext(
 		ctx,
 		query,
+		m.name,
 		exercise.WorkoutID,
 		exercise.Name,
 		ExerciseTypeWeights,
@@ -143,8 +146,8 @@ func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) 
 			distance, duration,
 			sets, reps, weight,
 			created_at, updated_at
-		FROM exercises
-		WHERE id = $1
+		FROM $1
+		WHERE id = $2
 	`
 
 	var (
@@ -152,7 +155,7 @@ func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) 
 		exerciseType ExerciseType
 	)
 
-	err := m.db.QueryRowContext(ctx, query, id).Scan(
+	err := m.db.QueryRowContext(ctx, query, m.name, id).Scan(
 		&base.ID,
 		&base.WorkoutID,
 		&base.Name,
@@ -173,7 +176,7 @@ func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) 
 	switch exerciseType {
 	case ExerciseTypeCardio:
 		cardio := &CardioExercise{BaseExercise: base}
-		err = m.db.QueryRowContext(ctx, query, id).Scan(
+		err = m.db.QueryRowContext(ctx, query, m.name, id).Scan(
 			&cardio.ID,
 			&cardio.WorkoutID,
 			&cardio.Name,
@@ -188,7 +191,7 @@ func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) 
 		return cardio, err
 	case ExerciseTypeWeights:
 		weights := &WeightExercise{BaseExercise: base}
-		err = m.db.QueryRowContext(ctx, query, id).Scan(
+		err = m.db.QueryRowContext(ctx, query, m.name, id).Scan(
 			&weights.ID,
 			&weights.WorkoutID,
 			&weights.Name,
@@ -214,12 +217,12 @@ func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]i
 			distance, duration,
 			sets, reps, weight,
 			created_at, updated_at
-		FROM exercises
-		WHERE workout_id = $1
+		FROM $1
+		WHERE workout_id = $2
 		ORDER BY id
 	`
 
-	rows, err := m.db.QueryContext(ctx, query, workoutID)
+	rows, err := m.db.QueryContext(ctx, query, m.name, workoutID)
 	if err != nil {
 		return nil, fmt.Errorf("error listing exercises: %v", err)
 	}
@@ -289,12 +292,12 @@ func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]i
 }
 
 func (m *ExerciseModel) Update(ctx context.Context, exercise *BaseExercise) error {
-	_, err := m.db.ExecContext(ctx, "UPDATE exercises SET name = $1, notes = $2, updated_at = $3 WHERE id = $4",
-		exercise.Name, exercise.Notes, time.Now(), exercise.ID)
+	_, err := m.db.ExecContext(ctx, "UPDATE $1 SET name = $2, notes = $3, updated_at = $4 WHERE id = $5",
+		m.name, exercise.Name, exercise.Notes, time.Now(), exercise.ID)
 	return err
 }
 
 func (m *ExerciseModel) Delete(ctx context.Context, id int64) error {
-	_, err := m.db.ExecContext(ctx, "DELETE FROM exercises WHERE id = $1", id)
+	_, err := m.db.ExecContext(ctx, "DELETE FROM $1 WHERE id = $2", m.name, id)
 	return err
 }
