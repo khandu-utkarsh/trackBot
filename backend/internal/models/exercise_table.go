@@ -30,19 +30,16 @@ type BaseExercise struct {
 // CardioExercise represents a cardio exercise with specific attributes
 type CardioExercise struct {
 	BaseExercise
-	Distance  float64 `json:"distance"`   // in kilometers
-	Duration  int     `json:"duration"`   // in seconds
-	Pace      float64 `json:"pace"`       // minutes per kilometer
-	HeartRate int     `json:"heart_rate"` // beats per minute
+	Distance float64 `json:"distance"` // in meters
+	Duration int     `json:"duration"` // in seconds
 }
 
 // WeightExercise represents a weight training exercise with specific attributes
 type WeightExercise struct {
 	BaseExercise
-	Sets     int     `json:"sets"`
-	Reps     int     `json:"reps"`
-	Weight   float64 `json:"weight"`    // in kilograms
-	RestTime int     `json:"rest_time"` // in seconds
+	Sets   int     `json:"sets"`
+	Reps   int     `json:"reps"`
+	Weight float64 `json:"weight"` // in kilograms
 }
 
 // ExerciseModel handles exercise-related database operations
@@ -50,8 +47,8 @@ type ExerciseModel struct {
 	db database.Database
 }
 
-// NewExerciseModel creates a new ExerciseModel instance
-func NewExerciseModel(db database.Database) *ExerciseModel {
+// GetExerciseModelInstance creates a new ExerciseModel instance
+func GetExerciseModelInstance(db database.Database) *ExerciseModel {
 	return &ExerciseModel{db: db}
 }
 
@@ -67,14 +64,11 @@ func (m *ExerciseModel) Initialize(ctx context.Context) error {
 		-- Cardio specific fields
 		distance FLOAT,
 		duration INTEGER,
-		pace FLOAT,
-		heart_rate INTEGER,
 		
 		-- Weight training specific fields
 		sets INTEGER,
 		reps INTEGER,
 		weight FLOAT,
-		rest_time INTEGER,
 		
 		created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 		updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -88,9 +82,9 @@ func (m *ExerciseModel) CreateCardio(ctx context.Context, exercise *CardioExerci
 	query := `
 		INSERT INTO exercises (
 			workout_id, name, type, notes,
-			distance, duration, pace, heart_rate
+			distance, duration
 		)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, created_at, updated_at
 	`
 
@@ -103,8 +97,6 @@ func (m *ExerciseModel) CreateCardio(ctx context.Context, exercise *CardioExerci
 		exercise.Notes,
 		exercise.Distance,
 		exercise.Duration,
-		exercise.Pace,
-		exercise.HeartRate,
 	).Scan(&exercise.ID, &exercise.CreatedAt, &exercise.UpdatedAt)
 
 	if err != nil {
@@ -119,9 +111,9 @@ func (m *ExerciseModel) CreateWeights(ctx context.Context, exercise *WeightExerc
 	query := `
 		INSERT INTO exercises (
 			workout_id, name, type, notes,
-			sets, reps, weight, rest_time
+			sets, reps, weight
 		)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at
 	`
 
@@ -135,7 +127,6 @@ func (m *ExerciseModel) CreateWeights(ctx context.Context, exercise *WeightExerc
 		exercise.Sets,
 		exercise.Reps,
 		exercise.Weight,
-		exercise.RestTime,
 	).Scan(&exercise.ID, &exercise.CreatedAt, &exercise.UpdatedAt)
 
 	if err != nil {
@@ -149,8 +140,8 @@ func (m *ExerciseModel) CreateWeights(ctx context.Context, exercise *WeightExerc
 func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) {
 	query := `
 		SELECT id, workout_id, name, type, notes,
-			distance, duration, pace, heart_rate,
-			sets, reps, weight, rest_time,
+			distance, duration,
+			sets, reps, weight,
 			created_at, updated_at
 		FROM exercises
 		WHERE id = $1
@@ -190,8 +181,6 @@ func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) 
 			&cardio.Notes,
 			&cardio.Distance,
 			&cardio.Duration,
-			&cardio.Pace,
-			&cardio.HeartRate,
 			nil, nil, nil, nil, // weight training fields
 			&cardio.CreatedAt,
 			&cardio.UpdatedAt,
@@ -209,7 +198,6 @@ func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) 
 			&weights.Sets,
 			&weights.Reps,
 			&weights.Weight,
-			&weights.RestTime,
 			&weights.CreatedAt,
 			&weights.UpdatedAt,
 		)
@@ -223,8 +211,8 @@ func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) 
 func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]interface{}, error) {
 	query := `
 		SELECT id, workout_id, name, type, notes,
-			distance, duration, pace, heart_rate,
-			sets, reps, weight, rest_time,
+			distance, duration,
+			sets, reps, weight,
 			created_at, updated_at
 		FROM exercises
 		WHERE workout_id = $1
@@ -261,7 +249,7 @@ func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]i
 		switch exerciseType {
 		case ExerciseTypeCardio:
 			cardio := &CardioExercise{BaseExercise: base}
-			err = rows.Scan(
+			_ = rows.Scan(
 				&cardio.ID,
 				&cardio.WorkoutID,
 				&cardio.Name,
@@ -269,8 +257,6 @@ func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]i
 				&cardio.Notes,
 				&cardio.Distance,
 				&cardio.Duration,
-				&cardio.Pace,
-				&cardio.HeartRate,
 				nil, nil, nil, nil, // weight training fields
 				&cardio.CreatedAt,
 				&cardio.UpdatedAt,
@@ -278,7 +264,7 @@ func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]i
 			exercises = append(exercises, cardio)
 		case ExerciseTypeWeights:
 			weights := &WeightExercise{BaseExercise: base}
-			err = rows.Scan(
+			_ = rows.Scan(
 				&weights.ID,
 				&weights.WorkoutID,
 				&weights.Name,
@@ -288,7 +274,6 @@ func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]i
 				&weights.Sets,
 				&weights.Reps,
 				&weights.Weight,
-				&weights.RestTime,
 				&weights.CreatedAt,
 				&weights.UpdatedAt,
 			)
@@ -301,4 +286,15 @@ func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]i
 	}
 
 	return exercises, nil
+}
+
+func (m *ExerciseModel) Update(ctx context.Context, exercise *BaseExercise) error {
+	_, err := m.db.ExecContext(ctx, "UPDATE exercises SET name = $1, notes = $2, updated_at = $3 WHERE id = $4",
+		exercise.Name, exercise.Notes, time.Now(), exercise.ID)
+	return err
+}
+
+func (m *ExerciseModel) Delete(ctx context.Context, id int64) error {
+	_, err := m.db.ExecContext(ctx, "DELETE FROM exercises WHERE id = $1", id)
+	return err
 }

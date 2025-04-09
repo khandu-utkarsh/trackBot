@@ -7,13 +7,19 @@ import (
 )
 
 func InitializeModels(db database.Database) error {
-	workoutTable := NewWorkoutModel(db)
-	exerciseTable := NewExerciseModel(db)
-	if err := workoutTable.Initialize(context.Background()); err != nil {
-		log.Fatal(err)
+
+	userTable := GetUserModelInstance(db).Initialize(context.Background())
+	workoutTable := GetWorkoutModelInstance(db).Initialize(context.Background())
+	exerciseTable := GetExerciseModelInstance(db).Initialize(context.Background())
+
+	if userTable != nil {
+		log.Fatal(userTable)
 	}
-	if err := exerciseTable.Initialize(context.Background()); err != nil {
-		log.Fatal(err)
+	if workoutTable != nil {
+		log.Fatal(workoutTable)
+	}
+	if exerciseTable != nil {
+		log.Fatal(exerciseTable)
 	}
 	return nil
 }

@@ -5,57 +5,39 @@ import (
 	"net/http"
 	"os"
 	"workout_app_backend/internal/database"
+	"workout_app_backend/internal/handlers"
 	"workout_app_backend/internal/models"
+	"workout_app_backend/internal/routes"
 
-	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Load environment variables
-	if err := godotenv.Load("../../.env"); err != nil {
+	if err := godotenv.Load("./.env"); err != nil {
 		log.Println("No .env file found")
 	}
 
-	//!Connect to database
 	db, err := database.GetInstance()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to get database instance: %v", err)
 	}
 
-	// Ping the database to ensure connection
 	if err := db.Ping(); err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Database connected successfully")
-		// Initialize models
-		log.Println("Initializing models")
-		models.InitializeModels(db)
+		log.Fatalf("Database ping failed: %v", err)
+	}
+	log.Println("Database connected successfully")
 
+	// Initialize models
+	log.Println("Initializing models")
+	if err := models.InitializeModels(db); err != nil {
+		log.Fatalf("Failed to initialize models: %v", err)
 	}
 
-	// Initialize router
-	r := mux.NewRouter()
-
-	// Add CORS middleware
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-			if r.Method == "OPTIONS" {
-				w.WriteHeader(http.StatusOK)
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
-	})
-
-	// Health check endpoint
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	}).Methods("GET")
+	// Setup Router using the routes package
+	log.Println("Setting up router...")
+	r := routes.SetupRouter(handlers.GetUserHandlerInstance(models.GetUserModelInstance(db)),
+		handlers.GetWorkoutHandlerInstance(models.GetWorkoutModelInstance(db)),
+		handlers.GetExerciseHandlerInstance(models.GetExerciseModelInstance(db)))
 
 	// Start server
 	port := os.Getenv("PORT")
@@ -65,6 +47,6 @@ func main() {
 
 	log.Printf("Server starting on port %s", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
-		log.Fatal(err)
+		log.Fatalf("Server failed to start: %v", err)
 	}
 }
