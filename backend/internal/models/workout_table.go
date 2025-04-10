@@ -124,11 +124,34 @@ func (m *WorkoutModel) List(ctx context.Context, userID int64) ([]*Workout, erro
 }
 
 func (m *WorkoutModel) Update(ctx context.Context, workout *Workout) error {
-	_, err := m.db.ExecContext(ctx, fmt.Sprintf("UPDATE %s SET user_id = $1, updated_at = $2 WHERE id = $3", m.name), workout.UserID, time.Now(), workout.ID)
-	return err
+	query := fmt.Sprintf(
+		"UPDATE %s SET user_id = $1, created_at = $2, updated_at = $3 WHERE id = $4 RETURNING id",
+		m.name,
+	)
+
+	var updatedID int64
+	err := m.db.QueryRowContext(ctx, query, workout.UserID, workout.CreatedAt, workout.UpdatedAt, workout.ID).Scan(&updatedID)
+	if err == sql.ErrNoRows {
+		return fmt.Errorf("workout with ID %d not found", workout.ID)
+	}
+	if err != nil {
+		return fmt.Errorf("error deleting workout: %v", err)
+	}
+
+	return nil
 }
 
-func (m *WorkoutModel) Delete(ctx context.Context, id int64) error {
-	_, err := m.db.ExecContext(ctx, fmt.Sprintf("DELETE FROM %s WHERE id = $1", m.name), id)
-	return err
+func (m *WorkoutModel) Delete(ctx context.Context, id int64) (int64, error) {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1 RETURNING id", m.name)
+
+	var deletedID int64
+	err := m.db.QueryRowContext(ctx, query, id).Scan(&deletedID)
+	if err == sql.ErrNoRows {
+		return -1, fmt.Errorf("workout with ID %d not found", id)
+	}
+	if err != nil {
+		return 0, fmt.Errorf("error deleting workout: %v", err)
+	}
+
+	return deletedID, nil
 }
