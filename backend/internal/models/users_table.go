@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 	"workout_app_backend/internal/database"
@@ -96,8 +97,17 @@ func (m *UserModel) Update(ctx context.Context, user *User) error {
 	return err
 }
 
-func (m *UserModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1", m.name)
-	_, err := m.db.ExecContext(ctx, query, id)
-	return err
+func (m *UserModel) Delete(ctx context.Context, id int64) (int64, error) {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1 RETURNING id", m.name)
+
+	var deletedID int64
+	err := m.db.QueryRowContext(ctx, query, id).Scan(&deletedID)
+	if err == sql.ErrNoRows {
+		return -1, fmt.Errorf("user with ID %d not found", id)
+	}
+	if err != nil {
+		return 0, fmt.Errorf("error deleting user: %v", err)
+	}
+
+	return deletedID, nil
 }
