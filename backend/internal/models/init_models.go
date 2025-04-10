@@ -9,8 +9,8 @@ import (
 func InitializeModels(db database.Database) error {
 
 	userTable := GetUserModelInstance(db, "users").Initialize(context.Background())
-	workoutTable := GetWorkoutModelInstance(db, "workouts").Initialize(context.Background())
-	exerciseTable := GetExerciseModelInstance(db, "exercises").Initialize(context.Background())
+	workoutTable := GetWorkoutModelInstance(db, "workouts", "users").Initialize(context.Background())
+	exerciseTable := GetExerciseModelInstance(db, "exercises", "workouts").Initialize(context.Background())
 
 	if userTable != nil {
 		log.Fatal(userTable)

@@ -7,31 +7,32 @@ import (
 )
 
 func TestWorkoutModel_Create(t *testing.T) {
-	t.Skip("Skipping this test temporarily")
 	db, cleanup := testutils.SetupTestDB(t)
 	defer cleanup()
 
 	ctx := context.Background()
-	workoutModel := GetWorkoutModelInstance(db, "workouts_test")
-
-	// Initialize the table
-	if err := workoutModel.Initialize(ctx); err != nil {
-		t.Fatalf("Failed to initialize workouts table: %v", err)
-	}
 
 	// Create a test user first
+	//!Then create a workout
 	userModel := GetUserModelInstance(db, "users_test")
 	if err := userModel.Initialize(ctx); err != nil {
 		t.Fatalf("Failed to initialize users table: %v", err)
 	}
 
+	workoutModel := GetWorkoutModelInstance(db, "workouts_test", "users_test")
+	if err := workoutModel.Initialize(ctx); err != nil {
+		t.Fatalf("Failed to initialize workouts table: %v", err)
+	}
+
 	testUser := &User{
 		Email: "test@example.com",
 	}
-	_, err := userModel.Create(ctx, testUser)
+
+	id, err := userModel.Create(ctx, testUser)
 	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
+	testUser.ID = id
 
 	// Test cases
 	tests := []struct {
@@ -57,31 +58,30 @@ func TestWorkoutModel_Create(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := workoutModel.Create(ctx, tt.workout)
+			id, err := workoutModel.Create(ctx, tt.workout)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("WorkoutModel.Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			tt.workout.ID = id
 		})
 	}
 }
 
 func TestWorkoutModel_Get(t *testing.T) {
-	t.Skip("Skipping this test temporarily")
 	db, cleanup := testutils.SetupTestDB(t)
 	defer cleanup()
 
 	ctx := context.Background()
-	workoutModel := GetWorkoutModelInstance(db, "workouts_test")
-
-	// Initialize the table
-	if err := workoutModel.Initialize(ctx); err != nil {
-		t.Fatalf("Failed to initialize workouts table: %v", err)
-	}
 
 	// Create a test user
 	userModel := GetUserModelInstance(db, "users_test")
 	if err := userModel.Initialize(ctx); err != nil {
 		t.Fatalf("Failed to initialize users table: %v", err)
+	}
+
+	workoutModel := GetWorkoutModelInstance(db, "workouts_test", "users_test")
+	if err := workoutModel.Initialize(ctx); err != nil {
+		t.Fatalf("Failed to initialize workouts table: %v", err)
 	}
 
 	testUser := &User{
@@ -97,9 +97,11 @@ func TestWorkoutModel_Get(t *testing.T) {
 	testWorkout := &Workout{
 		UserID: testUser.ID,
 	}
-	if err := workoutModel.Create(ctx, testWorkout); err != nil {
+	id, err = workoutModel.Create(ctx, testWorkout)
+	if err != nil {
 		t.Fatalf("Failed to create test workout: %v", err)
 	}
+	testWorkout.ID = id
 
 	// Test cases
 	tests := []struct {
@@ -134,17 +136,10 @@ func TestWorkoutModel_Get(t *testing.T) {
 }
 
 func TestWorkoutModel_List(t *testing.T) {
-	t.Skip("Skipping this test temporarily")
 	db, cleanup := testutils.SetupTestDB(t)
 	defer cleanup()
 
 	ctx := context.Background()
-	workoutModel := GetWorkoutModelInstance(db, "workouts_test")
-
-	// Initialize the table
-	if err := workoutModel.Initialize(ctx); err != nil {
-		t.Fatalf("Failed to initialize workouts table: %v", err)
-	}
 
 	// Create a test user
 	userModel := GetUserModelInstance(db, "users_test")
@@ -152,13 +147,19 @@ func TestWorkoutModel_List(t *testing.T) {
 		t.Fatalf("Failed to initialize users table: %v", err)
 	}
 
+	workoutModel := GetWorkoutModelInstance(db, "workouts_test", "users_test")
+	if err := workoutModel.Initialize(ctx); err != nil {
+		t.Fatalf("Failed to initialize workouts table: %v", err)
+	}
+
 	testUser := &User{
 		Email: "test@example.com",
 	}
-	_, err := userModel.Create(ctx, testUser)
+	id, err := userModel.Create(ctx, testUser)
 	if err != nil {
 		t.Fatalf("Failed to create test user: %v", err)
 	}
+	testUser.ID = id
 
 	// Create multiple test workouts
 	workouts := []*Workout{
@@ -171,9 +172,11 @@ func TestWorkoutModel_List(t *testing.T) {
 	}
 
 	for _, workout := range workouts {
-		if err := workoutModel.Create(ctx, workout); err != nil {
+		id, err := workoutModel.Create(ctx, workout)
+		if err != nil {
 			t.Fatalf("Failed to create test workout: %v", err)
 		}
+		workout.ID = id
 	}
 
 	// Test listing workouts

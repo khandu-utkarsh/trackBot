@@ -33,8 +33,8 @@ func main() {
 	// Setup Router using the routes package
 	log.Println("Setting up router...")
 	r := routes.SetupRouter(handlers.GetUserHandlerInstance(models.GetUserModelInstance(db, "users")),
-		handlers.GetWorkoutHandlerInstance(models.GetWorkoutModelInstance(db, "workouts")),
-		handlers.GetExerciseHandlerInstance(models.GetExerciseModelInstance(db, "exercises")))
+		handlers.GetWorkoutHandlerInstance(models.GetWorkoutModelInstance(db, "workouts", "users")),
+		handlers.GetExerciseHandlerInstance(models.GetExerciseModelInstance(db, "exercises", "workouts")))
 
 	// Start server
 	port := os.Getenv("PORT")

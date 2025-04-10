@@ -38,10 +38,12 @@ func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.workoutModel.Create(r.Context(), &workout); err != nil {
+	id, err := h.workoutModel.Create(r.Context(), &workout)
+	if err != nil {
 		http.Error(w, "Failed to create workout", http.StatusInternalServerError)
 		return
 	}
+	workout.ID = id
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(workout)
