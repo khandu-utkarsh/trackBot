@@ -3,8 +3,8 @@ package testutils
 import (
 	"database/sql"
 	"testing"
-	database "workout_app_backend/services/workoutAppServices/internal/database/init"
-	"workout_app_backend/services/workoutAppServices/internal/utils"
+	database "workout_app_backend/internal/database/init"
+	utils "workout_app_backend/internal/utils"
 )
 
 // SetupTestDB creates a new test database connection and returns a cleanup function

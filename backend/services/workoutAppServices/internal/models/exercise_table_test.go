@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 	"testing"
-	"workout_app_backend/services/workoutAppServices/internal/testutils"
+	testutils "workout_app_backend/internal/testutils"
 )
 
 func setupTestExerciseModel(t *testing.T) (*ExerciseModel, *WorkoutModel, *UserModel, *Workout, *User, context.Context, func()) {

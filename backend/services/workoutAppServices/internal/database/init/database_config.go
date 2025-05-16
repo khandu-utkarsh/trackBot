@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"workout_app_backend/services/workoutAppServices/internal/utils"
+	utils "workout_app_backend/internal/utils"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -41,6 +41,20 @@ func GetSecretsManagerClient() (*secretsmanager.Client, error) {
 		return nil, err
 	}
 	return secretsmanager.NewFromConfig(cfg), nil
+}
+
+func GetDockerDBConfig() (*DBConfig, error) {
+	var dbConfig DBConfig
+	dbConfig.Username = os.Getenv("DB_USER")
+	dbConfig.Host = os.Getenv("DB_HOST")
+	dbConfig.Port = os.Getenv("DB_PORT")
+	dbConfig.Password = os.Getenv("DB_PASSWORD")
+	dbConfig.DBName = os.Getenv("DB_NAME")
+	dbConfig.MaxOpenConns = 25
+	dbConfig.MaxIdleConns = 5
+	dbConfig.ConnMaxLifetime = 5 * time.Minute
+	dbConfig.DatabaseType = "docker-postgres"
+	return &dbConfig, nil
 }
 
 func GetLocalDBConfig() (*DBConfig, error) {
@@ -90,6 +104,10 @@ func getDBConfigFromAWS() (*DBConfig, error) {
 
 // GetDBConfig returns database configuration
 func GetDBConfig() (*DBConfig, error) {
+	if os.Getenv("DOCKER_DEV_ENV") != "" {
+		return GetDockerDBConfig()
+	}
+
 	if utils.IsTestEnv() {
 		return GetLocalDBConfig()
 	}
@@ -98,6 +116,9 @@ func GetDBConfig() (*DBConfig, error) {
 
 // GetConnectionString returns a PostgreSQL connection string
 func (c *DBConfig) GetConnectionString() string {
+	if os.Getenv("DOCKER_DEV_ENV") != "" {
+		return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", c.Host, c.Port, c.Username, c.Password, c.DBName)
+	}
 
 	if utils.IsTestEnv() {
 		return fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable", c.Host, c.Port, c.Username, c.DBName)

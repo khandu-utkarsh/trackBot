@@ -8,10 +8,10 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"workout_app_backend/services/workoutAppServices/internal/handlers"
-	"workout_app_backend/services/workoutAppServices/internal/models"
-	"workout_app_backend/services/workoutAppServices/internal/routes"
-	"workout_app_backend/services/workoutAppServices/internal/utils"
+	handlers "workout_app_backend/internal/handlers"
+	models "workout_app_backend/internal/models"
+	routes "workout_app_backend/internal/routes"
+	utils "workout_app_backend/internal/utils"
 )
 
 func main() {

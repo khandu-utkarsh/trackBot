@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
-	"workout_app_backend/services/workoutAppServices/internal/models"
+	models "workout_app_backend/internal/models"
 
 	"github.com/go-chi/chi/v5"
 	// Needed for URL params

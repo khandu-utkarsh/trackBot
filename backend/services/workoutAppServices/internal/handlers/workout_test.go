@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"testing"
-	"workout_app_backend/services/workoutAppServices/internal/models"
-	"workout_app_backend/services/workoutAppServices/internal/testutils"
+	models "workout_app_backend/internal/models"
+	testutils "workout_app_backend/internal/testutils"
 
 	"github.com/go-chi/chi/v5"
 )

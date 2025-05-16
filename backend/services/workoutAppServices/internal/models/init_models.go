@@ -8,7 +8,7 @@ import (
 	"log"
 	"time"
 
-	database_utilities "workout_app_backend/services/workoutAppServices/internal/database/utils"
+	database_utilities "workout_app_backend/internal/database/utils"
 )
 
 var (

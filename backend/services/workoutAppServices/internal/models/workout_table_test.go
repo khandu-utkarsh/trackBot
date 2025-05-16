@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 	"testing"
-	"workout_app_backend/services/workoutAppServices/internal/testutils"
+	testutils "workout_app_backend/internal/testutils"
 )
 
 func setupTestWorkoutModel(t *testing.T) (*WorkoutModel, *UserModel, *User, context.Context, func()) {
@@ -192,7 +192,7 @@ func TestWorkoutModel_List(t *testing.T) {
 	}
 
 	// Test listing workouts
-	list, err := workoutModel.List(ctx, testUser.ID)
+	list, err := workoutModel.ListWithDefaults(ctx, testUser.ID)
 	if err != nil {
 		t.Fatalf("WorkoutModel.List() error = %v", err)
 	}

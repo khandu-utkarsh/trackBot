@@ -55,6 +55,7 @@ func initDB() (*sql.DB, error) {
 	// Open database connection using config
 
 	connectionString := dbConfig.GetConnectionString()
+	fmt.Println(connectionString)
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		return nil, fmt.Errorf("error opening database: %v", err)

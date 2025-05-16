@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"workout_app_backend/services/workoutAppServices/internal/handlers"
-	"workout_app_backend/services/workoutAppServices/internal/middleware"
+	handlers "workout_app_backend/internal/handlers"
+	middleware "workout_app_backend/internal/middleware"
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
@@ -36,9 +36,7 @@ func SetupRouter(userHandler *handlers.UserHandler, workoutHandler *handlers.Wor
 
 	// Group routes under /api
 	r.Route("/api", func(r chi.Router) {
-		RegisterUserRoutes(r, userHandler)
-		RegisterWorkoutRoutes(r, workoutHandler)
-		RegisterExerciseRoutes(r, exerciseHandler)
+		RegisterUserRoutes(r, userHandler, workoutHandler, exerciseHandler)
 	})
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {

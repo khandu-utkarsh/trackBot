@@ -27,6 +27,29 @@ func IsTestEnv() bool {
 }
 
 func LoadEnv() error {
+
+	//!Check if the environment is docker
+	if os.Getenv("DOCKER_DEV_ENV") != "" {
+		fmt.Println("Docker environment detected, checking for all the needed environment variables.")
+
+		requiredVars := []string{
+			"DB_HOST",
+			"DB_PORT",
+			"DB_USER",
+			"DB_PASSWORD",
+			"DB_NAME",
+		}
+
+		for _, v := range requiredVars {
+			if os.Getenv(v) == "" {
+				return fmt.Errorf("missing required environment variable: %s", v)
+			}
+		}
+		return nil
+	} else {
+		fmt.Println("Not a docker environment, checking for .env file in the current directory.")
+	}
+
 	// Get the current file's directory
 	_, file, _, ok := runtime.Caller(0)
 	if !ok {

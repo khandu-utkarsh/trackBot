@@ -1,7 +1,7 @@
 package main
 
 import (
-	"workout_app_backend/services/workoutAppServices/internal/utils"
+	utils "workout_app_backend/internal/utils"
 )
 
 func LoadConfig() {

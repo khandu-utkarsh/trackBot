@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"workout_app_backend/services/workoutAppServices/internal/models"
+	models "workout_app_backend/internal/models"
 )
 
 //!Functions needed

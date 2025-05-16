@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"workout_app_backend/services/workoutAppServices/internal/models"
+	models "workout_app_backend/internal/models"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -46,8 +46,18 @@ func (h *WorkoutHandler) ListWorkouts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//!These are optional params
+	yearStr := r.URL.Query().Get("year")
+	monthStr := r.URL.Query().Get("month")
+	dayStr := r.URL.Query().Get("day")
+
 	ctx := r.Context()
-	workouts, err := h.workoutModel.List(ctx, userID)
+	workouts, err := h.workoutModel.List(ctx, models.WorkoutListParams{
+		UserID: userID,
+		Year:   yearStr,
+		Month:  monthStr,
+		Day:    dayStr,
+	})
 	if err != nil {
 		respondWithError(w, "Failed to list workouts", http.StatusInternalServerError)
 		return

@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 	"log"
-	database "workout_app_backend/services/workoutAppServices/internal/database/init"
-	"workout_app_backend/services/workoutAppServices/internal/models"
+	database "workout_app_backend/internal/database/init"
+	models "workout_app_backend/internal/models"
 )
 
 func SetupDB() (*sql.DB, error) {

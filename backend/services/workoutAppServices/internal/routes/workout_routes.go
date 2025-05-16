@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"workout_app_backend/services/workoutAppServices/internal/handlers"
+	handlers "workout_app_backend/internal/handlers"
 
 	"github.com/go-chi/chi/v5"
 )

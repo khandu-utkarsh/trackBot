@@ -1,13 +1,13 @@
 package routes
 
 import (
-	"workout_app_backend/services/workoutAppServices/internal/handlers"
+	handlers "workout_app_backend/internal/handlers"
 
 	"github.com/go-chi/chi/v5"
 )
 
 // RegisterUserRoutes sets up the REST-compliant routes for user-related actions.
-func RegisterUserRoutes(r chi.Router, userHandler *handlers.UserHandler) {
+func RegisterUserRoutes(r chi.Router, userHandler *handlers.UserHandler, workoutHandler *handlers.WorkoutHandler, exerciseHandler *handlers.ExerciseHandler) {
 	r.Route("/users", func(r chi.Router) {
 		// List all users
 		r.Get("/", userHandler.ListUsers) // GET /api/users
@@ -20,6 +20,11 @@ func RegisterUserRoutes(r chi.Router, userHandler *handlers.UserHandler) {
 			r.Get("/", userHandler.GetUser)       // GET /api/users/{userID}
 			r.Put("/", userHandler.UpdateUser)    // PUT /api/users/{userID}
 			r.Delete("/", userHandler.DeleteUser) // DELETE /api/users/{userID}
+
+			// Register workout routes under user
+			RegisterWorkoutRoutes(r, workoutHandler)
+			// Register exercise routes under user
+			RegisterExerciseRoutes(r, exerciseHandler)
 		})
 	})
 }

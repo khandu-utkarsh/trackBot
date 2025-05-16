@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
-	database_utilities "workout_app_backend/services/workoutAppServices/internal/database/utils"
+
+	database_utilities "workout_app_backend/internal/database/utils"
 )
 
 // Common errors
@@ -103,20 +105,97 @@ func (m *WorkoutModel) Get(ctx context.Context, id int64) (*Workout, error) {
 	return m.scanWorkout(m.db.QueryRowContext(ctx, query, id))
 }
 
+type WorkoutListParams struct {
+	UserID int64
+	Year   string
+	Month  string
+	Day    string
+}
+
 // List retrieves all workouts for a user
-func (m *WorkoutModel) List(ctx context.Context, userID int64) ([]*Workout, error) {
-	if userID <= 0 {
+func (m *WorkoutModel) List(ctx context.Context, params WorkoutListParams) ([]*Workout, error) {
+	if params.UserID <= 0 {
 		return nil, fmt.Errorf("%w: invalid user ID", ErrInvalidInput)
 	}
 
-	query := fmt.Sprintf(`
-		SELECT id, user_id, created_at, updated_at
-		FROM %s
-		WHERE user_id = $1
-		ORDER BY created_at DESC
-	`, m.name)
+	var query string
+	if params.Year != "" {
+		if params.Month != "" {
+			if params.Day != "" {
+				//!Filtering out particular day
 
-	rows, err := m.db.QueryContext(ctx, query, userID)
+				//!Convert year, month, day to time.Time
+				year, err := strconv.Atoi(params.Year)
+				if err != nil {
+					return nil, fmt.Errorf("%w: invalid year", ErrInvalidInput)
+				}
+				month, err := strconv.Atoi(params.Month)
+				if err != nil {
+					return nil, fmt.Errorf("%w: invalid month", ErrInvalidInput)
+				}
+				day, err := strconv.Atoi(params.Day)
+				if err != nil {
+					return nil, fmt.Errorf("%w: invalid day", ErrInvalidInput)
+				}
+				dateFilter := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+
+				query = fmt.Sprintf(`
+					SELECT id, user_id, created_at, updated_at
+					FROM %s
+					WHERE user_id = $1 AND created_at = $2
+					ORDER BY created_at DESC
+					`, m.name, dateFilter)
+
+			} else {
+				//!Filtering out particular month
+				year, err := strconv.Atoi(params.Year)
+				if err != nil {
+					return nil, fmt.Errorf("%w: invalid year", ErrInvalidInput)
+				}
+				month, err := strconv.Atoi(params.Month)
+				if err != nil {
+					return nil, fmt.Errorf("%w: invalid month", ErrInvalidInput)
+				}
+				dateFilter := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+
+				query = fmt.Sprintf(`
+					SELECT id, user_id, created_at, updated_at
+					FROM %s
+					WHERE user_id = $1 AND created_at >= $2 AND created_at < $3
+					ORDER BY created_at DESC
+					`, m.name, dateFilter, dateFilter.AddDate(0, 1, 0))
+
+			}
+		} else {
+			//!Filtering out particular yea
+			year, err := strconv.Atoi(params.Year)
+			if err != nil {
+				return nil, fmt.Errorf("%w: invalid year", ErrInvalidInput)
+			}
+			dateFilter := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+			query = fmt.Sprintf(`
+				SELECT id, user_id, created_at, updated_at
+				FROM %s
+				WHERE user_id = $1 AND created_at >= $2 AND created_at < $3
+				ORDER BY created_at DESC
+				`, m.name, dateFilter, dateFilter.AddDate(1, 0, 0))
+		}
+	} else {
+		//!No filters, return all workouts
+		query = fmt.Sprintf(`
+			SELECT id, user_id, created_at, updated_at
+			FROM %s
+			WHERE user_id = $1
+			ORDER BY created_at DESC
+			`, m.name)
+
+	}
+
+	if query == "" {
+		return nil, fmt.Errorf("%w: invalid query", ErrInvalidInput)
+	}
+
+	rows, err := m.db.QueryContext(ctx, query, params.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error querying workouts: %w", err)
 	}
@@ -136,6 +215,17 @@ func (m *WorkoutModel) List(ctx context.Context, userID int64) ([]*Workout, erro
 	}
 
 	return workouts, nil
+}
+
+// Helper function with defaults
+func (m *WorkoutModel) ListWithDefaults(ctx context.Context, userID int64) ([]*Workout, error) {
+
+	return m.List(ctx, WorkoutListParams{
+		UserID: userID,
+		Year:   "",
+		Month:  "",
+		Day:    "",
+	})
 }
 
 // Update updates an existing workout

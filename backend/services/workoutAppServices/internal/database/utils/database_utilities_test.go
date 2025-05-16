@@ -3,8 +3,8 @@ package database_utilities
 import (
 	"context"
 	"testing"
-	database "workout_app_backend/services/workoutAppServices/internal/database/init"
-	"workout_app_backend/services/workoutAppServices/internal/utils"
+	database "workout_app_backend/internal/database/init"
+	utils "workout_app_backend/internal/utils"
 )
 
 func TestTableExists(t *testing.T) {
