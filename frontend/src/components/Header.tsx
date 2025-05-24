@@ -138,7 +138,8 @@ export default function Header() {
       position="fixed" 
       sx={{ 
         zIndex: theme.zIndex.drawer + 1,
-        width: '100%',
+        width: 'calc(100% - 240px)',
+        ml: '240px',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       }}
     >

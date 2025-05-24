@@ -17,7 +17,7 @@ export default function Footer() {
         px: 2,
         backgroundColor: theme.palette.background.paper,
         borderTop: `1px solid ${theme.palette.divider}`,
-        width: '100%',
+
         flexShrink: 0
       }}
     >

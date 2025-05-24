@@ -11,6 +11,7 @@ import { Box, CssBaseline, Toolbar } from '@mui/material';
 //!Sidebar needs to be a collection of all the chats
 //!Footer will be a simple line with some basic info
 
+const DRAWER_WIDTH = 240;
 
 export default function LoggedInAppLayout({
   children,
@@ -18,25 +19,17 @@ export default function LoggedInAppLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
-      <Header />
-      <Box sx={{ display: 'flex', flex: 1 }}>
-        <Sidebar />
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            width: '100%', // Full width since sidebar overlays
-            mt: '64px', // Height of the header
-            minHeight: 'calc(100vh - 64px)',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-        >
+    <Box sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'row' }}>
+      {/* Sidebar */}
+      <Sidebar />
+      {/* Main Area */}
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Header />
+        <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
           {children}
         </Box>
+        <Footer />
       </Box>
-      <Footer />
     </Box>
   );
 }

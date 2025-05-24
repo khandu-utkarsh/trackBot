@@ -38,65 +38,32 @@ const menuItems = [
 ];
 
 export default function Sidebar() {
-  const [open, setOpen] = useState(false);
   const theme = useTheme();
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleDrawerToggle = () => {
-    setOpen(!open);
-  };
-
   const handleNavigation = (path: string) => {
     router.push(path);
-    // Close sidebar after navigation on mobile
-    if (typeof window !== 'undefined' && window.innerWidth < 600) {
-      setOpen(false);
-    }
   };
 
   return (
-    <>
-      {/* Mobile and Desktop Drawer - Now using temporary for both */}
-      <Drawer
-        variant="temporary"
-        open={open}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile
-        }}
-        sx={{
-          '& .MuiDrawer-paper': {
-            boxSizing: 'border-box',
-            width: DRAWER_WIDTH,
-            backgroundColor: theme.palette.background.paper,
-            borderRight: `1px solid ${theme.palette.divider}`,
-          },
-        }}
-      >
-        <DrawerContent />
-      </Drawer>
-      
-      {/* Floating Menu Button */}
-      <IconButton
-        onClick={handleDrawerToggle}
-        sx={{
-          position: 'fixed',
-          top: 80, // Below header
-          left: 16,
-          zIndex: theme.zIndex.speedDial,
-          bgcolor: 'primary.main',
-          color: 'white',
-          '&:hover': {
-            bgcolor: 'primary.dark',
-          },
-          boxShadow: 3,
-        }}
-      >
-        <MenuIcon />
-      </IconButton>
-    </>
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: DRAWER_WIDTH,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: DRAWER_WIDTH,
+          boxSizing: 'border-box',
+          backgroundColor: theme.palette.background.paper,
+          borderRight: `1px solid ${theme.palette.divider}`,
+        },
+      }}
+      open
+    >
+      <DrawerContent />
+    </Drawer>
   );
 
   function DrawerContent() {
@@ -114,9 +81,6 @@ export default function Sidebar() {
           <Typography variant="h6" noWrap component="div">
             Menu
           </Typography>
-          <IconButton onClick={handleDrawerToggle}>
-            <ChevronLeftIcon />
-          </IconButton>
         </Box>
 
         <Divider />
