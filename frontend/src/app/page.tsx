@@ -1,147 +1,115 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Button, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Grid,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  IconButton
-} from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import Layout from '@/components/Layout';
-
-interface Workout {
-  id: number;
-  name: string;
-  description: string;
-  date: string;
-  duration: number;
-}
+import { Box, Typography, Button, Paper } from '@mui/material';
+import { FitnessCenter, Timeline, TrendingUp } from '@mui/icons-material';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Home() {
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [open, setOpen] = useState(false);
-  const [newWorkout, setNewWorkout] = useState({
-    name: '',
-    description: '',
-    date: new Date().toISOString().split('T')[0],
-    duration: 30
-  });
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard');
+    }
+    
+    //!Default to landing page
+    
+    else if (status === 'unauthenticated') {
+      router.push('/landing');
+    }
+  }, [status, router]);
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <Layout>
+        <Box sx={{ 
+          minHeight: '80vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <Typography>Loading...</Typography>
+        </Box>
+      </Layout>
+    );
+  }
 
-  const handleAddWorkout = async () => {
-    // TODO: Implement API call to add workout
-    setWorkouts([...workouts, { ...newWorkout, id: workouts.length + 1 }]);
-    handleClose();
-  };
-
+  // The rest of the component will only render briefly before redirect
   return (
     <Layout>
-      <Box sx={{ mb: 4 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleClickOpen}
-        >
-          Add Workout
-        </Button>
-      </Box>
-
-      <Grid container spacing={3}>
-        {workouts.map((workout) => (
-          <Grid item xs={12} sm={6} md={4} key={workout.id}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  {workout.name}
-                </Typography>
-                <Typography color="text.secondary" sx={{ mb: 1.5 }}>
-                  {workout.date}
-                </Typography>
-                <Typography variant="body2">
-                  {workout.description}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Duration: {workout.duration} minutes
-                </Typography>
-                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                  <IconButton size="small">
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton size="small">
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add New Workout</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Workout Name"
-            fullWidth
-            variant="outlined"
-            value={newWorkout.name}
-            onChange={(e) => setNewWorkout({ ...newWorkout, name: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Description"
-            fullWidth
-            variant="outlined"
-            multiline
-            rows={4}
-            value={newWorkout.description}
-            onChange={(e) => setNewWorkout({ ...newWorkout, description: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Date"
-            type="date"
-            fullWidth
-            variant="outlined"
-            value={newWorkout.date}
-            onChange={(e) => setNewWorkout({ ...newWorkout, date: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Duration (minutes)"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={newWorkout.duration}
-            onChange={(e) => setNewWorkout({ ...newWorkout, duration: parseInt(e.target.value) })}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleAddWorkout} variant="contained">
-            Add
+      <Box sx={{ 
+        minHeight: '80vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        gap: 4
+      }}>
+        {/* Hero Section */}
+        <Box sx={{ maxWidth: 800, px: 2 }}>
+          <FitnessCenter sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+          <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Track Your Fitness Journey
+          </Typography>
+          <Typography variant="h5" color="text.secondary" sx={{ mb: 4 }}>
+            A simple and effective way to monitor your workouts and achieve your fitness goals
+          </Typography>
+          <Button
+            component={Link}
+            href="/workouts"
+            variant="contained"
+            size="large"
+            sx={{ px: 4, py: 1.5 }}
+          >
+            Get Started
           </Button>
-        </DialogActions>
-      </Dialog>
+        </Box>
+
+        {/* Features Section */}
+        <Box sx={{ 
+          maxWidth: 1200, 
+          mt: 8, 
+          px: 2,
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 4
+        }}>
+          <Paper elevation={0} sx={{ p: 3, flex: 1, textAlign: 'center' }}>
+            <Timeline sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
+            <Typography variant="h6" gutterBottom>
+              Track Workouts
+            </Typography>
+            <Typography color="text.secondary">
+              Log your exercises and monitor your progress over time
+            </Typography>
+          </Paper>
+          <Paper elevation={0} sx={{ p: 3, flex: 1, textAlign: 'center' }}>
+            <FitnessCenter sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
+            <Typography variant="h6" gutterBottom>
+              Multiple Exercise Types
+            </Typography>
+            <Typography color="text.secondary">
+              Support for both cardio and weight training exercises
+            </Typography>
+          </Paper>
+          <Paper elevation={0} sx={{ p: 3, flex: 1, textAlign: 'center' }}>
+            <TrendingUp sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
+            <Typography variant="h6" gutterBottom>
+              Progress Tracking
+            </Typography>
+            <Typography color="text.secondary">
+              Visualize your improvement and stay motivated
+            </Typography>
+          </Paper>
+        </Box>
+      </Box>
     </Layout>
   );
 }

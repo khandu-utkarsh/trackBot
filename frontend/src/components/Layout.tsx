@@ -1,6 +1,5 @@
-import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
-import { FitnessCenter, Timeline, Person } from '@mui/icons-material';
-import Link from 'next/link';
+import { Box } from '@mui/material';
+import Header from './Header';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,26 +7,22 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <>
-      <AppBar position="static">
-        <Toolbar>
-          <FitnessCenter sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Workout Tracker
-          </Typography>
-          <Button color="inherit" component={Link} href="/">
-            <Timeline sx={{ mr: 1 }} />
-            Workouts
-          </Button>
-          <Button color="inherit" component={Link} href="/profile">
-            <Person sx={{ mr: 1 }} />
-            Profile
-          </Button>
-        </Toolbar>
-      </AppBar>
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      minHeight: '100vh',
+      position: 'relative'
+    }}>
+      <Header />
+      <Box sx={{ 
+        flex: 1,
+        mt: '64px', // Height of the header
+        overflow: 'auto',
+        height: 'calc(100vh - 64px)', // Viewport height minus header
+        padding: 3
+      }}>
         {children}
-      </Container>
-    </>
+      </Box>
+    </Box>
   );
 } 
