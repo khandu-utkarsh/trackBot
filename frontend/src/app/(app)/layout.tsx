@@ -25,7 +25,7 @@ export default function LoggedInAppLayout({
       {/* Main Area */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Header />
-        <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
+        <Box component="main" sx={{ flex: 1, overflow: 'auto', mt: '64px' }}>
           {children}
         </Box>
         <Footer />
