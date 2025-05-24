@@ -5,13 +5,11 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useSession, signOut } from 'next-auth/react';
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const navLinks = [
   { label: 'Dashboard', href: '/dashboard' },
-  { label: 'AI Chat', href: '/chat' },
-//  { label: 'Workouts', href: '/workouts' },
- // { label: 'Nutrition', href: '/nutrition' },
-  //{ label: 'Settings', href: '/settings' },
+  { label: 'AI Chat', href: '/chat' }
 ];
 
 //!Component 1 -- Name and Logo
@@ -25,19 +23,40 @@ function Logo() {
 
 //!Component 2 -- Navigation Tabs
 function NavigationTabs() {
+  const pathname = usePathname();
+  
+  // Find current tab index
+  const currentTabIndex = navLinks.findIndex(link => pathname === link.href);
+  const tabValue = currentTabIndex !== -1 ? currentTabIndex : false;
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', flex: 2, justifyContent: 'center' }}>
-        <Tabs value={0}>
-          {navLinks.map((link) => (
-            <Tab
-              key={link.label}
-              label={link.label}
-              component={Link}
-              href={link.href}
-              disableRipple
-            />
-          ))}
-        </Tabs>
+      <Tabs 
+        value={tabValue}
+        sx={{
+          '& .MuiTabs-indicator': {
+            backgroundColor: 'white',
+          },
+          '& .MuiTab-root': {
+            color: 'rgba(255, 255, 255, 0.8)',
+            fontWeight: 500,
+            '&.Mui-selected': {
+              color: 'white',
+            },
+          },
+        }}
+      >
+        {navLinks.map((link, index) => (
+          <Tab
+            key={link.label}
+            label={link.label}
+            component={Link}
+            href={link.href}
+            value={index}
+            disableRipple
+          />
+        ))}
+      </Tabs>
     </Box>
   );
 }
@@ -112,15 +131,22 @@ function UserInfoDashboard() {
 }
 
 export default function Header() {
+  const theme = useTheme();
+
   return (
-    <>
-      <AppBar position="static" color="transparent" sx={{ boxShadow: 'none', maxWidth: 'md'}}>
-        <Toolbar sx={{ display: 'flex', alignItems: 'center', px: 2}}>
-          <Logo />
-          <NavigationTabs />
-          <UserInfoDashboard />
-        </Toolbar>
-      </AppBar>
-    </>
+    <AppBar 
+      position="fixed" 
+      sx={{ 
+        zIndex: theme.zIndex.drawer + 1,
+        width: '100%',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      }}
+    >
+      <Toolbar sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+        <Logo />
+        <NavigationTabs />
+        <UserInfoDashboard />
+      </Toolbar>
+    </AppBar>
   );
 }

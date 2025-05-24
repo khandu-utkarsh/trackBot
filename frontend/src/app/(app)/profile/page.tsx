@@ -16,7 +16,7 @@ import {
   Divider
 } from '@mui/material';
 import { Person as PersonIcon, FitnessCenter as FitnessIcon } from '@mui/icons-material';
-import Layout from '@/components/Layout';
+import Layout from '@/app/(auth)/layout';
 
 export default function Profile() {
   const [user, setUser] = useState({
@@ -29,7 +29,6 @@ export default function Profile() {
   });
 
   return (
-    <Layout>
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <Card>
@@ -92,6 +91,5 @@ export default function Profile() {
           </Card>
         </Grid>
       </Grid>
-    </Layout>
   );
 } 

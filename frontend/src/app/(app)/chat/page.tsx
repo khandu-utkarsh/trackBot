@@ -116,29 +116,39 @@ export default function ChatPage() {
 
   return (
     <Box sx={{ 
+      height: 'calc(100vh - 128px)', // Account for header + footer
       display: 'flex', 
-      flexDirection: 'column', 
-      height: '100vh',
-      maxWidth: '100%',
-      bgcolor: 'background.default'
+      flexDirection: 'column',
+      width: '100%',
+      bgcolor: 'background.default',
+      overflow: 'hidden'
     }}>
       {/* Header */}
       <Paper 
         elevation={1} 
         sx={{ 
-          p: 2, 
           borderRadius: 0,
           bgcolor: 'background.paper',
-          borderBottom: `1px solid ${theme.palette.divider}`
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          flexShrink: 0
         }}
       >
-        <Box display="flex" alignItems="center" gap={2}>
-          <SmartToyIcon color="primary" sx={{ fontSize: 28 }} />
+        <Box 
+          sx={{ 
+            maxWidth: '1200px', 
+            mx: 'auto', 
+            p: 3,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2
+          }}
+        >
+          <SmartToyIcon color="primary" sx={{ fontSize: 32 }} />
           <Box>
-            <Typography variant="h6" color="text.primary">
+            <Typography variant="h5" color="text.primary" fontWeight={600}>
               AI Fitness Assistant
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body1" color="text.secondary">
               Your personal workout and nutrition advisor
             </Typography>
           </Box>
@@ -148,206 +158,231 @@ export default function ChatPage() {
       {/* Messages Container */}
       <Box 
         sx={{ 
-          flex: 1, 
-          overflow: 'auto', 
-          p: 2,
+          flex: 1,
+          overflow: 'auto',
           display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
+          justifyContent: 'center',
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'rgba(0,0,0,0.1)',
+            borderRadius: '4px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(0,0,0,0.3)',
+            borderRadius: '4px',
+            '&:hover': {
+              background: 'rgba(0,0,0,0.5)',
+            },
+          },
         }}
       >
-        {messages.map((message) => (
-          <Box
-            key={message.id}
-            sx={{
-              display: 'flex',
-              flexDirection: message.role === 'user' ? 'row-reverse' : 'row',
-              gap: 2,
-              mb: 2,
-            }}
-          >
-            <Avatar
+        <Box 
+          sx={{
+            width: '100%',
+            maxWidth: '1200px',
+            p: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 3,
+          }}
+        >
+          {messages.map((message) => (
+            <Box
+              key={message.id}
               sx={{
-                bgcolor: message.role === 'user' ? 'primary.main' : 'secondary.main',
-                width: 40,
-                height: 40,
+                display: 'flex',
+                flexDirection: message.role === 'user' ? 'row-reverse' : 'row',
+                gap: 2,
+                alignItems: 'flex-start',
               }}
             >
-              {message.role === 'user' ? (
-                session?.user?.image ? (
-                  <img 
-                    src={session.user.image} 
-                    alt="User" 
-                    style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-                  />
-                ) : (
-                  <PersonIcon />
-                )
-              ) : (
-                <SmartToyIcon />
-              )}
-            </Avatar>
-            
-            <Paper
-              elevation={1}
-              sx={{
-                p: 2,
-                maxWidth: '70%',
-                bgcolor: message.role === 'user' 
-                  ? 'primary.main' 
-                  : 'background.paper',
-                color: message.role === 'user' 
-                  ? 'primary.contrastText' 
-                  : 'text.primary',
-                borderRadius: 2,
-                ...(message.role === 'user' && {
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 10,
-                    right: -8,
-                    width: 0,
-                    height: 0,
-                    borderLeft: `8px solid ${theme.palette.primary.main}`,
-                    borderTop: '8px solid transparent',
-                    borderBottom: '8px solid transparent',
-                  }
-                }),
-                ...(message.role === 'assistant' && {
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 10,
-                    left: -8,
-                    width: 0,
-                    height: 0,
-                    borderRight: `8px solid ${theme.palette.background.paper}`,
-                    borderTop: '8px solid transparent',
-                    borderBottom: '8px solid transparent',
-                  }
-                }),
-                position: 'relative',
-              }}
-            >
-              <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                {message.content}
-              </Typography>
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  display: 'block', 
-                  mt: 1, 
-                  opacity: 0.7,
-                  textAlign: message.role === 'user' ? 'right' : 'left'
+              <Avatar
+                sx={{
+                  bgcolor: message.role === 'user' ? 'primary.main' : 'secondary.main',
+                  width: 48,
+                  height: 48,
+                  flexShrink: 0,
                 }}
               >
-                {formatTime(message.timestamp)}
-              </Typography>
-            </Paper>
-          </Box>
-        ))}
-        
-        {isLoading && (
-          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-            <Avatar sx={{ bgcolor: 'secondary.main', width: 40, height: 40 }}>
-              <SmartToyIcon />
-            </Avatar>
-            <Paper
-              elevation={1}
-              sx={{
-                p: 2,
-                bgcolor: 'background.paper',
-                borderRadius: 2,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-              }}
-            >
-              <CircularProgress size={16} />
-              <Typography variant="body2" color="text.secondary">
-                AI is thinking...
-              </Typography>
-            </Paper>
-          </Box>
-        )}
-        
-        <div ref={messagesEndRef} />
+                {message.role === 'user' ? (
+                  session?.user?.image ? (
+                    <img 
+                      src={session.user.image} 
+                      alt="User" 
+                      style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                    />
+                  ) : (
+                    <PersonIcon />
+                  )
+                ) : (
+                  <SmartToyIcon />
+                )}
+              </Avatar>
+              
+              <Paper
+                elevation={2}
+                sx={{
+                  p: 2.5,
+                  maxWidth: '70%',
+                  bgcolor: message.role === 'user' 
+                    ? 'primary.main' 
+                    : 'background.paper',
+                  color: message.role === 'user' 
+                    ? 'primary.contrastText' 
+                    : 'text.primary',
+                  borderRadius: 3,
+                  position: 'relative',
+                  ...(message.role === 'user' ? {
+                    borderTopRightRadius: 8,
+                  } : {
+                    borderTopLeftRadius: 8,
+                  }),
+                }}
+              >
+                <Typography variant="body1" sx={{ 
+                  whiteSpace: 'pre-wrap', 
+                  lineHeight: 1.6,
+                  fontSize: '1rem'
+                }}>
+                  {message.content}
+                </Typography>
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    display: 'block', 
+                    mt: 1.5, 
+                    opacity: 0.7,
+                    textAlign: message.role === 'user' ? 'right' : 'left',
+                    fontSize: '0.75rem'
+                  }}
+                >
+                  {formatTime(message.timestamp)}
+                </Typography>
+              </Paper>
+            </Box>
+          ))}
+          
+          {isLoading && (
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+              <Avatar sx={{ bgcolor: 'secondary.main', width: 48, height: 48 }}>
+                <SmartToyIcon />
+              </Avatar>
+              <Paper
+                elevation={2}
+                sx={{
+                  p: 2.5,
+                  bgcolor: 'background.paper',
+                  borderRadius: 3,
+                  borderTopLeftRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                }}
+              >
+                <CircularProgress size={20} />
+                <Typography variant="body1" color="text.secondary">
+                  AI is thinking...
+                </Typography>
+              </Paper>
+            </Box>
+          )}
+          
+          <div ref={messagesEndRef} />
+        </Box>
       </Box>
 
       {/* Input Area */}
       <Paper 
-        elevation={3} 
+        elevation={4} 
         sx={{ 
-          p: 2, 
           borderRadius: 0,
           bgcolor: 'background.paper',
-          borderTop: `1px solid ${theme.palette.divider}`
+          borderTop: `1px solid ${theme.palette.divider}`,
+          flexShrink: 0
         }}
       >
-        <Box display="flex" gap={1} alignItems="flex-end">
-          <TextField
-            ref={inputRef}
-            fullWidth
-            multiline
-            maxRows={4}
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your fitness question here..."
-            variant="outlined"
-            disabled={isLoading}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 3,
-                bgcolor: 'background.default',
-              },
-            }}
-          />
-          <IconButton
-            onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || isLoading}
-            color="primary"
-            sx={{
-              bgcolor: 'primary.main',
-              color: 'white',
-              '&:hover': {
-                bgcolor: 'primary.dark',
-              },
-              '&:disabled': {
-                bgcolor: 'action.disabled',
-              },
-              width: 48,
-              height: 48,
-            }}
-          >
-            <SendIcon />
-          </IconButton>
-        </Box>
-        
-        {/* Suggested Questions */}
-        <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'center', mr: 1 }}>
-            Try asking:
-          </Typography>
-          {[
-            'Create a workout plan for me',
-            'What should I eat post-workout?',
-            'How can I improve my cardio?',
-          ].map((suggestion) => (
-            <Chip
-              key={suggestion}
-              label={suggestion}
-              size="small"
+        <Box 
+          sx={{
+            maxWidth: '1200px',
+            mx: 'auto',
+            p: 3,
+          }}
+        >
+          <Box display="flex" gap={2} alignItems="flex-end" mb={2}>
+            <TextField
+              ref={inputRef}
+              fullWidth
+              multiline
+              maxRows={4}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your fitness question here..."
               variant="outlined"
-              onClick={() => setInputMessage(suggestion)}
-              sx={{ 
-                cursor: 'pointer',
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                }
+              disabled={isLoading}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                  bgcolor: 'background.default',
+                  fontSize: '1rem',
+                  '& fieldset': {
+                    borderColor: 'divider',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'primary.main',
+                  },
+                },
               }}
             />
-          ))}
+            <IconButton
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || isLoading}
+              color="primary"
+              sx={{
+                bgcolor: 'primary.main',
+                color: 'white',
+                '&:hover': {
+                  bgcolor: 'primary.dark',
+                },
+                '&:disabled': {
+                  bgcolor: 'action.disabled',
+                },
+                width: 56,
+                height: 56,
+              }}
+            >
+              <SendIcon />
+            </IconButton>
+          </Box>
+          
+          {/* Suggested Questions */}
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              Try asking:
+            </Typography>
+            {[
+              'Create a workout plan for me',
+              'What should I eat post-workout?',
+              'How can I improve my cardio?',
+            ].map((suggestion) => (
+              <Chip
+                key={suggestion}
+                label={suggestion}
+                size="medium"
+                variant="outlined"
+                onClick={() => setInputMessage(suggestion)}
+                sx={{ 
+                  cursor: 'pointer',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    borderColor: 'primary.main',
+                  }
+                }}
+              />
+            ))}
+          </Box>
         </Box>
       </Paper>
     </Box>
