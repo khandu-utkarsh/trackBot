@@ -19,7 +19,6 @@ export default function LoggedInAppLayout({
 }>) {
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
-      <CssBaseline />
       <Header />
       <Box sx={{ display: 'flex', flex: 1 }}>
         <Sidebar />
