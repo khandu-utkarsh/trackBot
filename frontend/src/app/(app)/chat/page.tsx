@@ -356,33 +356,6 @@ export default function ChatPage() {
               <SendIcon />
             </IconButton>
           </Box>
-          
-          {/* Suggested Questions */}
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-              Try asking:
-            </Typography>
-            {[
-              'Create a workout plan for me',
-              'What should I eat post-workout?',
-              'How can I improve my cardio?',
-            ].map((suggestion) => (
-              <Chip
-                key={suggestion}
-                label={suggestion}
-                size="medium"
-                variant="outlined"
-                onClick={() => setInputMessage(suggestion)}
-                sx={{ 
-                  cursor: 'pointer',
-                  '&:hover': {
-                    bgcolor: 'action.hover',
-                    borderColor: 'primary.main',
-                  }
-                }}
-              />
-            ))}
-          </Box>
         </Box>
       </Paper>
     </Box>

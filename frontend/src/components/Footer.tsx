@@ -1,93 +1,106 @@
-'use client';
+"use client"
 
-import { Box, Container, Typography, Link, IconButton, useTheme } from '@mui/material';
+import * as React from 'react';
+import { PropsWithChildren } from "react";
+import { Typography, IconButton, Box } from '@mui/material';
+
+import XIcon from '@mui/icons-material/X';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import TwitterIcon from '@mui/icons-material/Twitter';
+import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import InstagramIcon from '@mui/icons-material/Instagram';
 
-export default function Footer() {
-  const theme = useTheme();
-  const currentYear = new Date().getFullYear();
+interface FooterProps {
+    className?: string;
+}
 
-  return (
-    <Box
-      component="footer"
-      sx={{
-        py: 2,
-        px: 2,
-        backgroundColor: theme.palette.background.paper,
-        borderTop: `1px solid ${theme.palette.divider}`,
-
-        flexShrink: 0
-      }}
-    >
-      <Container maxWidth="lg">
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 2,
-          }}
-        >
-          {/* Copyright */}
-          <Typography variant="body2" color="text.secondary">
-            © {currentYear} Workout Tracker. All rights reserved.
-          </Typography>
-
-          {/* Links */}
-          <Box
+function IconTab({href, children} : PropsWithChildren<{ href: string }>) {
+    return (
+        <IconButton 
+            href={href} 
+            target="_blank"
+            size="small"
             sx={{
-              display: 'flex',
-              gap: 3,
-              flexWrap: 'wrap',
-              justifyContent: 'center',
+                color: 'text.secondary',
+                transition: 'color 0.2s ease',
+                '&:hover': {
+                    color: 'text.primary',
+                }
             }}
-          >
-            <Link href="/about" color="text.secondary" underline="hover">
-              About
-            </Link>
-            <Link href="/privacy" color="text.secondary" underline="hover">
-              Privacy
-            </Link>
-            <Link href="/terms" color="text.secondary" underline="hover">
-              Terms
-            </Link>
-          </Box>
+        >
+            {children}
+        </IconButton>   
+    )
+}
 
-          {/* Social Media Icons */}
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <IconButton
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              color="inherit"
-              size="small"
-            >
-              <GitHubIcon />
-            </IconButton>
-            <IconButton
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              color="inherit"
-              size="small"
-            >
-              <LinkedInIcon />
-            </IconButton>
-            <IconButton
-              href="https://twitter.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              color="inherit"
-              size="small"
-            >
-              <TwitterIcon />
-            </IconButton>
-          </Box>
+function Socials() {
+    return (    
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+            <Box>
+                <IconTab href="mailto:utkarshkhandelwal2011@gmail.com">
+                    <ForwardToInboxIcon fontSize="small"/>
+                </IconTab>
+            </Box>
+            <Box>
+                <IconTab href="https://github.com/khandu-utkarsh">
+                    <GitHubIcon fontSize="small"/>
+                </IconTab>
+            </Box>
+            <Box>
+                <IconTab href="https://www.linkedin.com/in/utkarshkhandelwal52">
+                    <LinkedInIcon fontSize="small"/>
+                </IconTab>
+            </Box>
+            <Box>
+                <IconTab href="https://x.com/utkarsh52">
+                    <XIcon fontSize="small"/>
+                </IconTab>
+            </Box>
+            <Box>
+                <IconTab href="https://www.instagram.com/twodotsonedash.me/">
+                    <InstagramIcon fontSize="small"/>
+                </IconTab>
+            </Box>
         </Box>
-      </Container>
-    </Box>
-  );
+    )
+}
+
+export default function Footer({className} : PropsWithChildren<FooterProps>) {
+    return (
+        <Box 
+            className={className} 
+            sx={{
+                py: 4,
+                px: 2,
+                maxWidth: '100%',
+                margin: '0 auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+            }}
+        >
+            <Box>
+                <Socials />
+            </Box>
+            <Box>
+                <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    align="center"
+                >
+                    Made with 
+                    <FavoriteIcon 
+                        sx={{
+                            color: "error.main",
+                            mx: 0.5,
+                            fontSize: "1rem",
+                            verticalAlign: "middle"
+                        }}
+                    /> 
+                    in Cambridge
+                </Typography>
+            </Box>
+        </Box>
+    );
 }
