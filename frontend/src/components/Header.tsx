@@ -143,10 +143,12 @@ export default function Header() {
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       }}
     >
-      <Toolbar sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
-        <Logo />
-        <NavigationTabs />
-        <UserInfoDashboard />
+      <Toolbar>
+        <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+          <Logo />
+          <NavigationTabs />
+          <UserInfoDashboard />
+        </Box>
       </Toolbar>
     </AppBar>
   );

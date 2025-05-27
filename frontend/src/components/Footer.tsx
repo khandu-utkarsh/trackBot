@@ -68,16 +68,16 @@ function Socials() {
 
 export default function Footer({className} : PropsWithChildren<FooterProps>) {
     return (
+        <footer>
         <Box 
             className={className} 
             sx={{
-                py: 4,
                 px: 2,
                 maxWidth: '100%',
                 margin: '0 auto',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2,
+                gap: 1,
             }}
         >
             <Box>
@@ -102,5 +102,6 @@ export default function Footer({className} : PropsWithChildren<FooterProps>) {
                 </Typography>
             </Box>
         </Box>
+        </footer>
     );
 }
