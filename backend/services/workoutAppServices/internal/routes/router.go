@@ -11,7 +11,7 @@ import (
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
-func SetupRouter(userHandler *handlers.UserHandler, workoutHandler *handlers.WorkoutHandler, exerciseHandler *handlers.ExerciseHandler) *chi.Mux {
+func SetupRouter(userHandler *handlers.UserHandler, workoutHandler *handlers.WorkoutHandler, exerciseHandler *handlers.ExerciseHandler, conversationHandler *handlers.ConversationHandler, messageHandler *handlers.MessageHandler) *chi.Mux {
 
 	log.Println("Setting up router...")
 
@@ -36,7 +36,7 @@ func SetupRouter(userHandler *handlers.UserHandler, workoutHandler *handlers.Wor
 
 	// Group routes under /api
 	r.Route("/api", func(r chi.Router) {
-		RegisterUserRoutes(r, userHandler, workoutHandler, exerciseHandler)
+		RegisterUserRoutes(r, userHandler, workoutHandler, exerciseHandler, conversationHandler, messageHandler)
 	})
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {

@@ -1,32 +1,23 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from services.llm_service import LLMService
-from config.settings import get_settings
+#This file is the entry point of the LLM Service
+# ------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
+from fastapi import FastAPI
+from app.config.settings import get_settings
+from app.api.v1.api import api_router
+from app.middleware import ErrorHandlerMiddleware
 
 settings = get_settings()
-app = FastAPI(title=settings.PROJECT_NAME)
-llm_service = LLMService()
 
-class WorkoutRequest(BaseModel):
-    input: str
-
-
-#Currently this python service, is only going to support the POST request.
-
-
-@app.post(f"{settings.API_V1_STR}/process")
-async def process_workout_request(request: WorkoutRequest):
-    try:
-        result = await llm_service.process_request(request.input)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+fastApiApp  = FastAPI(title=settings.PROJECT_NAME)
+fastApiApp.add_middleware(ErrorHandlerMiddleware)
+fastApiApp.include_router(api_router, prefix=settings.API_V1_STR)
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
-        "main:app",
-        host=settings.HOST,
-        port=settings.PORT,
+        "main:fastApiApp",
+        host="0.0.0.0",  # Docker default
+        port=8081,       # From docker-compose
         reload=True
     ) 

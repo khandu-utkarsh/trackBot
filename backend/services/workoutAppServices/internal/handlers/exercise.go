@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	models "workout_app_backend/internal/models"
@@ -34,12 +35,16 @@ func (h *ExerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	fmt.Println("Creating Exercise Handler 1")
+
 	userIDStr := chi.URLParam(r, "userID")
 	userID, err := strconv.ParseInt(userIDStr, 10, 64)
 	if err != nil || userID <= 0 {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
+
+	fmt.Println("Creating Exercise Handler 2")
 
 	workoutIDStr := chi.URLParam(r, "workoutID")
 	workoutID, err := strconv.ParseInt(workoutIDStr, 10, 64)
@@ -48,6 +53,8 @@ func (h *ExerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	fmt.Println("Creating Exercise Handler 3")
+
 	// Read the request body once
 	var exerciseData map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&exerciseData); err != nil {
@@ -55,12 +62,16 @@ func (h *ExerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	fmt.Println("Creating Exercise Handler 4")
+
 	// Get the exercise type
 	exerciseType, ok := exerciseData["type"].(string)
 	if !ok {
 		respondWithError(w, "Invalid exercise type", http.StatusBadRequest)
 		return
 	}
+
+	fmt.Println("Creating Exercise Handler 5")
 
 	// Verify workout exists and belongs to user before creating exercise
 	ctx := r.Context()
@@ -74,6 +85,8 @@ func (h *ExerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	fmt.Println("Creating Exercise Handler 6")
+
 	if workout.UserID != userID {
 		respondWithError(w, "Workout does not belong to user", http.StatusForbidden)
 		return
@@ -82,6 +95,9 @@ func (h *ExerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request)
 	var id int64
 	switch exerciseType {
 	case "cardio":
+
+		fmt.Println("Creating Exercise Handler 7")
+
 		var cardioExercise models.CardioExercise
 		// Convert the map back to JSON and then decode into CardioExercise
 		jsonData, err := json.Marshal(exerciseData)
@@ -94,8 +110,10 @@ func (h *ExerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request)
 			return
 		}
 		cardioExercise.WorkoutID = workoutID
+		fmt.Println(" Creating the Cardio Exercise: ", cardioExercise)
 		id, _ = h.exerciseModel.CreateCardio(ctx, &cardioExercise)
 	case "weights":
+		fmt.Println("Creating Exercise Handler 8")
 		var weightExercise models.WeightExercise
 		// Convert the map back to JSON and then decode into WeightExercise
 		jsonData, err := json.Marshal(exerciseData)
@@ -108,11 +126,18 @@ func (h *ExerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request)
 			return
 		}
 		weightExercise.WorkoutID = workoutID
+		fmt.Println(" Creating the Weight Exercise: ", weightExercise)
 		id, _ = h.exerciseModel.CreateWeights(ctx, &weightExercise)
+
+		fmt.Println("Creating Exercise Handler 9.1, created exercise id: ", id)
 	default:
+		fmt.Println("Creating Exercise Handler 9, Invalid exercise type: ", exerciseType)
+
 		respondWithError(w, "Invalid exercise type", http.StatusBadRequest)
 		return
 	}
+
+	fmt.Println("Creating Exercise Handler 10")
 
 	// Get the created exercise to return complete data
 	createdExercise, err := h.exerciseModel.Get(ctx, id)

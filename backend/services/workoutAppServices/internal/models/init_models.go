@@ -106,6 +106,20 @@ func InitializeModels(db *sql.DB) error {
 				return exerciseModel.Initialize(ctx)
 			},
 		},
+		{
+			name: "create_conversations_table",
+			fn: func(ctx context.Context, tx *sql.Tx) error {
+				conversationModel := GetConversationModelInstance(db, "conversations", "users")
+				return conversationModel.Initialize(ctx)
+			},
+		},
+		{
+			name: "create_messages_table",
+			fn: func(ctx context.Context, tx *sql.Tx) error {
+				messageModel := GetMessageModelInstance(db, "messages", "conversations")
+				return messageModel.Initialize(ctx)
+			},
+		},
 	}
 
 	// Apply each migration if not already applied

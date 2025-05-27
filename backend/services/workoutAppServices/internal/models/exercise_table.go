@@ -124,6 +124,8 @@ func (m *ExerciseModel) validateCardioExercise(exercise *CardioExercise) error {
 // validateWeightExercise checks if the weight exercise data is valid
 func (m *ExerciseModel) validateWeightExercise(exercise *WeightExercise) error {
 
+	fmt.Println("Validating Weight Exercise 0, exercise: ", exercise)
+
 	if exercise == nil {
 		return fmt.Errorf("%w: exercise cannot be nil", ErrInvalidInput)
 	}
@@ -235,11 +237,16 @@ func (m *ExerciseModel) CreateCardio(ctx context.Context, exercise *CardioExerci
 // CreateWeights creates a new weight training exercise
 func (m *ExerciseModel) CreateWeights(ctx context.Context, exercise *WeightExercise) (int64, error) {
 	if err := m.validateWeightExercise(exercise); err != nil {
+		fmt.Println("Creating Weight Exercise 0.2, validation failed error: ", err)
+
 		return 0, err
 	}
 
+	fmt.Println("Creating Weight Exercise 0.1, exercise: ", exercise)
 	now := time.Now()
 	query := fmt.Sprintf("INSERT INTO %s (workout_id, name, Type, Notes, sets, reps, weight, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id", m.name)
+
+	fmt.Println("Creating Weight Exercise 0, query: ", query)
 
 	var id int64
 	err := m.db.QueryRowContext(
@@ -255,6 +262,8 @@ func (m *ExerciseModel) CreateWeights(ctx context.Context, exercise *WeightExerc
 		now,
 		now,
 	).Scan(&id)
+
+	fmt.Println("Creating Weight Exercise 1, id: ", id)
 
 	if err != nil {
 		return 0, fmt.Errorf("error creating weight exercise: %w", err)

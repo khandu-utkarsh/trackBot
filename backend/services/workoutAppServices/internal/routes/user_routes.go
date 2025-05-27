@@ -7,7 +7,7 @@ import (
 )
 
 // RegisterUserRoutes sets up the REST-compliant routes for user-related actions.
-func RegisterUserRoutes(r chi.Router, userHandler *handlers.UserHandler, workoutHandler *handlers.WorkoutHandler, exerciseHandler *handlers.ExerciseHandler) {
+func RegisterUserRoutes(r chi.Router, userHandler *handlers.UserHandler, workoutHandler *handlers.WorkoutHandler, exerciseHandler *handlers.ExerciseHandler, conversationHandler *handlers.ConversationHandler, messageHandler *handlers.MessageHandler) {
 	r.Route("/users", func(r chi.Router) {
 		// List all users
 		r.Get("/", userHandler.ListUsers) // GET /api/users
@@ -25,6 +25,8 @@ func RegisterUserRoutes(r chi.Router, userHandler *handlers.UserHandler, workout
 			RegisterWorkoutRoutes(r, workoutHandler)
 			// Register exercise routes under user
 			RegisterExerciseRoutes(r, exerciseHandler)
+			// Register conversation routes under user
+			RegisterConversationRoutes(r, conversationHandler, messageHandler)
 		})
 	})
 }
