@@ -12,11 +12,14 @@ import {
   Divider,
   Chip,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
 import { useSession } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { chatAPI, Message as APIMessage, Conversation } from '@/lib/api/chat';
 
 interface Message {
   id: string;
@@ -28,18 +31,20 @@ interface Message {
 export default function ChatPage() {
   const { data: session } = useSession();
   const theme = useTheme();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: "Hello! I'm your AI assistant. I can help you with workout planning, nutrition advice, and fitness-related questions. How can I assist you today?",
-      role: 'assistant',
-      timestamp: new Date(),
-    },
-  ]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get('conversationId');
+  
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Mock user ID - in a real app, this would come from session
+  const userId = 1;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -49,8 +54,69 @@ export default function ChatPage() {
     scrollToBottom();
   }, [messages]);
 
+  // Load conversation and messages when conversationId changes
+  useEffect(() => {
+    if (conversationId) {
+      loadConversationData(parseInt(conversationId));
+    } else {
+      // Create a new conversation
+      createNewConversation();
+    }
+  }, [conversationId]);
+
+  const createNewConversation = async () => {
+    try {
+      setError(null);
+      const conversation = await chatAPI.createConversation(userId, {
+        title: 'New Chat',
+        is_active: true,
+      });
+      setCurrentConversation(conversation);
+      setMessages([
+        {
+          id: '1',
+          content: "Hello! I'm your AI fitness assistant. I can help you with workout planning, nutrition advice, and fitness-related questions. How can I assist you today?",
+          role: 'assistant',
+          timestamp: new Date(),
+        },
+      ]);
+      // Update URL with new conversation ID
+      router.replace(`/chat?conversationId=${conversation.id}`);
+    } catch (err) {
+      setError('Failed to create new conversation');
+      console.error('Error creating conversation:', err);
+    }
+  };
+
+  const loadConversationData = async (convId: number) => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      
+      // Load conversation details
+      const conversation = await chatAPI.getConversation(userId, convId);
+      setCurrentConversation(conversation);
+      
+      // Load messages
+      const apiMessages = await chatAPI.getMessages(userId, convId);
+      const formattedMessages: Message[] = apiMessages.map((msg: APIMessage) => ({
+        id: msg.id.toString(),
+        content: msg.content,
+        role: msg.message_type === 'user' ? 'user' : 'assistant',
+        timestamp: new Date(msg.created_at),
+      }));
+      
+      setMessages(formattedMessages);
+    } catch (err) {
+      setError('Failed to load conversation');
+      console.error('Error loading conversation:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+    if (!inputMessage.trim() || isLoading || !currentConversation) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -62,35 +128,38 @@ export default function ChatPage() {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage.content,
-          conversation: messages,
-        }),
+      // Send message to backend
+      await chatAPI.createMessage(userId, currentConversation.id, {
+        content: userMessage.content,
+        message_type: 'user',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get response');
-      }
+      // The backend will automatically generate an AI response
+      // We need to poll for new messages or implement WebSocket
+      // For now, let's poll after a short delay
+      setTimeout(async () => {
+        try {
+          const updatedMessages = await chatAPI.getMessages(userId, currentConversation.id);
+          const formattedMessages: Message[] = updatedMessages.map((msg: APIMessage) => ({
+            id: msg.id.toString(),
+            content: msg.content,
+            role: msg.message_type === 'user' ? 'user' : 'assistant',
+            timestamp: new Date(msg.created_at),
+          }));
+          setMessages(formattedMessages);
+        } catch (err) {
+          console.error('Error fetching updated messages:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      }, 2000); // Wait 2 seconds for AI response
 
-      const data = await response.json();
-      
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: data.response,
-        role: 'assistant',
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
+      setError('Failed to send message. Please try again.');
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
@@ -98,7 +167,6 @@ export default function ChatPage() {
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -146,7 +214,7 @@ export default function ChatPage() {
           <SmartToyIcon color="primary" sx={{ fontSize: 32 }} />
           <Box>
             <Typography variant="h5" color="text.primary" fontWeight={600}>
-              AI Fitness Assistant
+              {currentConversation?.title || 'AI Fitness Assistant'}
             </Typography>
             <Typography variant="body1" color="text.secondary">
               Your personal workout and nutrition advisor
@@ -154,6 +222,13 @@ export default function ChatPage() {
           </Box>
         </Box>
       </Paper>
+
+      {/* Error Alert */}
+      {error && (
+        <Alert severity="error" sx={{ m: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
       {/* Messages Container */}
       <Box 
@@ -321,7 +396,7 @@ export default function ChatPage() {
               onKeyPress={handleKeyPress}
               placeholder="Type your fitness question here..."
               variant="outlined"
-              disabled={isLoading}
+              disabled={isLoading || !currentConversation}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 3,
@@ -338,7 +413,7 @@ export default function ChatPage() {
             />
             <IconButton
               onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
+              disabled={!inputMessage.trim() || isLoading || !currentConversation}
               color="primary"
               sx={{
                 bgcolor: 'primary.main',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Drawer,
@@ -16,6 +16,8 @@ import {
   Typography,
   Button,
   Chip,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -24,31 +26,88 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useSession } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { chatAPI, Conversation } from '@/lib/api/chat';
 
 const DRAWER_WIDTH = 240;
-
-// Mock chat data - replace with real data from your backend
-const mockChats = [
-  { id: '1', title: 'Workout Plan Discussion', lastMessage: 'Can you create a push-pull routine?', timestamp: '2 hours ago', isActive: false },
-  { id: '2', title: 'Nutrition Advice', lastMessage: 'What should I eat post-workout?', timestamp: '1 day ago', isActive: false },
-  { id: '3', title: 'Form Check', lastMessage: 'Is my deadlift form correct?', timestamp: '3 days ago', isActive: true },
-  { id: '4', title: 'Recovery Tips', lastMessage: 'How long should I rest between sets?', timestamp: '1 week ago', isActive: false },
-];
 
 export default function Sidebar() {
   const theme = useTheme();
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentConversationId = searchParams.get('conversationId');
+  
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Mock user ID - in a real app, this would come from session
+  const userId = 1;
+
+  // Load conversations on component mount
+  useEffect(() => {
+    loadConversations();
+  }, []);
+
+  const loadConversations = async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      const data = await chatAPI.getConversations(userId);
+      setConversations(data);
+    } catch (err) {
+      setError('Failed to load conversations');
+      console.error('Error loading conversations:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleNewChat = () => {
-    // Navigate to new chat or create new chat
+    // Navigate to new chat (without conversationId)
     router.push('/chat');
   };
 
-  const handleChatSelect = (chatId: string) => {
-    router.push(`/chat/${chatId}`);
+  const handleChatSelect = (conversationId: number) => {
+    router.push(`/chat?conversationId=${conversationId}`);
+  };
+
+  const handleDeleteConversation = async (conversationId: number, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent chat selection
+    
+    try {
+      await chatAPI.deleteConversation(userId, conversationId);
+      // Reload conversations
+      await loadConversations();
+      
+      // If we deleted the current conversation, navigate to new chat
+      if (currentConversationId === conversationId.toString()) {
+        router.push('/chat');
+      }
+    } catch (err) {
+      console.error('Error deleting conversation:', err);
+      setError('Failed to delete conversation');
+    }
+  };
+
+  const formatTimestamp = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    
+    if (diffInHours < 1) {
+      return 'Just now';
+    } else if (diffInHours < 24) {
+      return `${Math.floor(diffInHours)} hours ago`;
+    } else if (diffInHours < 48) {
+      return '1 day ago';
+    } else if (diffInHours < 168) {
+      return `${Math.floor(diffInHours / 24)} days ago`;
+    } else {
+      return `${Math.floor(diffInHours / 168)} weeks ago`;
+    }
   };
 
   return (
@@ -72,33 +131,28 @@ export default function Sidebar() {
 
   function DrawerContent() {
     return (
-      <>
-        {/* Drawer Header */}
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            p: 2,
-          }}
-        >
-          <Typography variant="h6" noWrap component="div">
-            Chats
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Header */}
+        <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
+          <Typography variant="h6" color="text.primary" fontWeight={600}>
+            Fitness Chat
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            AI-powered fitness coaching
           </Typography>
         </Box>
-
-        <Divider />
 
         {/* New Chat Button */}
         <Box sx={{ p: 2 }}>
           <Button
-            variant="contained"
             fullWidth
+            variant="contained"
             startIcon={<AddIcon />}
             onClick={handleNewChat}
             sx={{
               borderRadius: 2,
               textTransform: 'none',
+              fontWeight: 500,
             }}
           >
             New Chat
@@ -107,93 +161,121 @@ export default function Sidebar() {
 
         <Divider />
 
-        {/* Chat History */}
-        <Box sx={{ px: 2, py: 1 }}>
-          <Typography variant="subtitle2" color="text.secondary">
-            Recent Chats
-          </Typography>
-        </Box>
+        {/* Error Alert */}
+        {error && (
+          <Alert 
+            severity="error" 
+            sx={{ m: 1, fontSize: '0.75rem' }} 
+            onClose={() => setError(null)}
+          >
+            {error}
+          </Alert>
+        )}
 
-        <List sx={{ px: 1 }}>
-          {mockChats.map((chat) => (
-            <ListItem key={chat.id} disablePadding sx={{ mb: 0.5 }}>
-              <ListItemButton
-                selected={pathname === `/chat/${chat.id}`}
-                onClick={() => handleChatSelect(chat.id)}
-                sx={{
-                  borderRadius: 1,
-                  '&.Mui-selected': {
-                    backgroundColor: theme.palette.action.selected,
-                  },
-                  '&:hover': {
-                    backgroundColor: theme.palette.action.hover,
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 36 }}>
-                  <ChatIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body2" noWrap sx={{ flex: 1 }}>
-                        {chat.title}
-                      </Typography>
-                      {chat.isActive && (
-                        <Chip
-                          label="Active"
-                          size="small"
-                          color="primary"
-                          sx={{ height: 16, fontSize: '0.6rem' }}
-                        />
-                      )}
-                    </Box>
-                  }
-                  secondary={
-                    <Box>
-                      <Typography variant="caption" color="text.secondary" noWrap>
-                        {chat.lastMessage}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" display="block">
-                        {chat.timestamp}
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-
-        {/* User Profile Section at Bottom */}
-        <Box sx={{ mt: 'auto' }}>
-          <Divider />
-          {session?.user && (
-            <Box
-              sx={{
-                p: 2,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2,
-              }}
-            >
-              <Avatar
-                src={session.user.image ?? undefined}
-                alt={session.user.name ?? 'User'}
-                sx={{ width: 32, height: 32 }}
-              />
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="subtitle2" noWrap>
-                  {session.user.name}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" noWrap>
-                  {session.user.email}
-                </Typography>
-              </Box>
+        {/* Conversations List */}
+        <Box sx={{ flex: 1, overflow: 'auto' }}>
+          {isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress size={24} />
             </Box>
+          ) : conversations.length === 0 ? (
+            <Box sx={{ p: 2, textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                No conversations yet. Start a new chat!
+              </Typography>
+            </Box>
+          ) : (
+            <List sx={{ px: 1 }}>
+              {conversations.map((conversation) => (
+                <ListItem key={conversation.id} disablePadding sx={{ mb: 0.5 }}>
+                  <ListItemButton
+                    selected={currentConversationId === conversation.id.toString()}
+                    onClick={() => handleChatSelect(conversation.id)}
+                    sx={{
+                      borderRadius: 1,
+                      '&.Mui-selected': {
+                        backgroundColor: theme.palette.action.selected,
+                      },
+                      '&:hover': {
+                        backgroundColor: theme.palette.action.hover,
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 36 }}>
+                      <ChatIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body2" noWrap sx={{ flex: 1 }}>
+                            {conversation.title}
+                          </Typography>
+                          {conversation.is_active && (
+                            <Chip
+                              label="Active"
+                              size="small"
+                              color="primary"
+                              sx={{ height: 16, fontSize: '0.6rem' }}
+                            />
+                          )}
+                        </Box>
+                      }
+                      secondary={
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" noWrap>
+                            {conversation.last_message || 'No messages yet'}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" display="block">
+                            {formatTimestamp(conversation.updated_at)}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleDeleteConversation(conversation.id, e)}
+                      sx={{ 
+                        opacity: 0.6,
+                        '&:hover': { opacity: 1 },
+                        ml: 1
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
           )}
         </Box>
-      </>
+
+        {/* User Profile Section at Bottom */}
+        <Box sx={{ 
+          p: 2, 
+          borderTop: `1px solid ${theme.palette.divider}`,
+          backgroundColor: theme.palette.background.default 
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar 
+              sx={{ width: 32, height: 32 }}
+              src={session?.user?.image || undefined}
+            >
+              {session?.user?.name?.[0] || 'U'}
+            </Avatar>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="body2" fontWeight={500} noWrap>
+                {session?.user?.name || 'User'}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" noWrap>
+                {session?.user?.email || 'user@example.com'}
+              </Typography>
+            </Box>
+            <IconButton size="small">
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        </Box>
+      </Box>
     );
   }
 }
