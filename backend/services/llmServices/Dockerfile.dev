@@ -1,0 +1,47 @@
+# Development Dockerfile for Python LLM service
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install development dependencies
+RUN pip install --no-cache-dir \
+    debugpy \
+    watchdog \
+    python-multipart
+
+# Copy source code
+COPY . .
+
+# Expose ports
+EXPOSE 8081 5678
+
+# Set environment variables for development
+ENV PYTHONPATH=/app
+ENV PYTHON_ENV=development
+ENV PYTHONUNBUFFERED=1
+
+# Create startup script for development with debugging
+RUN echo '#!/bin/bash\n\
+echo "Starting LLM service in development mode..."\n\
+if [ "$ENABLE_DEBUGGER" = "true" ]; then\n\
+    echo "Starting with debugger on port 5678..."\n\
+    python -m debugpy --listen 0.0.0.0:5678 --wait-for-client -m uvicorn app.main:app --host 0.0.0.0 --port 8081 --reload\n\
+else\n\
+    echo "Starting with hot reload..."\n\
+    uvicorn app.main:app --host 0.0.0.0 --port 8081 --reload\n\
+fi' > /app/start-dev.sh && chmod +x /app/start-dev.sh
+
+# Start development server
+CMD ["/app/start-dev.sh"] 

@@ -1,0 +1,60 @@
+# Development Dockerfile for Go backend
+FROM golang:1.21-alpine
+
+# Install necessary packages for development
+RUN apk add --no-cache git curl
+
+# Install Air for live reloading
+RUN go install github.com/cosmtrek/air@latest
+
+# Install Delve for debugging
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Create air config file for live reloading
+RUN echo '[build]\n\
+  cmd = "go build -gcflags=\"-N -l\" -o ./tmp/main ./cmd/api"\n\
+  bin = "tmp/main"\n\
+  full_bin = "dlv exec ./tmp/main --listen=:2345 --headless=true --api-version=2 --accept-multiclient"\n\
+  include_ext = ["go", "tpl", "tmpl", "html"]\n\
+  exclude_dir = ["assets", "tmp", "vendor", "frontend"]\n\
+  include_dir = []\n\
+  exclude_file = []\n\
+  exclude_regex = ["_test.go"]\n\
+  exclude_unchanged = false\n\
+  follow_symlink = false\n\
+  log = "build-errors.log"\n\
+  delay = 1000\n\
+  stop_on_error = true\n\
+  send_interrupt = false\n\
+  kill_delay = 500\n\
+[log]\n\
+  time = false\n\
+[color]\n\
+  main = "magenta"\n\
+  watcher = "cyan"\n\
+  build = "yellow"\n\
+  runner = "green"\n\
+[misc]\n\
+  clean_on_exit = false' > .air.toml
+
+# Expose ports
+EXPOSE 8080 2345
+
+# Set environment variables
+ENV GO_ENV=development
+ENV CGO_ENABLED=0
+
+# Start with Air for live reloading and debugging
+CMD ["air", "-c", ".air.toml"] 

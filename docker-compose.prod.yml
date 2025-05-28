@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    env_file:
+      - backend/.env.database.docker #Reading from the .env file
+    ports:
+      - "5432:5432" #Left is host port, right is container port
+    volumes:
+      - postgres_data:/var/lib/postgresql/data #Left is host volume, right is container volume
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Frontend Service (Next JS)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - frontend/.env.frontend.docker
+    depends_on:
+      - workout-app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # LLM Service (Python/FastAPI)
+  llm-service:
+    build:
+      context: ./backend/services/llmServices
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    env_file:
+      - backend/services/llmServices/.env.llmApp.docker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/api/v1/chat/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Workout App Service (Go)
+  workout-app:
+    build:
+      context: ./backend/services/workoutAppServices
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - backend/services/workoutAppServices/.env.workoutApp.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      llm-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data: 

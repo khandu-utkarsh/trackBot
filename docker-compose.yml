@@ -1,72 +1,88 @@
+# Main docker-compose file - defaults to development
+# Use: docker-compose up (for development)
+# Use: docker-compose -f docker-compose.prod.yml up (for production)
+
 version: '3.8'
 
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:15
+    container_name: workout-db-dev
     env_file:
-      - backend/.env.database.docker #Reading from the .env file
+      - backend/services/workoutAppServices/.env.database.docker
     ports:
-      - "5432:5432" #Left is host port, right is container port
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data #Left is host volume, right is container volume
+      - postgres_data_dev:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Frontend Service (Next JS)
+  # Frontend Service (Next JS) - Development with hot reload
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
+    container_name: workout-frontend-dev
     ports:
       - "3000:3000"
     env_file:
       - frontend/.env.frontend.docker
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     depends_on:
       - workout-app
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    stdin_open: true
+    tty: true
 
-  # LLM Service (Python/FastAPI)
-  llm-service:
-    build:
-      context: ./backend/services/llmServices
-      dockerfile: Dockerfile
-    ports:
-      - "8081:8081"
-    env_file:
-      - backend/services/llmServices/.env.llmApp.docker
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/api/v1/chat/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Workout App Service (Go)
+  # Workout App Service (Go) - Development with live reload
   workout-app:
     build:
       context: ./backend/services/workoutAppServices
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
+    container_name: workout-app-dev
     ports:
       - "8080:8080"
+      - "2345:2345" # Delve debugger port
     env_file:
-      - backend/services/workoutAppServices/.env.workoutApp.docker
+      - backend/services/workoutAppServices/.env.workoutApp.docker  #Reading from the .env file
+    volumes:
+      - ./backend/services/workoutAppServices:/app
+      - go_mod_cache:/go/pkg/mod
     depends_on:
       postgres:
         condition: service_healthy
       llm-service:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+        condition: service_started
+    stdin_open: true
+    tty: true
+
+  # LLM Service (Python/FastAPI) - Development with hot reload
+  llm-service:
+    build:
+      context: ./backend/services/llmServices
+      dockerfile: Dockerfile.dev
+    container_name: llm-service-dev
+    ports:
+      - "8081:8081"
+      - "5678:5678" # Python debugger port
+    env_file:
+      - backend/services/llmServices/.env.llmApp.docker
+    volumes:
+      - ./backend/services/llmServices:/app
+      - python_packages:/usr/local/lib/python3.11/site-packages
+    stdin_open: true
+    tty: true
 
 volumes:
-  postgres_data: 
+  postgres_data_dev:
+  go_mod_cache:
+  python_packages: 
