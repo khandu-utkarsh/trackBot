@@ -11,6 +11,15 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Define the path to the .env files
+LLM_ENV_FILE="$ROOT_DIR/backend/services/llmServices/.env.llmApp.docker"
+WORKOUT_APP_ENV_FILE="$ROOT_DIR/backend/services/workoutAppServices/.env.workoutApp.docker"
+DATABASE_ENV_FILE="$ROOT_DIR/backend/.env.database.docker"
+FRONTEND_ENV_FILE="$ROOT_DIR/frontend/.env.frontend.docker"
+
 # Function to print colored output
 print_status() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -28,14 +37,40 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check if .env file exists
+# Check if required .env files exist
 check_env() {
-    if [ ! -f .env ]; then
-        print_warning ".env file not found. Creating template..."
-        echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
-        print_warning "Please edit .env file and add your OpenAI API key"
+    local missing_files=()
+    local env_files=(
+        "$LLM_ENV_FILE"
+        "$WORKOUT_APP_ENV_FILE"
+        "$FRONTEND_ENV_FILE"
+        "$DATABASE_ENV_FILE"
+    )
+    
+    # Check each required env file
+    for env_file in "${env_files[@]}"; do
+        if [ ! -f "$env_file" ]; then
+            missing_files+=("$env_file")
+        fi
+    done
+    
+    #If any files are missing, simply report the error and return 1
+    if [ ${#missing_files[@]} -ne 0 ]; then
+        print_error "Missing environment files. Please create the files and try again."
+        print_status "Missing files:"
+        for missing_file in "${missing_files[@]}"; do
+            echo "  - $missing_file"
+        done
         return 1
     fi
+
+    # Check if OpenAI API key is properly set
+    local llm_env_file="$LLM_ENV_FILE"
+    if grep -q "OPENAI_API_KEY=your_openai_api_key_here" "$llm_env_file" 2>/dev/null; then
+        print_error "Please set a valid OPENAI_API_KEY in $llm_env_file"
+        return 1
+    fi
+    
     return 0
 }
 
@@ -44,7 +79,7 @@ start_dev() {
     print_status "Starting development environment..."
     
     if ! check_env; then
-        print_error "Please configure .env file first"
+        print_error "Please configure environment files first"
         exit 1
     fi
     

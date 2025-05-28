@@ -24,6 +24,10 @@ RUN pip install --no-cache-dir \
 # Copy source code
 COPY . .
 
+# Create startup script for development with debugging
+COPY start-dev.sh /app/start-dev.sh
+RUN chmod +x /app/start-dev.sh
+
 # Expose ports
 EXPOSE 8081 5678
 
@@ -31,17 +35,6 @@ EXPOSE 8081 5678
 ENV PYTHONPATH=/app
 ENV PYTHON_ENV=development
 ENV PYTHONUNBUFFERED=1
-
-# Create startup script for development with debugging
-RUN echo '#!/bin/bash\n\
-echo "Starting LLM service in development mode..."\n\
-if [ "$ENABLE_DEBUGGER" = "true" ]; then\n\
-    echo "Starting with debugger on port 5678..."\n\
-    python -m debugpy --listen 0.0.0.0:5678 --wait-for-client -m uvicorn app.main:app --host 0.0.0.0 --port 8081 --reload\n\
-else\n\
-    echo "Starting with hot reload..."\n\
-    uvicorn app.main:app --host 0.0.0.0 --port 8081 --reload\n\
-fi' > /app/start-dev.sh && chmod +x /app/start-dev.sh
 
 # Start development server
 CMD ["/app/start-dev.sh"] 

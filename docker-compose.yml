@@ -2,15 +2,13 @@
 # Use: docker-compose up (for development)
 # Use: docker-compose -f docker-compose.prod.yml up (for production)
 
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:15
     container_name: workout-db-dev
     env_file:
-      - backend/services/workoutAppServices/.env.database.docker
+      - backend/.env.database.docker
     ports:
       - "5432:5432"
     volumes:

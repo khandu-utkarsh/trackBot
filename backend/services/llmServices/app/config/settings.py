@@ -8,10 +8,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "LLM Agents Service Workout App"
     
     # Model Settings
-    MODEL_PROVIDER: str = os.getenv("MODEL_PROVIDER")
     MODEL_NAME: str = os.getenv("MODEL_NAME")
-    TEMPERATURE: float = float(os.getenv("OPENAI_MODEL_TEMPERATURE"))
-    MAX_TOKENS: int = int(os.getenv("OPENAI_MODEL_MAX_TOKENS"))
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
     
     # Workout App Service Settings

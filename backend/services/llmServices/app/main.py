@@ -9,14 +9,14 @@ from app.middleware import ErrorHandlerMiddleware
 
 settings = get_settings()
 
-fastApiApp  = FastAPI(title=settings.PROJECT_NAME)
-fastApiApp.add_middleware(ErrorHandlerMiddleware)
-fastApiApp.include_router(api_router, prefix=settings.API_V1_STR)
+app  = FastAPI(title=settings.PROJECT_NAME)
+app.add_middleware(ErrorHandlerMiddleware)
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
-        "main:fastApiApp",
+        "main:app",
         host="0.0.0.0",  # Docker default
         port=8081,       # From docker-compose
         reload=True
