@@ -1,0 +1,103 @@
+{
+    "name": "Frontend Service Development",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "frontend",
+    "workspaceFolder": "/app",
+    "shutdownAction": "stopCompose",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // React/Next.js extensions
+                "ms-vscode.vscode-typescript-next",
+                "bradlc.vscode-tailwindcss",
+                "esbenp.prettier-vscode",
+                "ms-vscode.vscode-eslint",
+                
+                // Docker and containers
+                "ms-azuretools.vscode-docker",
+                
+                // General development
+                "ms-vscode.vscode-json",
+                "ms-vscode.vscode-thunder-client",
+                "eamodio.gitlens"
+            ],
+            "settings": {
+                // TypeScript/JavaScript settings
+                "typescript.preferences.quoteStyle": "single",
+                "javascript.preferences.quoteStyle": "single",
+                "typescript.updateImportsOnFileMove.enabled": "always",
+                "javascript.updateImportsOnFileMove.enabled": "always",
+                "typescript.suggest.autoImports": true,
+                "javascript.suggest.autoImports": true,
+                
+                // ESLint settings
+                "eslint.workingDirectories": ["/app"],
+                "eslint.format.enable": true,
+                
+                // Prettier settings
+                "prettier.singleQuote": true,
+                "prettier.trailingComma": "es5",
+                "prettier.tabWidth": 2,
+                "prettier.semi": true,
+                
+                // Editor settings
+                "editor.formatOnSave": true,
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "editor.codeActionsOnSave": {
+                    "source.fixAll.eslint": "explicit",
+                    "source.organizeImports": "explicit"
+                },
+                "editor.rulers": [80, 120],
+                "files.trimTrailingWhitespace": true,
+                "files.insertFinalNewline": true,
+                
+                // Terminal settings
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.cwd": "/app",
+                
+                // File associations
+                "files.associations": {
+                    "*.env.*": "properties",
+                    "docker-compose*.yml": "yaml",
+                    "Dockerfile*": "dockerfile"
+                },
+                
+                // Emmet settings
+                "emmet.includeLanguages": {
+                    "javascript": "javascriptreact",
+                    "typescript": "typescriptreact"
+                }
+            }
+        }
+    },
+    "forwardPorts": [
+        3000,  // Frontend (Next.js)
+        8080,  // Workout App (for API calls)
+        8081   // LLM Service (for API calls)
+    ],
+    "portsAttributes": {
+        "3000": {
+            "label": "Frontend (Next.js)",
+            "onAutoForward": "notify"
+        },
+        "8080": {
+            "label": "Workout App API",
+            "onAutoForward": "ignore"
+        },
+        "8081": {
+            "label": "LLM Service API",
+            "onAutoForward": "ignore"
+        }
+    },
+    "postCreateCommand": "npm install",
+    "postStartCommand": "echo 'Frontend Service Ready!' && echo '  App: http://localhost:3000' && echo '  Workout API: http://localhost:8080' && echo '  LLM API: http://localhost:8081'",
+    "remoteUser": "root",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/node:1": {}
+    },
+    "remoteEnv": {
+        "NODE_ENV": "development",
+        "WATCHPACK_POLLING": "true"
+    }
+} 

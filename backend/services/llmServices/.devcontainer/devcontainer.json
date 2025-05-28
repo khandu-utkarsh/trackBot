@@ -1,0 +1,95 @@
+{
+    "name": "LLM Service Development",
+    "dockerComposeFile": "../../../docker-compose.yml",
+    "service": "llm-service",
+    "workspaceFolder": "/app",
+    "shutdownAction": "stopCompose",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // Python extensions
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy",
+                "ms-python.black-formatter",
+                
+                // Docker and containers
+                "ms-azuretools.vscode-docker",
+                
+                // General development
+                "ms-vscode.vscode-json",
+                "redhat.vscode-yaml",
+                "ms-vscode.vscode-thunder-client",
+                "eamodio.gitlens"
+            ],
+            "settings": {
+                // Python settings
+                "python.defaultInterpreterPath": "/usr/local/bin/python3",
+                "python.analysis.extraPaths": ["/app", "/app/app"],
+                "python.terminal.activateEnvironment": true,
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.terminal.executeInFileDir": true,
+                "python.analysis.typeCheckingMode": "basic",
+                "python.analysis.diagnosticMode": "workspace",
+                "python.analysis.autoImportCompletions": true,
+                "python.analysis.autoSearchPaths": true,
+                "python.formatting.provider": "black",
+                
+                // Editor settings
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": "explicit"
+                },
+                "editor.rulers": [88],
+                "files.trimTrailingWhitespace": true,
+                "files.insertFinalNewline": true,
+                
+                // Terminal settings
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.cwd": "/app",
+                
+                // File associations
+                "files.associations": {
+                    "*.env.*": "properties",
+                    "docker-compose*.yml": "yaml",
+                    "Dockerfile*": "dockerfile"
+                }
+            }
+        }
+    },
+    "forwardPorts": [
+        8081,  // LLM Service (Python/FastAPI)
+        8080,  // Workout App (for API calls)
+        5432,  // PostgreSQL (if needed)
+        5678   // Python debugger
+    ],
+    "portsAttributes": {
+        "8081": {
+            "label": "LLM Service API (FastAPI)",
+            "onAutoForward": "notify"
+        },
+        "8080": {
+            "label": "Workout App API",
+            "onAutoForward": "ignore"
+        },
+        "5432": {
+            "label": "PostgreSQL Database",
+            "onAutoForward": "ignore"
+        },
+        "5678": {
+            "label": "Python Debugger",
+            "onAutoForward": "ignore"
+        }
+    },
+    "postCreateCommand": "pip install -r /app/requirements.txt",
+    "postStartCommand": "echo 'LLM Service Ready!' && echo '  API: http://localhost:8081' && echo '  Debugger: localhost:5678'",
+    "remoteUser": "root",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {}
+    },
+    "remoteEnv": {
+        "PYTHONPATH": "/app:/app/app",
+        "PYTHON_ENV": "development",
+        "PYTHONUNBUFFERED": "1"
+    }
+} 
