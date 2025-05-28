@@ -8,7 +8,7 @@ import (
 
 // RegisterConversationRoutes sets up the RESTful routes for conversation-related actions.
 func RegisterConversationRoutes(r chi.Router, conversationHandler *handlers.ConversationHandler, messageHandler *handlers.MessageHandler) {
-	r.Route("/users/{userID}/conversations", func(r chi.Router) {
+	r.Route("/conversations", func(r chi.Router) {
 		// List all conversations for a user
 		r.Get("/", conversationHandler.ListConversationsByUser) // GET /api/users/{userID}/conversations
 

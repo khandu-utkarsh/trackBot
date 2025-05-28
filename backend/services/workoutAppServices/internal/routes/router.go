@@ -17,7 +17,7 @@ func SetupRouter(userHandler *handlers.UserHandler, workoutHandler *handlers.Wor
 
 	r := chi.NewRouter()
 
-	// Middleware
+	// Public middleware
 	r.Use(middleware.CorsConfigured())
 	r.Use(middleware.Logger())
 	r.Use(middleware.Recovery())
@@ -28,14 +28,18 @@ func SetupRouter(userHandler *handlers.UserHandler, workoutHandler *handlers.Wor
 	r.Use(chimiddleware.RequestID)
 	r.Use(chimiddleware.Compress(5))
 
-	// Health check
+	// Health check (public)
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
 
-	// Group routes under /api
+	// Setup auth middleware
+	authMiddleware := middleware.NewAuthMiddleware()
+
+	// Protected routes under /api
 	r.Route("/api", func(r chi.Router) {
+		r.Use(authMiddleware.ValidateJWT()) // Protect all /api routes
 		RegisterUserRoutes(r, userHandler, workoutHandler, exerciseHandler, conversationHandler, messageHandler)
 	})
 
