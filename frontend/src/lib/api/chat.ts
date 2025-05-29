@@ -32,12 +32,25 @@ export interface CreateMessageRequest {
 }
 
 class ChatAPI {
+  private getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem('google_token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return headers;
+  }
+
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}/api${endpoint}`;
     
     const response = await fetch(url, {
       headers: {
-        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
         ...options.headers,
       },
       ...options,

@@ -2,7 +2,7 @@
 
 import { AppBar, Toolbar, Typography, Tabs, Tab, Box, Avatar, Menu, MenuItem, IconButton, useTheme } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { useSession, signOut } from 'next-auth/react';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -63,7 +63,7 @@ function NavigationTabs() {
 
 //!Component 3 -- User Info Dashboard
 function UserInfoDashboard() {
-  const { data: session } = useSession();
+  const { user, signOut } = useGoogleAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -73,10 +73,6 @@ function UserInfoDashboard() {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-
-  // Since this component is only rendered in authenticated routes,
-  // we can safely assert that session exists
-  const user = session?.user;
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'flex-end', minWidth: 0 }}>
@@ -88,7 +84,7 @@ function UserInfoDashboard() {
         px: 1.5, 
         py: 0.5 
       }}>
-        <Avatar src={user?.image ?? undefined} sx={{ width: 36, height: 36, mr: 1 }} />
+        <Avatar src={user?.picture ?? undefined} sx={{ width: 36, height: 36, mr: 1 }} />
         <Box sx={{ textAlign: 'left', mr: 1 }}>
           <Typography sx={{ color: 'white', fontWeight: 600, fontSize: 16 }}>
             {user?.name}

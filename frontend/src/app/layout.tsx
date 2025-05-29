@@ -2,7 +2,6 @@
 
 //!This is the global layout for the app. It is used to provide the theme and the providers to the app.
 
-import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { lightTheme } from '../theme/theme';
@@ -24,7 +23,7 @@ function ThemedContainer({ children }: { children: React.ReactNode }) {
   );
 }
 
-//!Thid is thbe main layout for entire website. All other layouts will be nested inside this one.
+//!This is the main layout for entire website. All other layouts will be nested inside this one.
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,14 +32,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-      <SessionProvider>
-          <ThemeProvider theme={lightTheme}>
-            <CssBaseline />
-            <ThemedContainer>
-              {children}
-            </ThemedContainer>
-          </ThemeProvider>
-        </SessionProvider>
+        <ThemeProvider theme={lightTheme}>
+          <CssBaseline />
+          <ThemedContainer>
+            {children}
+          </ThemedContainer>
+        </ThemeProvider>
       </body>
     </html>
   );

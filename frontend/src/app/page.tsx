@@ -1,20 +1,20 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import LandingPageComponent from '@/components/Landing';
+import ChatPageComponent from '@/components/ChatPage';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 
 export default function Home() {
-  const router = useRouter();
-  const { status } = useSession();
+  const { isAuthenticated, isLoading } = useGoogleAuth();
+  console.log('Printing the state of the auth: ', 'isAuthenticated: ', isAuthenticated, 'isLoading: ', isLoading);
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/chat');
-    } else if (status === 'unauthenticated') {
-      router.push('/landing');
-    }
-  }, [status, router]);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-  return null;
+  if (isAuthenticated) {
+    return <ChatPageComponent />;
+  } else {
+    return <LandingPageComponent />;
+  }
 }
