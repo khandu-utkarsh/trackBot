@@ -2,6 +2,7 @@
 
 import { Box, Typography, Button } from '@mui/material';
 import Script from 'next/script';
+import { userAPI, User } from '@/lib/api/users';
 
 declare global {
   interface Window {
@@ -12,7 +13,22 @@ declare global {
 export default function LandingPageComponent() {
   const handleCredentialResponse = (response: any) => {
     console.log('Google Auth Response:', response);
+
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    console.log("Payload: ", payload);
+
+
+    const user: User = {
+      email: payload.email,
+    };
+
     localStorage.setItem('google_token', response.credential);
+
+    //!Since user is autenticated, create new user in the backend. 
+    const backendResponse = userAPI.createUser(user);
+    console.log("User created: ", backendResponse);
+
+
     window.dispatchEvent(new CustomEvent('auth-changed', {
       detail: { authenticated: true, token: response.credential }
     }));
