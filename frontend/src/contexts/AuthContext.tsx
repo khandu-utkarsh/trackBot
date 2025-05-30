@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { GoogleUser, useGoogleAuth } from '../hooks/useGoogleAuth';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -49,13 +50,16 @@ export const useAuth = (): AuthContextType => {
 // Hook to check if user is authenticated (useful for conditional rendering)
 export const useRequireAuth = (): AuthContextType => {
   const auth = useAuth();
+  const router = useRouter();
   
   React.useEffect(() => {
     if (!auth.isLoading && !auth.isAuthenticated) {        
+      //!Better to redirect to the home page. And it automatically takes care of the authentication to conditionally render the page.
+      router.push('/');
       // Could redirect to login page or show login modal
       console.warn('User not authenticated');
     }
-  }, [auth.isAuthenticated, auth.isLoading]);
+  }, [auth.isAuthenticated, auth.isLoading, router]);
 
   return auth;
 }; 

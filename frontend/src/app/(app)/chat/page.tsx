@@ -17,9 +17,10 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
-import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { chatAPI, Message as APIMessage, Conversation } from '@/lib/api/chat';
+import { useAuth } from '@/contexts/AuthContext';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 interface Message {
   id: string;
@@ -28,12 +29,12 @@ interface Message {
   timestamp: Date;
 }
 
-export default function ChatPage() {
-  const { data: session } = useSession();
+function ChatPageContent() {
   const theme = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
   const conversationId = searchParams.get('conversationId');
+  const { user, token, isAuthenticated } = useAuth();
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -43,8 +44,19 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Mock user ID - in a real app, this would come from session
-  const userId = 1;
+  // Get user ID from authenticated user
+  const getUserId = (email: string): number => {
+    // Simple hash function to convert email to a consistent numeric ID
+    let hash = 0;
+    for (let i = 0; i < email.length; i++) {
+      const char = email.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash);
+  };
+
+  const userId = user?.email ? getUserId(user.email) : null;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,15 +68,20 @@ export default function ChatPage() {
 
   // Load conversation and messages when conversationId changes
   useEffect(() => {
-    if (conversationId) {
+    if (conversationId && userId) {
       loadConversationData(parseInt(conversationId));
-    } else {
+    } else if (userId) {
       // Create a new conversation
       createNewConversation();
     }
-  }, [conversationId]);
+  }, [conversationId, userId]);
 
   const createNewConversation = async () => {
+    if (!userId || !token) {
+      setError('Authentication required');
+      return;
+    }
+
     try {
       setError(null);
       const conversation = await chatAPI.createConversation(userId, {
@@ -75,7 +92,7 @@ export default function ChatPage() {
       setMessages([
         {
           id: '1',
-          content: "Hello! I'm your AI fitness assistant. I can help you with workout planning, nutrition advice, and fitness-related questions. How can I assist you today?",
+          content: `Hello ${user?.name}! I'm your AI fitness assistant. I can help you with workout planning, nutrition advice, and fitness-related questions. How can I assist you today?`,
           role: 'assistant',
           timestamp: new Date(),
         },
@@ -89,6 +106,11 @@ export default function ChatPage() {
   };
 
   const loadConversationData = async (convId: number) => {
+    if (!userId || !token) {
+      setError('Authentication required');
+      return;
+    }
+
     try {
       setError(null);
       setIsLoading(true);
@@ -116,7 +138,7 @@ export default function ChatPage() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading || !currentConversation) return;
+    if (!inputMessage.trim() || isLoading || !currentConversation || !userId || !token) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -182,6 +204,22 @@ export default function ChatPage() {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Show message if user is not authenticated
+  if (!isAuthenticated || !user || !userId) {
+    return (
+      <Box sx={{ 
+        height: 'calc(100vh - 128px)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+        <Alert severity="warning">
+          Please sign in to access the chat feature.
+        </Alert>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ 
       height: 'calc(100vh - 128px)', // Account for header + footer
@@ -219,6 +257,16 @@ export default function ChatPage() {
             <Typography variant="body1" color="text.secondary">
               Your personal workout and nutrition advisor
             </Typography>
+          </Box>
+          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              Welcome, {user.name}
+            </Typography>
+            <Avatar 
+              src={user.picture} 
+              alt={user.name}
+              sx={{ width: 32, height: 32 }}
+            />
           </Box>
         </Box>
       </Paper>
@@ -282,17 +330,17 @@ export default function ChatPage() {
                 }}
               >
                 {message.role === 'user' ? (
-                  session?.user?.image ? (
-                    <img 
-                      src={session.user.image} 
-                      alt="User" 
-                      style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-                    />
-                  ) : (
-                    <PersonIcon />
-                  )
+                  <img 
+                    src={user.picture || '/images/user.png'} 
+                    alt="User" 
+                    style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                  />
                 ) : (
-                  <SmartToyIcon />
+                  <img 
+                    src={'/images/ai.png'} 
+                    alt="AI" 
+                    style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                  />
                 )}
               </Avatar>
               
@@ -434,5 +482,14 @@ export default function ChatPage() {
         </Box>
       </Paper>
     </Box>
+  );
+}
+
+// Wrap the entire component with ProtectedRoute
+export default function ChatPage() {
+  return (
+    <ProtectedRoute>
+      <ChatPageContent />
+    </ProtectedRoute>
   );
 } 

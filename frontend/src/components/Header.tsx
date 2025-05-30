@@ -1,71 +1,25 @@
 'use client';
 
-import { AppBar, Toolbar, Typography, Tabs, Tab, Box, Avatar, Menu, MenuItem, IconButton, useTheme } from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { useGoogleAuth } from '@/hooks/useGoogleAuth';
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import React from 'react';
+import { 
+  AppBar, 
+  Toolbar, 
+  Typography, 
+  Button, 
+  Avatar, 
+  Box, 
+  Menu, 
+  MenuItem,
+  IconButton
+} from '@mui/material';
+import { useAuth } from '../contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
-const navLinks = [
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'AI Chat', href: '/chat' }
-];
+export default function Header() {
+  const { isAuthenticated, user, signOut, isLoading } = useAuth();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-//!Component 1 -- Name and Logo
-function Logo() {
-  return (
-    <Typography variant="h5" sx={{ flex: 1, minWidth: 0, fontWeight: 600 }}>
-      Tracker
-    </Typography>
-  );
-}
-
-//!Component 2 -- Navigation Tabs
-function NavigationTabs() {
-  const pathname = usePathname();
-  
-  // Find current tab index
-  const currentTabIndex = navLinks.findIndex(link => pathname === link.href);
-  const tabValue = currentTabIndex !== -1 ? currentTabIndex : false;
-
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', flex: 2, justifyContent: 'center' }}>
-      <Tabs 
-        value={tabValue}
-        sx={{
-          '& .MuiTabs-indicator': {
-            backgroundColor: 'white',
-          },
-          '& .MuiTab-root': {
-            color: 'rgba(255, 255, 255, 0.8)',
-            fontWeight: 500,
-            '&.Mui-selected': {
-              color: 'white',
-            },
-          },
-        }}
-      >
-        {navLinks.map((link, index) => (
-          <Tab
-            key={link.label}
-            label={link.label}
-            component={Link}
-            href={link.href}
-            value={index}
-            disableRipple
-          />
-        ))}
-      </Tabs>
-    </Box>
-  );
-}
-
-//!Component 3 -- User Info Dashboard
-function UserInfoDashboard() {
-  const { user, signOut } = useGoogleAuth();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
+  const router = useRouter();
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -74,78 +28,73 @@ function UserInfoDashboard() {
     setAnchorEl(null);
   };
 
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, justifyContent: 'flex-end', minWidth: 0 }}>
-      <Box sx={{ 
-        display: 'flex',
-        alignItems: 'center', 
-        bgcolor: 'rgba(255, 255, 255, 0.1)', 
-        borderRadius: '999px', 
-        px: 1.5, 
-        py: 0.5 
-      }}>
-        <Avatar src={user?.picture ?? undefined} sx={{ width: 36, height: 36, mr: 1 }} />
-        <Box sx={{ textAlign: 'left', mr: 1 }}>
-          <Typography sx={{ color: 'white', fontWeight: 600, fontSize: 16 }}>
-            {user?.name}
-          </Typography>
-          <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: 13 }}>
-            {user?.email}
-          </Typography>
-        </Box>
-        <IconButton 
-          size="small" 
-          onClick={handleMenuOpen} 
-          sx={{ 
-            color: 'white',
-            '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' }
-          }}
-        >
-          <ArrowDropDownIcon />
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          PaperProps={{
-            sx: {
-              bgcolor: '#18181b',
-              color: 'white',
-              '& .MuiMenuItem-root': {
-                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
-              }
-            }
-          }}
-        >
-          <MenuItem onClick={() => { signOut(); handleMenuClose(); }}>Sign out</MenuItem>
-        </Menu>
-      </Box>
-    </Box>
-  );
-}
+  const handleSignOut = () => {
+    signOut();
+    handleMenuClose();
+  };
 
-export default function Header() {
-  const theme = useTheme();
+  const handleDashboard = () => {
+    router.push('/dashboard');
+    handleMenuClose();
+  };
+
+
+  if (isLoading) {
+    return (
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            TrackBot
+          </Typography>
+          <Typography>Loading...</Typography>
+        </Toolbar>
+      </AppBar>
+    );
+  }
 
   return (
-    <AppBar 
-      position="fixed" 
-      sx={{ 
-        zIndex: theme.zIndex.drawer + 1,
-        width: 'calc(100% - 240px)',
-        ml: '240px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      }}
-    >
+    <AppBar position="static">
       <Toolbar>
-        <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
-          <Logo />
-          <NavigationTabs />
-          <UserInfoDashboard />
-        </Box>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          TrackBot
+        </Typography>
+        
+        {isAuthenticated && user ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="body2">
+              Welcome, {user.name}
+            </Typography>
+            <IconButton
+              onClick={handleMenuOpen}
+              sx={{ p: 0 }}
+            >
+              <Avatar 
+                src={user.picture} 
+                alt={user.name}
+                sx={{ width: 32, height: 32 }}
+              />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <MenuItem onClick={handleDashboard}>
+                Dashboard
+              </MenuItem>
+              <MenuItem onClick={handleSignOut}>
+                Sign Out
+              </MenuItem>
+            </Menu>
+          </Box>
+        ) : (
+          <Button color="inherit">
+            Sign In
+          </Button>
+        )}
       </Toolbar>
     </AppBar>
   );
-}
+};

@@ -3,7 +3,7 @@
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
-import { Box, CssBaseline, Toolbar, useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 
 //!This is the layout for the app. It will contain the header and the sidebar and the footer.
 

@@ -28,12 +28,81 @@ import {
 import { useSession } from 'next-auth/react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { chatAPI, Conversation } from '@/lib/api/chat';
+import { useAuth } from '@/contexts/AuthContext';
+import { GoogleUser } from '@/hooks/useGoogleAuth';
+
 
 const DRAWER_WIDTH = 240;
 
+const loadConversations = async (user: GoogleUser) => {
+  let data : Conversation[] = [];
+  try {
+    data = await chatAPI.getConversations(user.id);
+  } catch (err) {
+    console.error('Unable to fetch the conversations for the  user:', user.name, " error: ", err);
+  }
+  return data;
+};
+
+//!This should open up a new chat box in the UI
+const handleNewChat = async () => {
+  //!This should create a new conversation in the UI
+  console.log("New chat button clicked: Implementation is pending.");
+};
+
+const formatTimestamp = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+  
+  if (diffInHours < 1) {
+    return 'Just now';
+  } else if (diffInHours < 24) {
+    return `${Math.floor(diffInHours)} hours ago`;
+  } else if (diffInHours < 48) {
+    return '1 day ago';
+  } else if (diffInHours < 168) {
+    return `${Math.floor(diffInHours / 24)} days ago`;
+  } else {
+    return `${Math.floor(diffInHours / 168)} weeks ago`;
+  }
+};
+
+const handleChatSelect = (conversationId: number) => {
+  console.log("Chat selected: ", conversationId);
+  console.log("Yet to be implemented: Implementation is pending.");
+
+  //!This should open up the chat box for the selected conversation
+  //router.push(`/chat?conversationId=${conversationId}`);
+};
+
+const handleDeleteConversation = async (conversationId: number, event: React.MouseEvent) => {
+  console.log("Yet to be implemented: Implementation is pending.");
+  console.log("Yet to be implemented: Implementation is pending.");
+
+  /*
+  event.stopPropagation(); // Prevent chat selection
+  
+  try {
+    await chatAPI.deleteConversation(userId, conversationId);
+    // Reload conversations
+    await loadConversations();
+    
+    // If we deleted the current conversation, navigate to new chat
+    if (currentConversationId === conversationId.toString()) {
+      router.push('/chat');
+    }
+  } catch (err) {
+    console.error('Error deleting conversation:', err);
+    setError('Failed to delete conversation');
+  }
+*/
+  };
+
 export default function Sidebar() {
   const theme = useTheme();
-  const { data: session } = useSession();
+  const { user } = useAuth();
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -41,74 +110,16 @@ export default function Sidebar() {
   
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Mock user ID - in a real app, this would come from session
-  const userId = 1;
-
-  // Load conversations on component mount
+  // Load conversations on component mount and when the user changes
   useEffect(() => {
-    loadConversations();
-  }, []);
-
-  const loadConversations = async () => {
-    try {
-      setError(null);
-      setIsLoading(true);
-      const data = await chatAPI.getConversations(userId);
-      setConversations(data);
-    } catch (err) {
-      setError('Failed to load conversations');
-      console.error('Error loading conversations:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleNewChat = () => {
-    // Navigate to new chat (without conversationId)
-    router.push('/chat');
-  };
-
-  const handleChatSelect = (conversationId: number) => {
-    router.push(`/chat?conversationId=${conversationId}`);
-  };
-
-  const handleDeleteConversation = async (conversationId: number, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent chat selection
-    
-    try {
-      await chatAPI.deleteConversation(userId, conversationId);
-      // Reload conversations
-      await loadConversations();
-      
-      // If we deleted the current conversation, navigate to new chat
-      if (currentConversationId === conversationId.toString()) {
-        router.push('/chat');
-      }
-    } catch (err) {
-      console.error('Error deleting conversation:', err);
-      setError('Failed to delete conversation');
-    }
-  };
-
-  const formatTimestamp = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-    
-    if (diffInHours < 1) {
-      return 'Just now';
-    } else if (diffInHours < 24) {
-      return `${Math.floor(diffInHours)} hours ago`;
-    } else if (diffInHours < 48) {
-      return '1 day ago';
-    } else if (diffInHours < 168) {
-      return `${Math.floor(diffInHours / 24)} days ago`;
-    } else {
-      return `${Math.floor(diffInHours / 168)} weeks ago`;
-    }
-  };
+    setIsLoading(true);
+    if (user) {
+      loadConversations(user).then((data) => {
+        setConversations(data);
+        setIsLoading(false);
+      });
+    } 
+  }, [user]);
 
   return (
     <Drawer
@@ -160,17 +171,6 @@ export default function Sidebar() {
         </Box>
 
         <Divider />
-
-        {/* Error Alert */}
-        {error && (
-          <Alert 
-            severity="error" 
-            sx={{ m: 1, fontSize: '0.75rem' }} 
-            onClose={() => setError(null)}
-          >
-            {error}
-          </Alert>
-        )}
 
         {/* Conversations List */}
         <Box sx={{ flex: 1, overflow: 'auto' }}>
@@ -247,33 +247,6 @@ export default function Sidebar() {
               ))}
             </List>
           )}
-        </Box>
-
-        {/* User Profile Section at Bottom */}
-        <Box sx={{ 
-          p: 2, 
-          borderTop: `1px solid ${theme.palette.divider}`,
-          backgroundColor: theme.palette.background.default 
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar 
-              sx={{ width: 32, height: 32 }}
-              src={session?.user?.image || undefined}
-            >
-              {session?.user?.name?.[0] || 'U'}
-            </Avatar>
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body2" fontWeight={500} noWrap>
-                {session?.user?.name || 'User'}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" noWrap>
-                {session?.user?.email || 'user@example.com'}
-              </Typography>
-            </Box>
-            <IconButton size="small">
-              <MoreVertIcon fontSize="small" />
-            </IconButton>
-          </Box>
         </Box>
       </Box>
     );

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export interface GoogleUser {
+  id: number;
   email: string;
   name: string;
   picture: string;
@@ -19,6 +20,7 @@ export const useGoogleAuth = () => {
         // Decode JWT token to get user info
         const payload = JSON.parse(atob(token.split('.')[1]));
         setUser({
+          id: payload.sub,  //!Need to create this and fetch from my database. [Go backend -- TODO]
           email: payload.email,
           name: payload.name,
           picture: payload.picture,

@@ -1,5 +1,8 @@
 'use client';
 
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import Footer from "@/components/Footer";
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
@@ -9,8 +12,6 @@ import {
   Typography,
   Avatar,
   useTheme,
-  Divider,
-  Chip,
   CircularProgress,
   Alert,
 } from '@mui/material';
@@ -21,6 +22,16 @@ import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { chatAPI, Message as APIMessage, Conversation } from '@/lib/api/chat';
 
+//!This is the layout for the app. It will contain the header and the sidebar and the footer.
+
+//!Header will be a simple navbar
+//!Sidebar needs to be a collection of all the chats
+//!Footer will be a simple line with some basic info
+
+
+
+
+
 interface Message {
   id: string;
   content: string;
@@ -28,7 +39,7 @@ interface Message {
   timestamp: Date;
 }
 
-export default function ChatPageComponent() {
+function ChatPageComponent() {
     const { user } = useGoogleAuth();
     const theme = useTheme();
     const router = useRouter();
@@ -183,7 +194,9 @@ export default function ChatPageComponent() {
     };
   
     return (
-      <Box sx={{ 
+      <Box 
+      className="chat-page-container"
+      sx={{ 
         height: 'calc(100vh - 128px)', // Account for header + footer
         display: 'flex', 
         flexDirection: 'column',
@@ -435,4 +448,18 @@ export default function ChatPageComponent() {
         </Paper>
       </Box>
     );
-  } 
+  }
+
+export default function ChatApp() {
+  const theme = useTheme();
+
+  return (
+      <ChatPageComponent />
+  );
+}
+
+
+
+
+
+ 

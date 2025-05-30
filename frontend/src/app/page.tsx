@@ -1,20 +1,42 @@
 'use client';
 
-import LandingPageComponent from '@/components/Landing';
-import ChatPageComponent from '@/components/ChatPage';
-import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { useRequireAuth } from '../contexts/AuthContext';
+import LandingPageComponent from '../components/Landing';
+import { Box, CircularProgress, Typography } from '@mui/material';
+import ChatApp from '../components/ChatPage';
 
-export default function Home() {
-  const { isAuthenticated, isLoading } = useGoogleAuth();
-  console.log('Printing the state of the auth: ', 'isAuthenticated: ', isAuthenticated, 'isLoading: ', isLoading);
+export default function HomePage() {
+  const { isAuthenticated, isLoading } = useRequireAuth();
 
+  // Show loading state while checking authentication
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '100vh',
+          flexDirection: 'column',
+          gap: 2
+        }}
+      >
+        <CircularProgress />
+        <Typography variant="body2" color="textSecondary">
+          Loading...
+        </Typography>
+      </Box>
+    );
   }
 
-  if (isAuthenticated) {
-    return <ChatPageComponent />;
-  } else {
-    return <LandingPageComponent />;
-  }
+  // Show different content based on authentication status
+  return (
+    <Box>
+      {isAuthenticated ? (
+          <ChatApp />
+      ) : (
+        <LandingPageComponent />
+      )}
+    </Box>
+  );
 }
