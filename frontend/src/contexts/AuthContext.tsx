@@ -23,6 +23,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
   // Get token from localStorage
   const token = typeof window !== 'undefined' ? localStorage.getItem('google_token') : null;
+  console.log("Token: ", token);
 
   const value: AuthContextType = {
     isAuthenticated,

@@ -197,12 +197,13 @@ function ChatPageComponent() {
       <Box 
       className="chat-page-container"
       sx={{ 
-        height: 'calc(100vh - 128px)', // Account for header + footer
         display: 'flex', 
         flexDirection: 'column',
+        flex: 1,
         width: '100%',
         bgcolor: 'background.default',
         overflow: 'hidden'
+
       }}>
         {/* Header */}
         <Paper 

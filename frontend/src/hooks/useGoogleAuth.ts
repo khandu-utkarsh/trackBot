@@ -5,6 +5,7 @@ export interface GoogleUser {
   email: string;
   name: string;
   picture: string;
+  token: string;
 }
 
 export const useGoogleAuth = () => {
@@ -15,6 +16,7 @@ export const useGoogleAuth = () => {
   useEffect(() => {
     // Check for existing authentication on mount
     const token = localStorage.getItem('google_token');
+    console.log("Token fetched from local storage: ", token);
     if (token) {
       try {
         // Decode JWT token to get user info
@@ -24,6 +26,7 @@ export const useGoogleAuth = () => {
           email: payload.email,
           name: payload.name,
           picture: payload.picture,
+          token: token
         });
         setIsAuthenticated(true);
       } catch (error) {
@@ -40,9 +43,11 @@ export const useGoogleAuth = () => {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
           setUser({
+            id: payload.sub,
             email: payload.email,
             name: payload.name,
             picture: payload.picture,
+            token: token
           });
           setIsAuthenticated(true);
         } catch (error) {
