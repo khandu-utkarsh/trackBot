@@ -4,6 +4,7 @@ import { useRequireAuth } from '../contexts/AuthContext';
 import LandingPageComponent from '../components/Landing';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import ChatApp from '../components/ChatPage';
+import LoggedInLayout from '@/components/LoggedInLayout';
 
 export default function HomePage() {
   const { isAuthenticated, isLoading } = useRequireAuth();
@@ -33,7 +34,9 @@ export default function HomePage() {
   return (
     <Box>
       {isAuthenticated ? (
+        <LoggedInLayout>
           <ChatApp />
+        </LoggedInLayout>
       ) : (
         <LandingPageComponent />
       )}

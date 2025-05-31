@@ -30,7 +30,7 @@ export default function ChatPageContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,12 +62,12 @@ export default function ChatPageContent() {
 
   const createNewConversation = async () => {
     if (!userId || !token) {
-      setError('Authentication required');
+      setApiError('Authentication required');
       return;
     }
 
     try {
-      setError(null);
+      setApiError(null);
       const userId = 2;
       const conversation = await chatAPI.createConversation(userId, {
         title: 'New Chat',
@@ -84,19 +84,19 @@ export default function ChatPageContent() {
       // Update URL with new conversation ID
       router.replace(`/chat?conversationId=${conversation.id}`);
     } catch (err) {
-      setError('Failed to create new conversation');
+      setApiError('Failed to create new conversation');
       console.error('Error creating conversation:', err);
     }
   };
 
   const loadConversationData = async (convId: number) => {
     if (!userId || !token) {
-      setError('Authentication required');
+      setApiError('Authentication required');
       return;
     }
 
     try {
-      setError(null);
+      setApiError(null);
       setIsLoading(true);
       
       // Load conversation details
@@ -115,7 +115,7 @@ export default function ChatPageContent() {
       
       setMessages(formattedMessages);
     } catch (err) {
-      setError('Failed to load conversation');
+      setApiError('Failed to load conversation');
       console.error('Error loading conversation:', err);
     } finally {
       setIsLoading(false);
@@ -135,7 +135,7 @@ export default function ChatPageContent() {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
-    setError(null);
+    setApiError(null);
 
     try {
       // Send message to backend
@@ -168,7 +168,7 @@ export default function ChatPageContent() {
 
     } catch (error) {
       console.error('Error sending message:', error);
-      setError('Failed to send message. Please try again.');
+      setApiError('Failed to send message. Please try again.');
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
@@ -179,6 +179,8 @@ export default function ChatPageContent() {
       setIsLoading(false);
     }
   };
+
+
 
 
 
@@ -240,9 +242,9 @@ export default function ChatPageContent() {
       </Paper>
 
       {/* Error Alert */}
-      {error && (
-        <Alert severity="error" sx={{ m: 2 }} onClose={() => setError(null)}>
-          {error}
+      {apiError && (
+        <Alert severity="error" sx={{ m: 2 }} onClose={() => setApiError(null)}>
+          {apiError}
         </Alert>
       )}
 
