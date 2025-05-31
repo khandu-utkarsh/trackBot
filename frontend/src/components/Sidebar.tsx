@@ -12,12 +12,10 @@ import {
   Divider,
   IconButton,
   useTheme,
-  Avatar,
   Typography,
   Button,
   Chip,
   CircularProgress,
-  Alert,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -120,7 +118,7 @@ export default function Sidebar() {
     console.log("Yet to be implemented: Implementation is pending.");
   
     //!This should open up the chat box for the selected conversation
-    router.push(`/chat?conversationId=${conversationId}`);
+    router.push(`/chat/${conversationId}`);
   };
   
 

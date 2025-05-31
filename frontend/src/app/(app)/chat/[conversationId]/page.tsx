@@ -3,20 +3,18 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   Box,
-  TextField,
-  IconButton,
   Paper,
   Typography,
   useTheme,
   Alert,
 } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { chatAPI, Message as APIMessage, Conversation } from '@/lib/api/chat';
 import { useAuth } from '@/contexts/AuthContext';
-import ChatMessage from '@/components/ChatMessage';
-import AIThinkingMessage from '@/components/AIThinkingMessage';
+import ChatInputBar from '@/components/ChatInputBar';
+import Chatbox from '@/components/Chatbox';
+import { Message } from '@/components/ChatMessage';
 
 
 export default function ChatPageContent() {
@@ -26,7 +24,8 @@ export default function ChatPageContent() {
   const theme = useTheme();  
   const router = useRouter();
   const searchParams = useSearchParams();
-  const conversationId = searchParams.get('conversationId');
+  const params = useParams();
+  const conversationId: number = parseInt(params.conversationId as string);
   const { user, token, isAuthenticated } = useAuth();
   
   const [messages, setMessages] = useState<Message[]>([]);
@@ -55,7 +54,7 @@ export default function ChatPageContent() {
   // Load conversation and messages when conversationId changes
   useEffect(() => {
     if (conversationId && userId) {
-      loadConversationData(parseInt(conversationId));
+      loadConversationData(conversationId);
     } else if (userId) {
       // Create a new conversation
       createNewConversation();
@@ -183,16 +182,7 @@ export default function ChatPageContent() {
     }
   };
 
-  const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      handleSendMessage();
-    }
-  };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
 
   // Show message if user is not authenticated
   if (!isAuthenticated || !user || !userId) {
@@ -259,52 +249,9 @@ export default function ChatPageContent() {
       )}
 
       {/* Messages Container */}
-      <Box 
-        className="prior-messages-container-class-for-debugging"
-        sx={{ 
-          flex: 1,
-          overflow: 'auto',
-          display: 'flex',
-          justifyContent: 'center',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: 'rgba(0,0,0,0.1)',
-            borderRadius: '4px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: 'rgba(0,0,0,0.3)',
-            borderRadius: '4px',
-            '&:hover': {
-              background: 'rgba(0,0,0,0.5)',
-            },
-          },
-        }}
-      >
-        <Box 
-          className="messages-container-class-for-debugging"
-          sx={{
-            width: '100%',
-            maxWidth: '1200px',
-            p: 3,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 3,
-          }}
-        >
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-          
-          {isLoading && ( <AIThinkingMessage />)}
-          
-        </Box>
-      </Box>
-
-      {/* Input Area */}
+      <Chatbox messages={messages} isLoading={isLoading} />
       <Paper 
-        elevation={4} 
+        elevation={0} 
         sx={{ 
           borderRadius: 0,
           bgcolor: 'background.paper',
@@ -312,60 +259,11 @@ export default function ChatPageContent() {
           flexShrink: 0
         }}
       >
-        <Box className="chat-input-container" 
-          sx={{
-            maxWidth: '1200px',
-            mx: 'auto',
-            p: 3,
-          }}
-        >
-          <Box display="flex" gap={2} alignItems="flex-end" mb={2}>
-            <TextField
-              ref={inputRef}
-              fullWidth
-              multiline
-              maxRows={4}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your fitness question here..."
-              variant="outlined"
-              disabled={isLoading || !currentConversation}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 3,
-                  bgcolor: 'background.default',
-                  fontSize: '1rem',
-                  '& fieldset': {
-                    borderColor: 'divider',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'primary.main',
-                  },
-                },
-              }}
-            />
-            <IconButton
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading || !currentConversation}
-              color="primary"
-              sx={{
-                bgcolor: 'primary.main',
-                color: 'white',
-                '&:hover': {
-                  bgcolor: 'primary.dark',
-                },
-                '&:disabled': {
-                  bgcolor: 'action.disabled',
-                },
-                width: 56,
-                height: 56,
-              }}
-            >
-              <SendIcon />
-            </IconButton>
-          </Box>
-        </Box>
+          <ChatInputBar 
+            inputMessage={inputMessage} 
+            setInputMessage={setInputMessage} 
+            handleSendMessage={handleSendMessage} 
+            isLoading={isLoading} />
       </Paper>
     </Box>
   );

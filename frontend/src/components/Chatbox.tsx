@@ -1,7 +1,8 @@
 import { Box } from '@mui/material';
 import ChatMessageList from './ChatMessageList';
+import { Message } from './ChatMessage';
 
-export default function Chatbox() {
+export default function Chatbox({messages, isLoading}: {messages: Message[], isLoading: boolean}) {
     return (
         <Box
             className="chatbox-container"

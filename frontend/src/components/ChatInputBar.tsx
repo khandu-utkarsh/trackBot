@@ -1,12 +1,12 @@
-import { Box, TextField, IconButton } from '@mui/material';
+import { Box, TextField, IconButton, Paper, useTheme } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import { useRef, useState, useLayoutEffect } from 'react';
+import { useRef} from 'react';
 
 //!This component is only repsonible for sending the message to the backend.
-export default function ChatInputBar({inputMessage, setInputMessage, handleSendMessage}: {inputMessage: string, setInputMessage: (inputMessage: string) => void, handleSendMessage: (inputMessage: string) => void}) {
+export default function ChatInputBar({inputMessage, setInputMessage, handleSendMessage, isLoading=false}: {inputMessage: string, setInputMessage: (inputMessage: string) => void, handleSendMessage: (inputMessage: string) => void, isLoading?: boolean}) {
 
     const inputRef = useRef<HTMLInputElement>(null);
-
+    const theme = useTheme();
     const sendMessageAndRefocus = () => {
         handleSendMessage(inputMessage);
         setInputMessage(''); // Clear the input after sending
@@ -39,6 +39,7 @@ export default function ChatInputBar({inputMessage, setInputMessage, handleSendM
                     onKeyDown={handleKeyPress}
                     placeholder="Type your fitness question here..."
                     variant="outlined"
+                    disabled={isLoading}
                     sx={{
                         '& .MuiOutlinedInput-root': {
                             borderRadius: 3,
@@ -55,7 +56,7 @@ export default function ChatInputBar({inputMessage, setInputMessage, handleSendM
                 />
                 <IconButton
                     onClick={sendMessageAndRefocus}
-                    disabled={!inputMessage.trim()}
+                    disabled={!inputMessage.trim() || isLoading}
                     color="primary"
                     sx={{
                         bgcolor: 'primary.main',
