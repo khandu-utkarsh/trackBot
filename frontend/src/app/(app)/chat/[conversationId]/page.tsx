@@ -23,7 +23,6 @@ export default function ChatPageContent() {
 
   const theme = useTheme();  
   const router = useRouter();
-  const searchParams = useSearchParams();
   const params = useParams();
   const conversationId: number = parseInt(params.conversationId as string);
   const { user, token, isAuthenticated } = useAuth();

@@ -22,7 +22,7 @@ import {
   Chat as ChatIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, useParams} from 'next/navigation';
 import { chatAPI, Conversation } from '@/lib/api/chat';
 import { useAuth } from '@/contexts/AuthContext';
 import { GoogleUser } from '@/hooks/useGoogleAuth';
@@ -30,16 +30,6 @@ import { GoogleUser } from '@/hooks/useGoogleAuth';
 
 const DRAWER_WIDTH = 240;
 
-const loadConversations = async (user: GoogleUser) => {
-  let data : Conversation[] = [];
-  try {
-    const userId = 2;
-    data = await chatAPI.getConversations(userId);
-  } catch (err) {
-    console.error('Unable to fetch the conversations for the  user:', user.name, " error: ", err);
-  }
-  return data;
-};
 
 
 
@@ -62,66 +52,90 @@ const formatTimestamp = (dateString: string) => {
 };
 
 
-const handleDeleteConversation = async (conversationId: number, event: React.MouseEvent) => {
-  console.log("Yet to be implemented: Implementation is pending.");
-  console.log("Yet to be implemented: Implementation is pending.");
-
-  /*
-  event.stopPropagation(); // Prevent chat selection
-  
-  try {
-    await chatAPI.deleteConversation(userId, conversationId);
-    // Reload conversations
-    await loadConversations();
-    
-    // If we deleted the current conversation, navigate to new chat
-    if (currentConversationId === conversationId.toString()) {
-      router.push('/chat');
-    }
-  } catch (err) {
-    console.error('Error deleting conversation:', err);
-    setError('Failed to delete conversation');
-  }
-*/
-  };
-
 export default function Sidebar() {
   const theme = useTheme();
   const { user } = useAuth();
 
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const currentConversationId = searchParams.get('conversationId');
-  
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const params = useParams();
+
+  let currentConversationId: number | null = null;
+  if (params.conversationId) {
+    currentConversationId = parseInt(params.conversationId as string);
+  }
+  console.log("currentConversationId: ", currentConversationId);
+
+
+
+  const [conversations, setConversations] = useState<Map<number, Conversation>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
-
-
-  const handleNewChat = async () => {
-    router.push('/');
-  };
 
   // Load conversations on component mount and when the user changes
   useEffect(() => {
     setIsLoading(true);
     if (user) {
-      loadConversations(user).then((data) => {
-        setConversations(data);
-        setIsLoading(false);
-      });
+      loadConversations(user);
+      setIsLoading(false);
     } 
   }, [user]);
 
-  const handleChatSelect = (conversationId: number) => {
-    console.log("Chat selected: ", conversationId);
-    console.log("Yet to be implemented: Implementation is pending.");
+
+  //!For loading the conversations from the backend
+  const loadConversations = async (user: GoogleUser) => {
+    let data : Conversation[] = [];
+    try {
+      const userId = 2;
+      data = await chatAPI.getConversations(userId);
+    } catch (err) {
+      console.error('Unable to fetch the conversations for the  user:', user.name, " error: ", err);
+    }
+    data.forEach(conversation => {
+      setConversations(prev => {
+        const newMap = new Map(prev);
+        newMap.set(conversation.id, conversation);
+        return newMap;
+      });
+    });
+  };
+
+  //!When user clicks on the new chat button
+  const handleNewChat = async () => {
+    router.push('/');
+  };
+
   
-    //!This should open up the chat box for the selected conversation
-    router.push(`/chat/${conversationId}`);
+  //!When user deletes a conversation
+  const handleDeleteConversation = async (user: GoogleUser | null, conversationId: number, event: React.MouseEvent, currentConversationId: number | null) => {
+
+    event.stopPropagation(); // Prevent chat selection
+    
+    const userId = 2;
+    try {
+      await chatAPI.deleteConversation(userId, conversationId);
+      //!Doesn't make sense to reload everything, simply delete from the map using the id.
+      if (user) {
+        setConversations(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(conversationId);
+          return newMap;
+        });
+      }
+      
+      // If we deleted the current conversation, navigate to new chat
+      if (currentConversationId && currentConversationId === conversationId) {
+        router.push('/');
+      }
+    } catch (err) {
+      console.error('Error deleting conversation with the id: ', conversationId, ' error: ', err);
+    }
   };
   
 
+  //!When user selects a conversation, routing to the correct chat page
+  const handleChatSelect = (conversationId: number) => {
+      router.push(`/chat/${conversationId}`);
+  };
+  
 
 
   return (
@@ -162,7 +176,7 @@ export default function Sidebar() {
             fullWidth
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={handleNewChat}
+            onClick={() => handleNewChat()}
             sx={{
               borderRadius: 2,
               textTransform: 'none',
@@ -181,7 +195,7 @@ export default function Sidebar() {
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
               <CircularProgress size={24} />
             </Box>
-          ) : conversations.length === 0 ? (
+          ) : conversations.size === 0 ? (
             <Box sx={{ p: 2, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
                 No conversations yet. Start a new chat!
@@ -189,10 +203,10 @@ export default function Sidebar() {
             </Box>
           ) : (
             <List sx={{ px: 1 }}>
-              {conversations.map((conversation) => (
+              {Array.from(conversations.values()).map((conversation) => (
                 <ListItem key={conversation.id} disablePadding sx={{ mb: 0.5 }}>
                   <ListItemButton
-                    selected={currentConversationId === conversation.id.toString()}
+                    selected={currentConversationId === conversation.id}
                     onClick={() => handleChatSelect(conversation.id)}
                     sx={{
                       borderRadius: 1,
@@ -236,7 +250,7 @@ export default function Sidebar() {
                     />
                     <IconButton
                       size="small"
-                      onClick={(e) => handleDeleteConversation(conversation.id, e)}
+                      onClick={(e) => handleDeleteConversation(user, conversation.id, e, currentConversationId)}
                       sx={{ 
                         opacity: 0.6,
                         '&:hover': { opacity: 1 },
