@@ -223,7 +223,7 @@ export default function Sidebar() {
                           <Typography variant="body2" noWrap sx={{ flex: 1 }}>
                             {conversation.title}
                           </Typography>
-                          {conversation.is_active && (
+                          {conversation.id === currentConversationId && (
                             <Chip
                               label="Active"
                               size="small"

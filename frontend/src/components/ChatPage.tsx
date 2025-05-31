@@ -37,7 +37,6 @@ function ChatPageComponent() {
           const userId = 2;
           conversation = await chatAPI.createConversation(userId, {
             title: 'New Chat ' + chatIdTemp.toString(),
-            is_active: true,
           });
           if(conversation){ 
             chatIdTemp++;

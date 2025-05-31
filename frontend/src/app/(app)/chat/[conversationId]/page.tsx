@@ -71,7 +71,6 @@ export default function ChatPageContent() {
       const userId = 2;
       const conversation = await chatAPI.createConversation(userId, {
         title: 'New Chat',
-        is_active: true,
       });
       setCurrentConversation(conversation);
       setMessages([

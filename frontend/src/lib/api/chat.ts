@@ -15,14 +15,12 @@ export interface Conversation {
   id: number;
   user_id: number;
   title: string;
-  is_active: boolean;
   updated_at: string;
   last_message?: string;
 }
 
 export interface CreateConversationRequest {
   title: string;
-  is_active?: boolean;
 }
 
 export interface CreateMessageRequest {
