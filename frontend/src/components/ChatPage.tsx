@@ -1,8 +1,5 @@
 'use client';
 
-import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar";
-import Footer from "@/components/Footer";
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
@@ -21,14 +18,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { chatAPI, Message as APIMessage, Conversation } from '@/lib/api/chat';
-
-//!This is the layout for the app. It will contain the header and the sidebar and the footer.
-
-//!Header will be a simple navbar
-//!Sidebar needs to be a collection of all the chats
-//!Footer will be a simple line with some basic info
-
-
+import ChatInputBar from './ChatInputBar';
 
 
 
@@ -39,7 +29,10 @@ interface Message {
   timestamp: Date;
 }
 
+/*
 function ChatPageComponent() {
+
+    console.log("ChatPageComponent rendered.");
     const { user } = useGoogleAuth();
     const theme = useTheme();
     const router = useRouter();
@@ -55,7 +48,7 @@ function ChatPageComponent() {
     const inputRef = useRef<HTMLInputElement>(null);
   
     // Mock user ID - in a real app, this would come from session
-    const userId = 1;
+    const userId = 2;
   
     const scrollToBottom = () => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -71,13 +64,14 @@ function ChatPageComponent() {
         loadConversationData(parseInt(conversationId));
       } else {
         // Create a new conversation
-        createNewConversation();
+        //createNewConversation();
       }
     }, [conversationId]);
   
     const createNewConversation = async () => {
       try {
         setError(null);
+        const userId = 2;
         const conversation = await chatAPI.createConversation(userId, {
           title: 'New Chat',
           is_active: true,
@@ -105,6 +99,7 @@ function ChatPageComponent() {
         setIsLoading(true);
         
         // Load conversation details
+        const userId = 2;
         const conversation = await chatAPI.getConversation(userId, convId);
         setCurrentConversation(conversation);
         
@@ -143,6 +138,7 @@ function ChatPageComponent() {
   
       try {
         // Send message to backend
+        const userId = 2;
         await chatAPI.createMessage(userId, currentConversation.id, {
           content: userMessage.content,
           message_type: 'user',
@@ -153,6 +149,7 @@ function ChatPageComponent() {
         // For now, let's poll after a short delay
         setTimeout(async () => {
           try {
+            const userId = 2;
             const updatedMessages = await chatAPI.getMessages(userId, currentConversation.id);
             const formattedMessages: Message[] = updatedMessages.map((msg: APIMessage) => ({
               id: msg.id.toString(),
@@ -205,7 +202,6 @@ function ChatPageComponent() {
         overflow: 'hidden'
 
       }}>
-        {/* Header */}
         <Paper 
           elevation={1} 
           sx={{ 
@@ -236,15 +232,12 @@ function ChatPageComponent() {
             </Box>
           </Box>
         </Paper>
-  
-        {/* Error Alert */}
-        {error && (
+          {error && (
           <Alert severity="error" sx={{ m: 2 }} onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
   
-        {/* Messages Container */}
         <Box 
           sx={{ 
             flex: 1,
@@ -382,7 +375,6 @@ function ChatPageComponent() {
           </Box>
         </Box>
   
-        {/* Input Area */}
         <Paper 
           elevation={4} 
           sx={{ 
@@ -451,6 +443,80 @@ function ChatPageComponent() {
     );
   }
 
+  */
+
+
+
+
+
+  let chatIdTemp : number = 0;
+  function ChatPageComponent() {
+    const [inputMessage, setTextMessage] = useState('');
+    //!Chat page component,
+
+    console.log("ChatPageComponent rendered.");
+    const { user } = useGoogleAuth();
+    console.log("user", user);
+    const router = useRouter();
+   
+    // Mock user ID - in a real app, this would come from session
+    const userId = 2;
+  
+    const createNewConversation = async (inputMessage: string) => {
+
+      let conversation : Conversation | null = null;
+      try {
+            const userId = 2;
+            conversation = await chatAPI.createConversation(userId, {
+              title: 'New Chat ' + chatIdTemp.toString(),
+              is_active: true,
+            });
+            if(conversation){ 
+              chatIdTemp++;
+
+              //!Send message to the conversation.
+              const message = await chatAPI.createMessage(userId, conversation.id, {
+                content: inputMessage,
+                message_type: 'user',                
+              });
+              if(message){
+                console.log("Message sent to the conversation.");
+              }
+              else{
+                console.error('Error sending message: Message is null');
+              }
+            }
+            else{
+              console.error('Error creating conversation: Conversation is null');
+            }
+          }
+          catch(err){
+            console.error('Error creating conversation:', err);
+          }
+          return conversation;
+        };  
+
+
+        const handleSendMessage = async (inputMessage: string) => {
+
+
+          const conversationCreated = await createNewConversation(inputMessage);
+          if(conversationCreated){
+            //!Message sent, route to the conversation page.
+            router.replace(`/chat?conversationId=${conversationCreated.id}`);
+          }
+          else{
+            console.error('Error creating conversation: Conversation is null');
+          }
+        }
+
+    return (
+        <Box className="chat-page-container" sx={{ width: '100%' }}>
+          <ChatInputBar inputMessage={inputMessage} setInputMessage={setTextMessage} handleSendMessage={handleSendMessage} />
+        </Box>
+    );
+  }
+  
 export default function ChatApp() {
   const theme = useTheme();
 

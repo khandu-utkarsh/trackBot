@@ -83,6 +83,7 @@ func (m *UserModel) Create(ctx context.Context, user *User) (int64, error) {
 	var id int64
 	err := m.db.QueryRowContext(ctx, query, user.Email, now, now).Scan(&id)
 	if err != nil {
+		fmt.Println("DBG: Error creating user: ", err)
 		return 0, fmt.Errorf("error creating user: %w", err)
 	}
 

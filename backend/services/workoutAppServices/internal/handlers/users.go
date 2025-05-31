@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -56,6 +57,8 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("DBG: User: ", user)
+
 	if err := validateUserInput(&user); err != nil {
 		respondWithError(w, err.Error(), http.StatusBadRequest)
 		return
@@ -66,6 +69,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			respondWithError(w, "Email already exists", http.StatusConflict)
+			fmt.Println("DBG: Email already exists")
 			return
 		}
 		respondWithError(w, "Failed to create user", http.StatusInternalServerError)

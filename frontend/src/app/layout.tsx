@@ -40,7 +40,14 @@ function ChatAppLayout({children}: Readonly<{children: React.ReactNode;}>) {
       {/* Main Area */}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <Header />
-        <Box component="main" sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <Box className="app-layout-main-container" component="main" 
+             sx={{ flex: 1, 
+             overflow: 'auto', 
+             display: 'flex', 
+             flexDirection: 'column', 
+             height: '100vh', 
+             width: '100%',
+             justifyContent: 'center'}}>
           {children}
         </Box>
         <Footer />

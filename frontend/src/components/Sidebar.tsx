@@ -22,10 +22,8 @@ import {
 import {
   Add as AddIcon,
   Chat as ChatIcon,
-  MoreVert as MoreVertIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import { useSession } from 'next-auth/react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { chatAPI, Conversation } from '@/lib/api/chat';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,18 +35,15 @@ const DRAWER_WIDTH = 240;
 const loadConversations = async (user: GoogleUser) => {
   let data : Conversation[] = [];
   try {
-    data = await chatAPI.getConversations(user.id);
+    const userId = 2;
+    data = await chatAPI.getConversations(userId);
   } catch (err) {
     console.error('Unable to fetch the conversations for the  user:', user.name, " error: ", err);
   }
   return data;
 };
 
-//!This should open up a new chat box in the UI
-const handleNewChat = async () => {
-  //!This should create a new conversation in the UI
-  console.log("New chat button clicked: Implementation is pending.");
-};
+
 
 const formatTimestamp = (dateString: string) => {
   const date = new Date(dateString);
@@ -68,13 +63,6 @@ const formatTimestamp = (dateString: string) => {
   }
 };
 
-const handleChatSelect = (conversationId: number) => {
-  console.log("Chat selected: ", conversationId);
-  console.log("Yet to be implemented: Implementation is pending.");
-
-  //!This should open up the chat box for the selected conversation
-  //router.push(`/chat?conversationId=${conversationId}`);
-};
 
 const handleDeleteConversation = async (conversationId: number, event: React.MouseEvent) => {
   console.log("Yet to be implemented: Implementation is pending.");
@@ -110,6 +98,12 @@ export default function Sidebar() {
   
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+
+  const handleNewChat = async () => {
+    router.push('/');
+  };
+
   // Load conversations on component mount and when the user changes
   useEffect(() => {
     setIsLoading(true);
@@ -120,6 +114,17 @@ export default function Sidebar() {
       });
     } 
   }, [user]);
+
+  const handleChatSelect = (conversationId: number) => {
+    console.log("Chat selected: ", conversationId);
+    console.log("Yet to be implemented: Implementation is pending.");
+  
+    //!This should open up the chat box for the selected conversation
+    router.push(`/chat?conversationId=${conversationId}`);
+  };
+  
+
+
 
   return (
     <Drawer
@@ -206,7 +211,7 @@ export default function Sidebar() {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <Typography variant="body2" noWrap sx={{ flex: 1 }}>
                             {conversation.title}
                           </Typography>
@@ -218,17 +223,17 @@ export default function Sidebar() {
                               sx={{ height: 16, fontSize: '0.6rem' }}
                             />
                           )}
-                        </Box>
+                        </span>
                       }
                       secondary={
-                        <Box>
+                        <>
                           <Typography variant="caption" color="text.secondary" noWrap>
                             {conversation.last_message || 'No messages yet'}
                           </Typography>
                           <Typography variant="caption" color="text.secondary" display="block">
                             {formatTimestamp(conversation.updated_at)}
                           </Typography>
-                        </Box>
+                        </>
                       }
                     />
                     <IconButton

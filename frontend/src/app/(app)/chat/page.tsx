@@ -7,30 +7,23 @@ import {
   IconButton,
   Paper,
   Typography,
-  Avatar,
   useTheme,
-  Divider,
-  Chip,
-  CircularProgress,
   Alert,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
-import PersonIcon from '@mui/icons-material/Person';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { chatAPI, Message as APIMessage, Conversation } from '@/lib/api/chat';
 import { useAuth } from '@/contexts/AuthContext';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
+import ChatMessage from '@/components/ChatMessage';
+import AIThinkingMessage from '@/components/AIThinkingMessage';
 
-interface Message {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
-}
 
-function ChatPageContent() {
-  const theme = useTheme();
+export default function ChatPageContent() {
+
+  console.log("ChatPageContent from page rendered.");
+
+  const theme = useTheme();  
   const router = useRouter();
   const searchParams = useSearchParams();
   const conversationId = searchParams.get('conversationId');
@@ -41,7 +34,7 @@ function ChatPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Get user ID from authenticated user
@@ -58,13 +51,6 @@ function ChatPageContent() {
 
   const userId = user?.email ? getUserId(user.email) : null;
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   // Load conversation and messages when conversationId changes
   useEffect(() => {
@@ -84,6 +70,7 @@ function ChatPageContent() {
 
     try {
       setError(null);
+      const userId = 2;
       const conversation = await chatAPI.createConversation(userId, {
         title: 'New Chat',
         is_active: true,
@@ -116,6 +103,7 @@ function ChatPageContent() {
       setIsLoading(true);
       
       // Load conversation details
+      const userId = 2;
       const conversation = await chatAPI.getConversation(userId, convId);
       setCurrentConversation(conversation);
       
@@ -154,6 +142,7 @@ function ChatPageContent() {
 
     try {
       // Send message to backend
+      const userId = 2;
       await chatAPI.createMessage(userId, currentConversation.id, {
         content: userMessage.content,
         message_type: 'user',
@@ -164,6 +153,7 @@ function ChatPageContent() {
       // For now, let's poll after a short delay
       setTimeout(async () => {
         try {
+          const userId = 2;
           const updatedMessages = await chatAPI.getMessages(userId, currentConversation.id);
           const formattedMessages: Message[] = updatedMessages.map((msg: APIMessage) => ({
             id: msg.id.toString(),
@@ -258,16 +248,6 @@ function ChatPageContent() {
               Your personal workout and nutrition advisor
             </Typography>
           </Box>
-          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              Welcome, {user.name}
-            </Typography>
-            <Avatar 
-              src={user.picture} 
-              alt={user.name}
-              sx={{ width: 32, height: 32 }}
-            />
-          </Box>
         </Box>
       </Paper>
 
@@ -280,6 +260,7 @@ function ChatPageContent() {
 
       {/* Messages Container */}
       <Box 
+        className="prior-messages-container-class-for-debugging"
         sx={{ 
           flex: 1,
           overflow: 'auto',
@@ -302,6 +283,7 @@ function ChatPageContent() {
         }}
       >
         <Box 
+          className="messages-container-class-for-debugging"
           sx={{
             width: '100%',
             maxWidth: '1200px',
@@ -312,107 +294,11 @@ function ChatPageContent() {
           }}
         >
           {messages.map((message) => (
-            <Box
-              key={message.id}
-              sx={{
-                display: 'flex',
-                flexDirection: message.role === 'user' ? 'row-reverse' : 'row',
-                gap: 2,
-                alignItems: 'flex-start',
-              }}
-            >
-              <Avatar
-                sx={{
-                  bgcolor: message.role === 'user' ? 'primary.main' : 'secondary.main',
-                  width: 48,
-                  height: 48,
-                  flexShrink: 0,
-                }}
-              >
-                {message.role === 'user' ? (
-                  <img 
-                    src={user.picture || '/images/user.png'} 
-                    alt="User" 
-                    style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-                  />
-                ) : (
-                  <img 
-                    src={'/images/ai.png'} 
-                    alt="AI" 
-                    style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-                  />
-                )}
-              </Avatar>
-              
-              <Paper
-                elevation={2}
-                sx={{
-                  p: 2.5,
-                  maxWidth: '70%',
-                  bgcolor: message.role === 'user' 
-                    ? 'primary.main' 
-                    : 'background.paper',
-                  color: message.role === 'user' 
-                    ? 'primary.contrastText' 
-                    : 'text.primary',
-                  borderRadius: 3,
-                  position: 'relative',
-                  ...(message.role === 'user' ? {
-                    borderTopRightRadius: 8,
-                  } : {
-                    borderTopLeftRadius: 8,
-                  }),
-                }}
-              >
-                <Typography variant="body1" sx={{ 
-                  whiteSpace: 'pre-wrap', 
-                  lineHeight: 1.6,
-                  fontSize: '1rem'
-                }}>
-                  {message.content}
-                </Typography>
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    display: 'block', 
-                    mt: 1.5, 
-                    opacity: 0.7,
-                    textAlign: message.role === 'user' ? 'right' : 'left',
-                    fontSize: '0.75rem'
-                  }}
-                >
-                  {formatTime(message.timestamp)}
-                </Typography>
-              </Paper>
-            </Box>
+            <ChatMessage key={message.id} message={message} />
           ))}
           
-          {isLoading && (
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-              <Avatar sx={{ bgcolor: 'secondary.main', width: 48, height: 48 }}>
-                <SmartToyIcon />
-              </Avatar>
-              <Paper
-                elevation={2}
-                sx={{
-                  p: 2.5,
-                  bgcolor: 'background.paper',
-                  borderRadius: 3,
-                  borderTopLeftRadius: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                }}
-              >
-                <CircularProgress size={20} />
-                <Typography variant="body1" color="text.secondary">
-                  AI is thinking...
-                </Typography>
-              </Paper>
-            </Box>
-          )}
+          {isLoading && ( <AIThinkingMessage />)}
           
-          <div ref={messagesEndRef} />
         </Box>
       </Box>
 
@@ -426,7 +312,7 @@ function ChatPageContent() {
           flexShrink: 0
         }}
       >
-        <Box 
+        <Box className="chat-input-container" 
           sx={{
             maxWidth: '1200px',
             mx: 'auto',
@@ -484,12 +370,3 @@ function ChatPageContent() {
     </Box>
   );
 }
-
-// Wrap the entire component with ProtectedRoute
-export default function ChatPage() {
-  return (
-    <ProtectedRoute>
-      <ChatPageContent />
-    </ProtectedRoute>
-  );
-} 
