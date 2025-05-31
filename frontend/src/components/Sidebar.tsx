@@ -24,8 +24,9 @@ import {
 } from '@mui/icons-material';
 import { useRouter, useParams} from 'next/navigation';
 import { chatAPI, Conversation } from '@/lib/api/chat';
-import { useAuth } from '@/contexts/AuthContext';
+import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
 import { GoogleUser } from '@/hooks/useGoogleAuth';
+
 
 
 const DRAWER_WIDTH = 240;
@@ -54,7 +55,7 @@ const formatTimestamp = (dateString: string) => {
 
 export default function Sidebar() {
   const theme = useTheme();
-  const { user } = useAuth();
+  const { user } = useRequireAuth();
 
   const router = useRouter();
   const params = useParams();
@@ -65,9 +66,7 @@ export default function Sidebar() {
   }
   console.log("currentConversationId: ", currentConversationId);
 
-
-
-  const [conversations, setConversations] = useState<Map<number, Conversation>>(new Map());
+  const [conversations, setConversations] = useConversations();
   const [isLoading, setIsLoading] = useState(true);
 
   // Load conversations on component mount and when the user changes
@@ -89,13 +88,12 @@ export default function Sidebar() {
     } catch (err) {
       console.error('Unable to fetch the conversations for the  user:', user.name, " error: ", err);
     }
+
+    const newMap = new Map(conversations);
     data.forEach(conversation => {
-      setConversations(prev => {
-        const newMap = new Map(prev);
-        newMap.set(conversation.id, conversation);
-        return newMap;
-      });
+      newMap.set(conversation.id, conversation);
     });
+    setConversations(newMap);
   };
 
   //!When user clicks on the new chat button
@@ -114,11 +112,9 @@ export default function Sidebar() {
       await chatAPI.deleteConversation(userId, conversationId);
       //!Doesn't make sense to reload everything, simply delete from the map using the id.
       if (user) {
-        setConversations(prev => {
-          const newMap = new Map(prev);
-          newMap.delete(conversationId);
-          return newMap;
-        });
+        const newMap = new Map(conversations);
+        newMap.delete(conversationId);
+        setConversations(newMap);
       }
       
       // If we deleted the current conversation, navigate to new chat
@@ -203,7 +199,7 @@ export default function Sidebar() {
             </Box>
           ) : (
             <List sx={{ px: 1 }}>
-              {Array.from(conversations.values()).map((conversation) => (
+              {Array.from(conversations.values()).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()).map((conversation) => (
                 <ListItem key={conversation.id} disablePadding sx={{ mb: 0.5 }}>
                   <ListItemButton
                     selected={currentConversationId === conversation.id}

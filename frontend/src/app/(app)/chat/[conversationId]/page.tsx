@@ -11,7 +11,7 @@ import {
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { chatAPI, Message as APIMessage, Conversation } from '@/lib/api/chat';
-import { useAuth } from '@/contexts/AuthContext';
+import { useRequireAuth} from '@/contexts/AuthContext';
 import ChatInputBar from '@/components/ChatInputBar';
 import Chatbox from '@/components/Chatbox';
 import { Message } from '@/components/ChatMessage';
@@ -25,7 +25,7 @@ export default function ChatPageContent() {
   const router = useRouter();
   const params = useParams();
   const conversationId: number = parseInt(params.conversationId as string);
-  const { user, token, isAuthenticated } = useAuth();
+  const { user, token, isAuthenticated } = useRequireAuth();
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');

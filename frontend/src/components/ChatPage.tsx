@@ -5,11 +5,11 @@ import {
   Box,
   useTheme,
 } from '@mui/material';
-import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { useRouter } from 'next/navigation';
 import { chatAPI } from '@/lib/api/chat';
 import ChatInputBar from './ChatInputBar';
 import { Conversation } from '@/lib/api/chat';
+import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
 
 
 interface Message {
@@ -21,10 +21,10 @@ interface Message {
 let chatIdTemp : number = 0;
 function ChatPageComponent() {
   const [inputMessage, setTextMessage] = useState('');
-  //!Chat page component,
+  const [conversations, setConversations] = useConversations();
 
   console.log("ChatPageComponent rendered.");
-  const { user } = useGoogleAuth();
+  const { user } = useRequireAuth();
   console.log("user", user);
   const router = useRouter();
   
@@ -32,7 +32,6 @@ function ChatPageComponent() {
   const userId = 2;
 
   const createNewConversation = async (inputMessage: string) => {
-
     let conversation : Conversation | null = null;
     try {
           const userId = 2;
@@ -65,12 +64,13 @@ function ChatPageComponent() {
         return conversation;
       };  
 
-
       const handleSendMessage = async (inputMessage: string) => {
-
-
         const conversationCreated = await createNewConversation(inputMessage);
         if(conversationCreated){
+          const newMap = new Map(conversations);
+          newMap.set(conversationCreated.id, conversationCreated);
+          setConversations(newMap);
+
           //!Message sent, route to the conversation page.
           router.replace(`/chat/${conversationCreated.id}`);
         }

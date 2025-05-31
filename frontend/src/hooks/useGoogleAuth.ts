@@ -6,6 +6,7 @@ export interface GoogleUser {
   name: string;
   picture: string;
   token: string;
+  sub: string;
 }
 
 export const useGoogleAuth = () => {
