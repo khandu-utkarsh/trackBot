@@ -54,13 +54,9 @@ export default function Header() {
 
   return (
     <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          TrackBot
-        </Typography>
-        
-        {isAuthenticated && user ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Toolbar>        
+        {user ? (
+          <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 2 }}>
             <Typography variant="body2">
               Welcome, {user.name}
             </Typography>

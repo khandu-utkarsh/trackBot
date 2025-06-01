@@ -133,10 +133,10 @@ export default function Sidebar() {
         {/* Header */}
         <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
           <Typography variant="h6" color="text.primary" fontWeight={600}>
-            Fitness Chat
+            TrackBot
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            AI-powered fitness coaching
+            AI-powered logging and tracking.
           </Typography>
         </Box>
 
