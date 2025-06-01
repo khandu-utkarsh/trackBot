@@ -23,11 +23,12 @@ export const useGoogleAuth = () => {
         // Decode JWT token to get user info
         const payload = JSON.parse(atob(token.split('.')[1]));
         setUser({
-          id: payload.sub,  //!Need to create this and fetch from my database. [Go backend -- TODO]
+          id: 2,  //!Need to create this and fetch from my database. [Go backend -- TODO]
           email: payload.email,
           name: payload.name,
           picture: payload.picture,
-          token: token
+          token: token,
+          sub: payload.sub
         });
         setIsAuthenticated(true);
       } catch (error) {
@@ -44,11 +45,12 @@ export const useGoogleAuth = () => {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
           setUser({
-            id: payload.sub,
+            id: 2,  //!Need to create this and fetch from my database. [Go backend -- TODO]
             email: payload.email,
             name: payload.name,
             picture: payload.picture,
-            token: token
+            token: token,
+            sub: payload.sub
           });
           setIsAuthenticated(true);
         } catch (error) {
