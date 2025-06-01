@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -9,20 +9,18 @@ import {
   Alert,
 } from '@mui/material';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { chatAPI, Message as APIMessage, Conversation } from '@/lib/api/chat';
+import { useParams} from 'next/navigation';
+import { chatAPI } from '@/lib/api/chat';
+import { Conversation, Message } from '@/lib/types/chat';
 import { useRequireAuth} from '@/contexts/AuthContext';
 import ChatInputBar from '@/components/ChatInputBar';
 import Chatbox from '@/components/Chatbox';
-import { Message } from '@/components/ChatMessage';
-
 
 export default function ChatPageContent() {
 
   console.log("ChatPageContent from page rendered.");
 
   const theme = useTheme();  
-  const router = useRouter();
   const params = useParams();
   const conversationId: number = parseInt(params.conversationId as string);
   const { user, token, isAuthenticated } = useRequireAuth();
@@ -31,63 +29,16 @@ export default function ChatPageContent() {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Get user ID from authenticated user
-  const getUserId = (email: string): number => {
-    // Simple hash function to convert email to a consistent numeric ID
-    let hash = 0;
-    for (let i = 0; i < email.length; i++) {
-      const char = email.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash);
-  };
-
-  const userId = user?.email ? getUserId(user.email) : null;
-
+  //!Hardcoding the user id for now.
+  const userId = 2;
 
   // Load conversation and messages when conversationId changes
   useEffect(() => {
     if (conversationId && userId) {
       loadConversationData(conversationId);
-    } else if (userId) {
-      // Create a new conversation
-      createNewConversation();
     }
   }, [conversationId, userId]);
-
-  const createNewConversation = async () => {
-    if (!userId || !token) {
-      setApiError('Authentication required');
-      return;
-    }
-
-    try {
-      setApiError(null);
-      const userId = 2;
-      const conversation = await chatAPI.createConversation(userId, {
-        title: 'New Chat',
-      });
-      setCurrentConversation(conversation);
-      setMessages([
-        {
-          id: '1',
-          content: `Hello ${user?.name}! I'm your AI fitness assistant. I can help you with workout planning, nutrition advice, and fitness-related questions. How can I assist you today?`,
-          role: 'assistant',
-          timestamp: new Date(),
-        },
-      ]);
-      // Update URL with new conversation ID
-      router.replace(`/chat?conversationId=${conversation.id}`);
-    } catch (err) {
-      setApiError('Failed to create new conversation');
-      console.error('Error creating conversation:', err);
-    }
-  };
 
   const loadConversationData = async (convId: number) => {
     if (!userId || !token) {
@@ -101,19 +52,10 @@ export default function ChatPageContent() {
       
       // Load conversation details
       const userId = 2;
-      const conversation = await chatAPI.getConversation(userId, convId);
-      setCurrentConversation(conversation);
-      
+     
       // Load messages
-      const apiMessages = await chatAPI.getMessages(userId, convId);
-      const formattedMessages: Message[] = apiMessages.map((msg: APIMessage) => ({
-        id: msg.id.toString(),
-        content: msg.content,
-        role: msg.message_type === 'user' ? 'user' : 'assistant',
-        timestamp: new Date(msg.created_at),
-      }));
-      
-      setMessages(formattedMessages);
+      const apiMessages = await chatAPI.getMessages(userId, convId);      
+      setMessages(apiMessages);
     } catch (err) {
       setApiError('Failed to load conversation');
       console.error('Error loading conversation:', err);
@@ -123,13 +65,16 @@ export default function ChatPageContent() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading || !currentConversation || !userId || !token) return;
+    if (!inputMessage.trim() || isLoading || !userId || !token) return;
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: 0,
       content: inputMessage.trim(),
-      role: 'user',
-      timestamp: new Date(),
+      message_type: 'user',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      conversation_id: conversationId,
+      user_id: userId,
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -140,7 +85,7 @@ export default function ChatPageContent() {
     try {
       // Send message to backend
       const userId = 2;
-      await chatAPI.createMessage(userId, currentConversation.id, {
+      await chatAPI.createMessage(userId, conversationId, {
         content: userMessage.content,
         message_type: 'user',
       });
@@ -151,14 +96,8 @@ export default function ChatPageContent() {
       setTimeout(async () => {
         try {
           const userId = 2;
-          const updatedMessages = await chatAPI.getMessages(userId, currentConversation.id);
-          const formattedMessages: Message[] = updatedMessages.map((msg: APIMessage) => ({
-            id: msg.id.toString(),
-            content: msg.content,
-            role: msg.message_type === 'user' ? 'user' : 'assistant',
-            timestamp: new Date(msg.created_at),
-          }));
-          setMessages(formattedMessages);
+          const updatedMessages = await chatAPI.getMessages(userId, conversationId);
+          setMessages(updatedMessages);
         } catch (err) {
           console.error('Error fetching updated messages:', err);
         } finally {
@@ -170,10 +109,13 @@ export default function ChatPageContent() {
       console.error('Error sending message:', error);
       setApiError('Failed to send message. Please try again.');
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: 0,
         content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
-        role: 'assistant',
-        timestamp: new Date(),
+        message_type: 'assistant',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        conversation_id: conversationId,
+        user_id: userId,
       };
       setMessages(prev => [...prev, errorMessage]);
       setIsLoading(false);
@@ -232,7 +174,7 @@ export default function ChatPageContent() {
           <SmartToyIcon color="primary" sx={{ fontSize: 32 }} />
           <Box>
             <Typography variant="h5" color="text.primary" fontWeight={600}>
-              {currentConversation?.title || 'AI Fitness Assistant'}
+              {'AI Fitness Assistant'}
             </Typography>
             <Typography variant="body1" color="text.secondary">
               Your personal workout and nutrition advisor

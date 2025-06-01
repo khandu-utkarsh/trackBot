@@ -23,7 +23,8 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useRouter, useParams} from 'next/navigation';
-import { chatAPI, Conversation } from '@/lib/api/chat';
+import { chatAPI } from '@/lib/api/chat';
+import { Conversation } from '@/lib/types/chat';
 import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
 import { GoogleUser } from '@/hooks/useGoogleAuth';
 

@@ -8,16 +8,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { chatAPI } from '@/lib/api/chat';
 import ChatInputBar from './ChatInputBar';
-import { Conversation } from '@/lib/api/chat';
+import { Conversation } from '@/lib/types/chat';
 import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
 
-
-interface Message {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  timestamp: Date;
-}
 let chatIdTemp : number = 0;
 function ChatPageComponent() {
   const [inputMessage, setTextMessage] = useState('');

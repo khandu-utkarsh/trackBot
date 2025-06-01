@@ -1,11 +1,14 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { Message } from '@/lib/types/chat';
 
+/*
 export interface Message {
     id: string;
     content: string;
     role: 'user' | 'assistant';
     timestamp: Date;
 }
+*/
   
 const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -18,7 +21,7 @@ export default function ChatMessage({ message }: { message: Message }) {
             key={message.id}
             sx={{
                     display: 'flex',
-                    flexDirection: message.role === 'user' ? 'row-reverse' : 'row',
+                    flexDirection: message.message_type === 'user' ? 'row-reverse' : 'row',
                     gap: 2,
                     alignItems: 'flex-start',
                 }}
@@ -28,11 +31,11 @@ export default function ChatMessage({ message }: { message: Message }) {
                 sx={{
                         p: 2.5,
                         maxWidth: '70%',
-                        bgcolor: message.role === 'user' ? 'primary.main' : 'background.paper',
-                        color: message.role === 'user' ? 'primary.contrastText' : 'text.primary',
+                        bgcolor: message.message_type === 'user' ? 'primary.main' : 'background.paper',
+                        color: message.message_type === 'user' ? 'primary.contrastText' : 'text.primary',
                         borderRadius: 3,
                         position: 'relative',
-                        ...(message.role === 'user' ? {borderTopRightRadius: 8,} : {borderTopLeftRadius: 8,}),
+                        ...(message.message_type === 'user' ? {borderTopRightRadius: 8,} : {borderTopLeftRadius: 8,}),
                 }}
         >
             <Typography 
@@ -41,7 +44,7 @@ export default function ChatMessage({ message }: { message: Message }) {
                     whiteSpace: 'pre-wrap', 
                     lineHeight: 1.6,
                     fontSize: '1rem',
-                    textAlign: message.role === 'user' ? 'right' : 'left',
+                    textAlign: message.message_type === 'user' ? 'right' : 'left',
                 }}
             >
                 {message.content}
@@ -52,11 +55,11 @@ export default function ChatMessage({ message }: { message: Message }) {
                     display: 'block', 
                     mt: 1.5, 
                     opacity: 0.7,
-                    textAlign: message.role === 'user' ? 'right' : 'left',
+                    textAlign: message.message_type === 'user' ? 'right' : 'left',
                     fontSize: '0.75rem'
                 }}
             >
-                {formatTime(message.timestamp)}
+                {formatTime(new Date(message.created_at))}
             </Typography>
         </Paper>
     </Box>

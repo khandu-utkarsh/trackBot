@@ -1,23 +1,6 @@
-// API service for chat functionality
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+import { Conversation, Message } from "@/lib/types/chat";
+import BaseHTTPRequest from "./baseHTTPRequest";
 
-export interface Message {
-  id: number;
-  conversation_id: number;
-  user_id: number;
-  content: string;
-  message_type: 'user' | 'assistant' | 'system';
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Conversation {
-  id: number;
-  user_id: number;
-  title: string;
-  updated_at: string;
-  last_message?: string;
-}
 
 export interface CreateConversationRequest {
   title: string;
@@ -28,40 +11,8 @@ export interface CreateMessageRequest {
   message_type: 'user' | 'assistant' | 'system';
 }
 
-class ChatAPI {
-  private getAuthHeaders(): Record<string, string> {
-    const token = localStorage.getItem('google_token');
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    return headers;
-  }
-
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${API_BASE_URL}/api${endpoint}`;
-    
-    const response = await fetch(url, {
-      headers: {
-        ...this.getAuthHeaders(),
-        ...options.headers,
-      },
-      ...options,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(errorData.error || `HTTP ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  // Conversation methods
+class ChatAPI extends BaseHTTPRequest {
+  //!Conversation methods
   async getConversations(userId: number): Promise<Conversation[]> {
     return this.request<Conversation[]>(`/users/${userId}/conversations`);
   }
@@ -90,7 +41,7 @@ class ChatAPI {
     });
   }
 
-  // Message methods
+  //!Message methods
   async getMessages(userId: number, conversationId: number): Promise<Message[]> {
     return this.request<Message[]>(`/users/${userId}/conversations/${conversationId}/messages`);
   }
@@ -120,4 +71,4 @@ class ChatAPI {
   }
 }
 
-export const chatAPI = new ChatAPI(); 
+export const chatAPI = new ChatAPI();

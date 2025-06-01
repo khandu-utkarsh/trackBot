@@ -3,7 +3,7 @@
 import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { GoogleUser, useGoogleAuth } from '../hooks/useGoogleAuth';
 import { useRouter } from 'next/navigation';
-import { Conversation } from '@/lib/api/chat';
+import { Conversation } from '@/lib/types/chat';
 
 interface AuthContextType {
   isAuthenticated: boolean;
