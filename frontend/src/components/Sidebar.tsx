@@ -4,36 +4,23 @@ import { useState, useEffect } from 'react';
 import {
   Box,
   Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Divider,
-  IconButton,
   useTheme,
   Typography,
   Button,
-  Chip,
   CircularProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Chat as ChatIcon,
-  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useRouter, useParams} from 'next/navigation';
 import { chatAPI } from '@/lib/api/chat';
 import { Conversation } from '@/lib/types/chat';
 import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
 import { GoogleUser } from '@/hooks/useGoogleAuth';
-
-
+import SidebarList from './SidebarList';
 
 const DRAWER_WIDTH = 240;
-
-
-
 
 const formatTimestamp = (dateString: string) => {
   const date = new Date(dateString);
@@ -53,11 +40,9 @@ const formatTimestamp = (dateString: string) => {
   }
 };
 
-
 export default function Sidebar() {
   const theme = useTheme();
   const { user } = useRequireAuth();
-
   const router = useRouter();
   const params = useParams();
 
@@ -78,7 +63,6 @@ export default function Sidebar() {
       setIsLoading(false);
     } 
   }, [user]);
-
 
   //!For loading the conversations from the backend
   const loadConversations = async (user: GoogleUser) => {
@@ -102,10 +86,8 @@ export default function Sidebar() {
     router.push('/');
   };
 
-  
   //!When user deletes a conversation
   const handleDeleteConversation = async (user: GoogleUser | null, conversationId: number, event: React.MouseEvent, currentConversationId: number | null) => {
-
     event.stopPropagation(); // Prevent chat selection
     
     const userId = 2;
@@ -126,14 +108,11 @@ export default function Sidebar() {
       console.error('Error deleting conversation with the id: ', conversationId, ' error: ', err);
     }
   };
-  
 
   //!When user selects a conversation, routing to the correct chat page
   const handleChatSelect = (conversationId: number) => {
-      router.push(`/chat/${conversationId}`);
+    router.push(`/chat/${conversationId}`);
   };
-  
-
 
   return (
     <Drawer
@@ -150,12 +129,6 @@ export default function Sidebar() {
       }}
       open
     >
-      <DrawerContent />
-    </Drawer>
-  );
-
-  function DrawerContent() {
-    return (
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Header */}
         <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
@@ -199,72 +172,18 @@ export default function Sidebar() {
               </Typography>
             </Box>
           ) : (
-            <List sx={{ px: 1 }}>
-              {Array.from(conversations.values()).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()).map((conversation) => (
-                <ListItem key={conversation.id} disablePadding sx={{ mb: 0.5 }}>
-                  <ListItemButton
-                    selected={currentConversationId === conversation.id}
-                    onClick={() => handleChatSelect(conversation.id)}
-                    sx={{
-                      borderRadius: 1,
-                      '&.Mui-selected': {
-                        backgroundColor: theme.palette.action.selected,
-                      },
-                      '&:hover': {
-                        backgroundColor: theme.palette.action.hover,
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 36 }}>
-                      <ChatIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <Typography variant="body2" noWrap sx={{ flex: 1 }}>
-                            {conversation.title}
-                          </Typography>
-                          {conversation.id === currentConversationId && (
-                            <Chip
-                              label="Active"
-                              size="small"
-                              color="primary"
-                              sx={{ height: 16, fontSize: '0.6rem' }}
-                            />
-                          )}
-                        </span>
-                      }
-                      secondary={
-                        <>
-                          <Typography variant="caption" color="text.secondary" noWrap>
-                            {conversation.last_message || 'No messages yet'}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary" display="block">
-                            {formatTimestamp(conversation.updated_at)}
-                          </Typography>
-                        </>
-                      }
-                    />
-                    <IconButton
-                      size="small"
-                      onClick={(e) => handleDeleteConversation(user, conversation.id, e, currentConversationId)}
-                      sx={{ 
-                        opacity: 0.6,
-                        '&:hover': { opacity: 1 },
-                        ml: 1
-                      }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
+            <SidebarList
+              conversations={conversations}
+              currentConversationId={currentConversationId}
+              onChatSelect={handleChatSelect}
+              onDeleteConversation={handleDeleteConversation}
+              user={user}
+            />
           )}
         </Box>
       </Box>
-    );
-  }
+    </Drawer>
+  );
 }
 
 
