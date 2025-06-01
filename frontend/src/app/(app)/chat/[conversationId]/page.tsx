@@ -151,38 +151,6 @@ export default function ChatPageContent() {
       bgcolor: 'background.default',
       overflow: 'hidden'
     }}>
-      {/* Header */}
-      <Paper 
-        elevation={1} 
-        sx={{ 
-          borderRadius: 0,
-          bgcolor: 'background.paper',
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          flexShrink: 0
-        }}
-      >
-        <Box 
-          sx={{ 
-            maxWidth: '1200px', 
-            mx: 'auto', 
-            p: 3,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2
-          }}
-        >
-          <SmartToyIcon color="primary" sx={{ fontSize: 32 }} />
-          <Box>
-            <Typography variant="h5" color="text.primary" fontWeight={600}>
-              {'AI Fitness Assistant'}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Your personal workout and nutrition advisor
-            </Typography>
-          </Box>
-        </Box>
-      </Paper>
-
       {/* Error Alert */}
       {apiError && (
         <Alert severity="error" sx={{ m: 2 }} onClose={() => setApiError(null)}>
