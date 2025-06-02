@@ -1,8 +1,10 @@
 'use client';
 
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Script from 'next/script';
-import { userAPI, User } from '@/lib/api/users';
+import { userAPI } from '@/lib/api/users';
+import { User } from '@/lib/types/users';
+import { useRef, useEffect } from 'react';
 
 declare global {
   interface Window {
@@ -11,12 +13,13 @@ declare global {
 }
 
 export default function LandingPageComponent() {
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+
   const handleCredentialResponse = (response: any) => {
     console.log('Google Auth Response:', response);
 
     const payload = JSON.parse(atob(response.credential.split('.')[1]));
     console.log("Payload: ", payload);
-
 
     const user: User = {
       email: payload.email,
@@ -28,52 +31,48 @@ export default function LandingPageComponent() {
     const backendResponse = userAPI.createUser(user);
     console.log("User created: ", backendResponse);
 
-
     window.dispatchEvent(new CustomEvent('auth-changed', {
       detail: { authenticated: true, token: response.credential }
     }));
   };
 
-  const handleGoogleSignIn = () => {
-    console.log('Google SDK available:', !!window.google);    
-    if (window.google && window.google.accounts) {
-      try {
-        // Try the standard prompt first
-        window.google.accounts.id.prompt((notification: any) => {
-          console.log('Prompt notification:', notification);
-          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            console.log('Prompt not displayed, trying renderButton method');
-            // Fallback: Create a temporary button element for Google to render
-            const tempDiv = document.createElement('div');
-            tempDiv.style.display = 'none';
-            document.body.appendChild(tempDiv);
-            
-            window.google.accounts.id.renderButton(tempDiv, {
-              type: 'standard',
-              size: 'large',
-              text: 'signin_with',
-              theme: 'outline',
-            });
-            
-            // Trigger the button click
-            const googleButton = tempDiv.querySelector('div[role="button"]') as HTMLElement;
-            if (googleButton) {
-              googleButton.click();
-            }
-            
-            // Clean up
-            setTimeout(() => {
-              document.body.removeChild(tempDiv);
-            }, 1000);
-          }
-        });
-      } catch (error) {
-        console.error('Error with Google Sign-In:', error);
+  useEffect(() => {
+    // Initialize Google button when SDK is loaded and component mounts
+    const initializeGoogleButton = () => {
+      if (window.google && window.google.accounts && googleButtonRef.current) {
+        try {
+          window.google.accounts.id.renderButton(googleButtonRef.current, {
+            type: 'standard',
+            size: 'large',
+            text: 'signin_with',
+            theme: 'outline',
+            logo_alignment: 'left',
+            width: 280,
+            height: 50
+          });
+          console.log('Google button rendered successfully');
+        } catch (error) {
+          console.error('Error rendering Google button:', error);
+        }
       }
+    };
+
+    // Check if SDK is already loaded
+    if (window.google && window.google.accounts) {
+      initializeGoogleButton();
     } else {
-      console.error('Google SDK not loaded or accounts not available');
+      // Wait for SDK to load
+      const checkSDK = setInterval(() => {
+        if (window.google && window.google.accounts) {
+          clearInterval(checkSDK);
+          initializeGoogleButton();
+        }
+      }, 100);
+      
+      // Clean up interval after 10 seconds
+      setTimeout(() => clearInterval(checkSDK), 10000);
     }
-  };
+  }, []);
 
   return (
     <>
@@ -91,17 +90,15 @@ export default function LandingPageComponent() {
           
           if (window.google && window.google.accounts) {
             try {
-              // Only initialize, don't auto-prompt
+              // Initialize Google Identity Services
               window.google.accounts.id.initialize({
                 client_id: clientId,
                 callback: handleCredentialResponse,
                 auto_select: false,
                 cancel_on_tap_outside: true,
-                itp_support: true, // Intelligent Tracking Prevention support
+                itp_support: true,
               });
               
-              // Disable automatic prompts
-              window.google.accounts.id.disableAutoSelect();
               console.log('Google SDK initialized successfully');
             } catch (error) {
               console.error('Error initializing Google SDK:', error);
@@ -121,19 +118,23 @@ export default function LandingPageComponent() {
         justifyContent: 'center',
         alignItems: 'center',
         textAlign: 'center',
-        py: 8
+        py: 8,
+        gap: 3
       }}>
         <Typography variant="h1" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
           TrackBot
         </Typography>
-        <Button
-          variant="contained"
-          size="large"
-          onClick={handleGoogleSignIn}
-          sx={{ px: 4, py: 1.5 }}
-        >
-          Sign in with Google
-        </Button>
+                
+        {/* Google's official rendered button */}
+        <div 
+          ref={googleButtonRef}
+          style={{ 
+            minHeight: '50px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        />
       </Box>
     </>
   );
