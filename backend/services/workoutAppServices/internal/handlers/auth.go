@@ -135,6 +135,7 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	// Get user from context (set by auth middleware)
 	user, ok := middleware.GetUserFromContext(r.Context())
+	fmt.Println("user obtained from context: ", user)
 	if !ok {
 		respondWithError(w, "Unauthorized", http.StatusUnauthorized)
 		return

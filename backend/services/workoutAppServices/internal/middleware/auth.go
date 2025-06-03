@@ -17,7 +17,7 @@ import (
 
 // UserContext represents the authenticated user
 type UserContext struct {
-	UserID  int    `json:"user_id"`
+	UserID  int    `json:"id"`
 	Email   string `json:"email"`
 	Name    string `json:"name"`
 	Picture string `json:"picture"`
