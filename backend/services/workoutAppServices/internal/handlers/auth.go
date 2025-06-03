@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"workout_app_backend/internal/middleware"
 	"workout_app_backend/internal/models"
@@ -28,6 +29,9 @@ type GoogleLoginRequest struct {
 
 // GoogleLogin handles POST /api/auth/google
 func (h *AuthHandler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("GoogleLogin request received")
+
 	if r.Method != http.MethodPost {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -89,7 +93,7 @@ func (h *AuthHandler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 
 	// 4. Set secure HttpOnly cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:     "auth_token",
+		Name:     "trackbot_auth_token",
 		Value:    token,
 		HttpOnly: true,
 		Secure:   true, // HTTPS only in production
@@ -98,18 +102,7 @@ func (h *AuthHandler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 	})
 
-	// 5. Return user information
-	userResponse := map[string]interface{}{
-		"success": true,
-		"user": map[string]interface{}{
-			"id":      user.ID,
-			"email":   user.Email,
-			"name":    googleClaims.Name,
-			"picture": googleClaims.Picture,
-		},
-	}
-
-	respondWithJSON(w, http.StatusOK, userResponse)
+	respondWithJSON(w, http.StatusOK, user)
 }
 
 // Logout handles POST /api/auth/logout
@@ -121,10 +114,10 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	// Clear the authentication cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:     "auth_token",
+		Name:     "trackbot_auth_token",
 		Value:    "",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   true, // true in production (HTTPS), false in dev (HTTP)
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   -1, // Expire immediately
 		Path:     "/",

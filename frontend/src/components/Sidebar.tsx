@@ -68,8 +68,7 @@ export default function Sidebar() {
   const loadConversations = async (user: User) => {
     let data : Conversation[] = [];
     try {
-      const userId = 2;
-      data = await chatAPI.getConversations(userId);
+      data = await chatAPI.getConversations(user.id);
     } catch (err) {
       console.error('Unable to fetch the conversations for the  user:', user.name, " error: ", err);
     }
@@ -90,9 +89,8 @@ export default function Sidebar() {
   const handleDeleteConversation = async (user: User | null, conversationId: number, event: React.MouseEvent, currentConversationId: number | null) => {
     event.stopPropagation(); // Prevent chat selection
     
-    const userId = 2;
     try {
-      await chatAPI.deleteConversation(userId, conversationId);
+      await chatAPI.deleteConversation(user?.id || 0, conversationId);
       //!Doesn't make sense to reload everything, simply delete from the map using the id.
       if (user) {
         const newMap = new Map(conversations);

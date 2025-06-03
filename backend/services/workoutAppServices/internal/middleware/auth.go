@@ -61,6 +61,9 @@ var jwtSecret = []byte(os.Getenv("TRACKBOT_JWT_SECRET_KEY"))
 
 // CreateJWT creates your own JWT token
 func (a *AuthMiddleware) CreateJWT(userID int, email, name, picture, googleSub string) (string, error) {
+
+	fmt.Println("Creating JWT for user:", userID, email, name, picture, googleSub)
+
 	claims := TrackBotJWTClaims{
 		UserID:    userID,
 		Email:     email,
@@ -84,21 +87,43 @@ const userKey contextKey = "user"
 
 // ValidateJWT middleware - validates YOUR JWT tokens from cookies
 func (a *AuthMiddleware) ValidateJWT() func(http.Handler) http.Handler {
+	fmt.Println("Validating JWT")
 	return func(next http.Handler) http.Handler {
+		fmt.Println("Validating JWT middleware")
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Println("🔐 ValidateJWT middleware called for:", r.Method, r.URL.Path)
+
+			// Debug: Print all cookies
+			cookies := r.Cookies()
+			fmt.Printf("🍪 Found %d cookies:\n", len(cookies))
+			for i, cookie := range cookies {
+				fmt.Printf("   [%d] %s = %s\n", i+1, cookie.Name, cookie.Value)
+			}
+
 			// Get JWT from cookie (not Authorization header)
-			cookie, err := r.Cookie("auth_token")
+			cookie, err := r.Cookie("trackbot_auth_token")
 			if err != nil {
+				fmt.Printf("❌ No auth_token cookie found: %v\n", err)
 				http.Error(w, "Authentication required", http.StatusUnauthorized)
 				return
 			}
 
+			// Show first 50 chars of cookie for debugging
+			cookiePreview := cookie.Value
+			if len(cookiePreview) > 50 {
+				cookiePreview = cookiePreview[:50] + "..."
+			}
+			fmt.Printf("🍪 Found auth_token cookie: %s\n", cookiePreview)
+
 			// Parse and validate YOUR JWT
 			claims, err := a.validateTrackBotJWT(cookie.Value)
 			if err != nil {
+				fmt.Printf("❌ JWT validation failed: %v\n", err)
 				http.Error(w, "Invalid token: "+err.Error(), http.StatusUnauthorized)
 				return
 			}
+
+			fmt.Printf("✅ JWT validation successful for user: %d (%s)\n", claims.UserID, claims.Email)
 
 			// Create user context from YOUR claims
 			userCtx := &UserContext{
@@ -109,6 +134,7 @@ func (a *AuthMiddleware) ValidateJWT() func(http.Handler) http.Handler {
 			}
 
 			ctx := context.WithValue(r.Context(), userKey, userCtx)
+			fmt.Printf("🚀 Calling next handler for user: %d\n", claims.UserID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

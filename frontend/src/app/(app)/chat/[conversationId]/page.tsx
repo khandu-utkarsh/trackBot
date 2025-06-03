@@ -4,14 +4,12 @@ import { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
-  Typography,
   useTheme,
   Alert,
 } from '@mui/material';
-import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { useParams} from 'next/navigation';
 import { chatAPI } from '@/lib/api/chat';
-import { Conversation, Message } from '@/lib/types/chat';
+import { Message } from '@/lib/types/chat';
 import { useRequireAuth} from '@/contexts/AuthContext';
 import ChatInputBar from '@/components/ChatInputBar';
 import Chatbox from '@/components/Chatbox';
@@ -23,25 +21,22 @@ export default function ChatPageContent() {
   const theme = useTheme();  
   const params = useParams();
   const conversationId: number = parseInt(params.conversationId as string);
-  const { user, token, isAuthenticated } = useRequireAuth();
+  const { user, isAuthenticated } = useRequireAuth();
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  //!Hardcoding the user id for now.
-  const userId = 2;
-
   // Load conversation and messages when conversationId changes
   useEffect(() => {
-    if (conversationId && userId) {
+    if (conversationId && user?.id) {
       loadConversationData(conversationId);
     }
-  }, [conversationId, userId]);
+  }, [conversationId, user]);
 
   const loadConversationData = async (convId: number) => {
-    if (!userId || !token) {
+    if (!user?.id) {
       setApiError('Authentication required');
       return;
     }
@@ -51,10 +46,9 @@ export default function ChatPageContent() {
       setIsLoading(true);
       
       // Load conversation details
-      const userId = 2;
      
       // Load messages
-      const apiMessages = await chatAPI.getMessages(userId, convId);      
+      const apiMessages = await chatAPI.getMessages(user.id, convId);      
       setMessages(apiMessages);
     } catch (err) {
       setApiError('Failed to load conversation');
@@ -65,7 +59,7 @@ export default function ChatPageContent() {
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading || !userId || !token) return;
+    if (!inputMessage.trim() || isLoading || !user?.id) return;
 
     const userMessage: Message = {
       id: 0,
@@ -74,7 +68,7 @@ export default function ChatPageContent() {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       conversation_id: conversationId,
-      user_id: userId,
+      user_id: user.id,
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -84,8 +78,7 @@ export default function ChatPageContent() {
 
     try {
       // Send message to backend
-      const userId = 2;
-      await chatAPI.createMessage(userId, conversationId, {
+      await chatAPI.createMessage(user.id, conversationId, {
         content: userMessage.content,
         message_type: 'user',
       });
@@ -95,8 +88,7 @@ export default function ChatPageContent() {
       // For now, let's poll after a short delay
       setTimeout(async () => {
         try {
-          const userId = 2;
-          const updatedMessages = await chatAPI.getMessages(userId, conversationId);
+          const updatedMessages = await chatAPI.getMessages(user.id, conversationId);
           setMessages(updatedMessages);
         } catch (err) {
           console.error('Error fetching updated messages:', err);
@@ -115,7 +107,7 @@ export default function ChatPageContent() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         conversation_id: conversationId,
-        user_id: userId,
+        user_id: user.id,
       };
       setMessages(prev => [...prev, errorMessage]);
       setIsLoading(false);
@@ -127,7 +119,7 @@ export default function ChatPageContent() {
 
 
   // Show message if user is not authenticated
-  if (!isAuthenticated || !user || !userId) {
+  if (!isAuthenticated || !user) {
     return (
       <Box sx={{ 
         height: 'calc(100vh - 128px)',

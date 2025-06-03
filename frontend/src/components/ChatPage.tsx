@@ -18,24 +18,26 @@ function ChatPageComponent() {
 
   console.log("ChatPageComponent rendered.");
   const { user } = useRequireAuth();
-  console.log("user", user);
+  if(!user || !user.id) {
+    console.log("user", user);    
+    return <div>User is not authenticated</div>;
+  }
+  else{
+    console.log("user is null");
+  }
   const router = useRouter();
   
-  // Mock user ID - in a real app, this would come from session
-  const userId = 2;
-
   const createNewConversation = async (inputMessage: string) => {
     let conversation : Conversation | null = null;
     try {
-          const userId = 2;
-          conversation = await chatAPI.createConversation(userId, {
+          conversation = await chatAPI.createConversation(user.id, {
             title: 'New Chat ' + chatIdTemp.toString(),
           });
           if(conversation){ 
             chatIdTemp++;
 
             //!Send message to the conversation.
-            const message = await chatAPI.createMessage(userId, conversation.id, {
+              const message = await chatAPI.createMessage(user.id , conversation.id, {
               content: inputMessage,
               message_type: 'user',                
             });
@@ -79,8 +81,6 @@ function ChatPageComponent() {
 }
 
 export default function ChatApp() {
-  const theme = useTheme();
-
   return (
       <ChatPageComponent />
   );

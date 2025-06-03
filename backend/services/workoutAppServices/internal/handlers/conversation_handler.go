@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	models "workout_app_backend/internal/models"
@@ -26,6 +27,7 @@ func NewConversationHandler(conversationModel *models.ConversationModel, userMod
 
 // ListConversationsByUser handles GET /api/users/{userID}/conversations
 func (h *ConversationHandler) ListConversationsByUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ListConversationsByUser called")
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return

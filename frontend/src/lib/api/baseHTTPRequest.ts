@@ -7,15 +7,9 @@ class BaseHTTPRequest {
     }
 
     private getAuthHeaders(): Record<string, string> {
-      const token = localStorage.getItem('google_token');
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-      };
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
+      };            
       return headers;
     }
   
@@ -23,6 +17,7 @@ class BaseHTTPRequest {
       const url = `${this.API_BASE_URL}/api${endpoint}`;
       
       const response = await fetch(url, {
+        credentials: 'include',
         headers: {
           ...this.getAuthHeaders(),
           ...options.headers,
@@ -30,6 +25,8 @@ class BaseHTTPRequest {
         ...options,
       });
   
+      console.log("response", response);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
         throw new Error(errorData.error || `HTTP ${response.status}`);

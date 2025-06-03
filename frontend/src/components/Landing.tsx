@@ -1,5 +1,6 @@
 'use client';
 
+import { userAPI } from '@/lib/api/users';
 import { Box, Typography } from '@mui/material';
 import Script from 'next/script';
 import { useRef, useEffect } from 'react';
@@ -18,24 +19,13 @@ export default function LandingPageComponent() {
 
     try {
       // Send Google JWT to YOUR backend instead of storing in localStorage
-      const result = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json' 
-        },
-        credentials: 'include', // Important: Include cookies
-        body: JSON.stringify({ 
-          googleToken: response.credential 
-        })
-      });
+      const result = await userAPI.createUser(response.credential);
+      console.log('Login successful:', result);
 
-      if (result.ok) {
-        const data = await result.json();
-        console.log('Login successful:', data);
-        
+      if (result) {
         // Trigger auth change event
         window.dispatchEvent(new CustomEvent('auth-changed', {
-          detail: { authenticated: true, user: data.user }
+          detail: { authenticated: true, user: result }
         }));
       } else {
         console.error('Login failed');

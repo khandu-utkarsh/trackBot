@@ -3,12 +3,12 @@ import BaseHTTPRequest from "./baseHTTPRequest";
 
 class UserAPI extends BaseHTTPRequest {
     //!User methods
-    async createUser(user: User): Promise<User> {
-        return this.request<User>(`/users`, {
+    async createUser(googleToken: string): Promise<User> {
+        return this.request<User>(`/auth/google`, {
             method: 'POST',
-            body: JSON.stringify(user),
+            body: JSON.stringify({ googleToken }),
         });
-    }   
+    }
 }
 
 export const userAPI = new UserAPI(); 

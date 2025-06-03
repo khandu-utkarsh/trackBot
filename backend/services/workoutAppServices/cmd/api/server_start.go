@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 	handlers "workout_app_backend/internal/handlers"
+	middleware "workout_app_backend/internal/middleware"
 	models "workout_app_backend/internal/models"
 	routes "workout_app_backend/internal/routes"
 	services "workout_app_backend/internal/services"
@@ -45,9 +46,11 @@ func main() {
 	exerciseHandler := handlers.GetExerciseHandlerInstance(exerciseModel, workoutModel)
 	conversationHandler := handlers.NewConversationHandler(conversationModel, userModel)
 	messageHandler := handlers.NewMessageHandler(messageModel, conversationModel, llmClient)
+	authMiddleware := middleware.NewAuthMiddleware()
+	authHandler := handlers.GetAuthHandlerInstance(authMiddleware, userModel)
 
 	// Setup Router using the routes package
-	r := routes.SetupRouter(userHandler, workoutHandler, exerciseHandler, conversationHandler, messageHandler)
+	r := routes.SetupRouter(userHandler, workoutHandler, exerciseHandler, conversationHandler, messageHandler, authHandler)
 
 	// Start server
 	port := os.Getenv("PORT")
