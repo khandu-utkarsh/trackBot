@@ -2,7 +2,6 @@ package routes
 
 import (
 	"net/http"
-	"time"
 	handlers "workout_app_backend/internal/handlers"
 	middleware "workout_app_backend/internal/middleware"
 
@@ -35,7 +34,7 @@ func SetupRouter(userHandler *handlers.UserHandler,
 	r.Use(middleware.Recovery())
 
 	//!Additional Middleware
-	r.Use(chimiddleware.Timeout(60 * time.Second))
+	//r.Use(chimiddleware.Timeout(60 * time.Second))
 	r.Use(chimiddleware.RealIP)
 	r.Use(chimiddleware.RequestID)
 	r.Use(chimiddleware.Compress(5))

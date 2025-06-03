@@ -133,6 +133,7 @@ func (m *MessageModel) Get(ctx context.Context, id int64) (*Message, error) {
 func (m *MessageModel) ListByConversation(ctx context.Context, conversationID int64) ([]*Message, error) {
 	modelsLogger.Println("MessageModel: ListByConversation called") //! Logging the request.
 	if conversationID <= 0 {
+		modelsLogger.Println("Invalid conversation ID") //! Logging the request.
 		return nil, fmt.Errorf("%w: invalid conversation ID", ErrInvalidInput)
 	}
 
@@ -145,6 +146,7 @@ func (m *MessageModel) ListByConversation(ctx context.Context, conversationID in
 
 	rows, err := m.db.QueryContext(ctx, query, conversationID)
 	if err != nil {
+		modelsLogger.Println("Error querying messages: ", err) //! Logging the request.
 		return nil, fmt.Errorf("error querying messages: %w", err)
 	}
 	defer rows.Close()
@@ -153,12 +155,22 @@ func (m *MessageModel) ListByConversation(ctx context.Context, conversationID in
 	for rows.Next() {
 		var message Message
 		if err := rows.Scan(&message.ID, &message.ConversationID, &message.UserID, &message.Content, &message.MessageType, &message.CreatedAt, &message.UpdatedAt); err != nil {
+			modelsLogger.Println("Error scanning message row: ", err) //! Logging the request.
 			return nil, fmt.Errorf("error scanning message row: %w", err)
 		}
 		messages = append(messages, &message)
 	}
 
+	// Convert []*Message to []Message
+	messagesContent := make([]string, len(messages))
+	for i, msgPtr := range messages {
+		messagesContent[i] = msgPtr.Content
+	}
+
+	modelsLogger.Println("Messages retrieved from the model: ", messagesContent) //! Logging the request.
+
 	if err = rows.Err(); err != nil {
+		modelsLogger.Println("Error iterating message rows: ", err) //! Logging the request.
 		return nil, fmt.Errorf("error iterating message rows: %w", err)
 	}
 

@@ -5,11 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strconv"
 	models "workout_app_backend/internal/models"
 	services "workout_app_backend/internal/services"
-
-	"github.com/go-chi/chi/v5"
 )
 
 // MessageHandler handles message-related HTTP requests
@@ -36,16 +33,14 @@ func (h *MessageHandler) ListMessagesByConversation(w http.ResponseWriter, r *ht
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
-	conversationIDStr := chi.URLParam(r, "conversationID")
-	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
-	if err != nil || conversationID <= 0 {
+	conversationID, err := parseIDFromURL(r, "conversationID")
+	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
 	}
@@ -86,16 +81,14 @@ func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
-	conversationIDStr := chi.URLParam(r, "conversationID")
-	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
-	if err != nil || conversationID <= 0 {
+	conversationID, err := parseIDFromURL(r, "conversationID")
+	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
 	}
@@ -142,9 +135,13 @@ func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	handlerLogger.Println("Checking if the message is a user message and if the LLM client is not nil") //! Logging the request.
+
+	//!Need to relay the message to the AI service, so that the AI can respond to the user.
 	// If this is a user message, trigger AI response
 	if message.MessageType == models.MessageTypeUser && h.llmClient != nil {
-		go h.processAIResponse(ctx, userID, conversationID)
+		handlerLogger.Println("Message is a user message and LLM client is not nil, so we will process the AI response") //! Logging the request.
+		go h.processAIResponse(context.Background(), userID, conversationID)
 	}
 
 	respondWithJSON(w, http.StatusCreated, createdMessage)
@@ -155,10 +152,6 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 	handlerLogger.Println("processAIResponse request received") //! Logging the request.
 	// Get conversation history
 	messagePointers, err := h.messageModel.ListByConversation(ctx, conversationID)
-	if err != nil {
-		// Log error but don't fail the original request
-		return
-	}
 
 	// Convert []*Message to []Message
 	messages := make([]models.Message, len(messagePointers))
@@ -166,9 +159,17 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 		messages[i] = *msgPtr
 	}
 
+	handlerLogger.Println("Conversation history retrieved", messages) //! Logging the request.
+	if err != nil {
+		handlerLogger.Println("Error getting conversation history", err) //! Logging the request.
+		// Log error but don't fail the original request
+		return
+	}
+
 	// Call LLM service
 	llmResponse, err := h.llmClient.ProcessChatMessage(ctx, messages, userID, conversationID, nil)
 	if err != nil {
+		handlerLogger.Println("Error processing AI response", err) //! Logging the request.
 		// Log error but don't fail the original request
 		return
 	}
@@ -184,6 +185,7 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 	// Save the assistant message
 	_, err = h.messageModel.Create(ctx, assistantMessage)
 	if err != nil {
+		handlerLogger.Println("Error creating assistant message", err) //! Logging the request.
 		// Log error but don't fail the original request
 		return
 	}
@@ -200,23 +202,20 @@ func (h *MessageHandler) GetMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
-	conversationIDStr := chi.URLParam(r, "conversationID")
-	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
-	if err != nil || conversationID <= 0 {
+	conversationID, err := parseIDFromURL(r, "conversationID")
+	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
 	}
 
-	messageIDStr := chi.URLParam(r, "messageID")
-	messageID, err := strconv.ParseInt(messageIDStr, 10, 64)
-	if err != nil || messageID <= 0 {
+	messageID, err := parseIDFromURL(r, "messageID")
+	if err != nil {
 		respondWithError(w, "Invalid message ID", http.StatusBadRequest)
 		return
 	}
@@ -267,23 +266,20 @@ func (h *MessageHandler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
-	conversationIDStr := chi.URLParam(r, "conversationID")
-	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
-	if err != nil || conversationID <= 0 {
+	conversationID, err := parseIDFromURL(r, "conversationID")
+	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
 	}
 
-	messageIDStr := chi.URLParam(r, "messageID")
-	messageID, err := strconv.ParseInt(messageIDStr, 10, 64)
-	if err != nil || messageID <= 0 {
+	messageID, err := parseIDFromURL(r, "messageID")
+	if err != nil {
 		respondWithError(w, "Invalid message ID", http.StatusBadRequest)
 		return
 	}
@@ -361,23 +357,20 @@ func (h *MessageHandler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
-	conversationIDStr := chi.URLParam(r, "conversationID")
-	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
-	if err != nil || conversationID <= 0 {
+	conversationID, err := parseIDFromURL(r, "conversationID")
+	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
 	}
 
-	messageIDStr := chi.URLParam(r, "messageID")
-	messageID, err := strconv.ParseInt(messageIDStr, 10, 64)
-	if err != nil || messageID <= 0 {
+	messageID, err := parseIDFromURL(r, "messageID")
+	if err != nil {
 		respondWithError(w, "Invalid message ID", http.StatusBadRequest)
 		return
 	}

@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strconv"
 	models "workout_app_backend/internal/models"
-
-	"github.com/go-chi/chi/v5"
 )
 
 // ConversationHandler handles conversation-related HTTP requests
@@ -32,9 +29,8 @@ func (h *ConversationHandler) ListConversationsByUser(w http.ResponseWriter, r *
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
@@ -70,9 +66,8 @@ func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
@@ -127,16 +122,14 @@ func (h *ConversationHandler) GetConversation(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
-	conversationIDStr := chi.URLParam(r, "conversationID")
-	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
-	if err != nil || conversationID <= 0 {
+	conversationID, err := parseIDFromURL(r, "conversationID")
+	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
 	}
@@ -171,16 +164,14 @@ func (h *ConversationHandler) UpdateConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
-	conversationIDStr := chi.URLParam(r, "conversationID")
-	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
-	if err != nil || conversationID <= 0 {
+	conversationID, err := parseIDFromURL(r, "conversationID")
+	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
 	}
@@ -241,16 +232,14 @@ func (h *ConversationHandler) DeleteConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
 
-	conversationIDStr := chi.URLParam(r, "conversationID")
-	conversationID, err := strconv.ParseInt(conversationIDStr, 10, 64)
-	if err != nil || conversationID <= 0 {
+	conversationID, err := parseIDFromURL(r, "conversationID")
+	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
 	}
