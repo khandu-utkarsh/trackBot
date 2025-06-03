@@ -17,7 +17,7 @@ import { useRouter, useParams} from 'next/navigation';
 import { chatAPI } from '@/lib/api/chat';
 import { Conversation } from '@/lib/types/chat';
 import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
-import { GoogleUser } from '@/hooks/useGoogleAuth';
+import { User } from '@/lib/types/users';
 import SidebarList from './SidebarList';
 
 const DRAWER_WIDTH = 240;
@@ -65,7 +65,7 @@ export default function Sidebar() {
   }, [user]);
 
   //!For loading the conversations from the backend
-  const loadConversations = async (user: GoogleUser) => {
+  const loadConversations = async (user: User) => {
     let data : Conversation[] = [];
     try {
       const userId = 2;
@@ -87,7 +87,7 @@ export default function Sidebar() {
   };
 
   //!When user deletes a conversation
-  const handleDeleteConversation = async (user: GoogleUser | null, conversationId: number, event: React.MouseEvent, currentConversationId: number | null) => {
+  const handleDeleteConversation = async (user: User | null, conversationId: number, event: React.MouseEvent, currentConversationId: number | null) => {
     event.stopPropagation(); // Prevent chat selection
     
     const userId = 2;

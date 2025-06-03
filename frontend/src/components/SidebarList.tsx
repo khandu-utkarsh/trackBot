@@ -2,7 +2,7 @@
 
 import { List } from '@mui/material';
 import { Conversation } from '@/lib/types/chat';
-import { GoogleUser } from '@/hooks/useGoogleAuth';
+import { User } from '@/lib/types/users';
 import SidebarListItem from './SidebarListItem';
 
 interface SidebarListProps {
@@ -10,12 +10,12 @@ interface SidebarListProps {
   currentConversationId: number | null;
   onChatSelect: (conversationId: number) => void;
   onDeleteConversation: (
-    user: GoogleUser | null, 
+    user: User | null, 
     conversationId: number, 
     event: React.MouseEvent, 
     currentConversationId: number | null
   ) => void;
-  user: GoogleUser | null;
+  user: User | null;
 }
 
 export default function SidebarList({

@@ -1,40 +1,93 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode, useState } from 'react';
-import { GoogleUser, useGoogleAuth } from '../hooks/useGoogleAuth';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Conversation } from '@/lib/types/chat';
+import {User} from '@/lib/types/users';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: GoogleUser | null;
+  user: User | null;
   isLoading: boolean;
   signOut: () => void;
-  token: string | null;
   conversations: Map<number, Conversation>;
   setConversations: (conversations: Map<number, Conversation>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const { isAuthenticated, user, isLoading, signOut } = useGoogleAuth();
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [conversations, setConversations] = useState<Map<number, Conversation>>(new Map());
-  
-  // Get token from localStorage
-  const token = typeof window !== 'undefined' ? localStorage.getItem('google_token') : null;
-  console.log("Token: ", token);
+
+  // Check auth status on mount by calling backend
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include' // Include cookies
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          setUser({
+            id: userData.user_id,
+            email: userData.email,
+            name: userData.name,
+            picture: userData.picture
+          });
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const handleAuthChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ authenticated: boolean; user: User }>;
+      if (customEvent.detail.authenticated) {
+        setUser(customEvent.detail.user);
+        setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    };
+
+    window.addEventListener('auth-changed', handleAuthChange as EventListener);
+    return () => window.removeEventListener('auth-changed', handleAuthChange as EventListener);
+  }, []);
+
+  const signOut = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    
+    setUser(null);
+    setIsAuthenticated(false);
+    window.dispatchEvent(new CustomEvent('auth-changed', { 
+      detail: { authenticated: false, user: null } 
+    }));
+  };
 
   const value: AuthContextType = {
     isAuthenticated,
     user,
     isLoading,
     signOut,
-    token,
     conversations,
     setConversations
   };
@@ -62,7 +115,6 @@ export const useRequireAuth = (): AuthContextType => {
     if (!auth.isLoading && !auth.isAuthenticated) {        
       //!Better to redirect to the home page. And it automatically takes care of the authentication to conditionally render the page.
       router.push('/');
-      // Could redirect to login page or show login modal
       console.warn('User not authenticated');
     }
   }, [auth.isAuthenticated, auth.isLoading, router]); //!I need this since it is used by the hook. Some clouse thing with the react.

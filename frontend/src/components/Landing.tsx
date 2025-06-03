@@ -2,8 +2,6 @@
 
 import { Box, Typography } from '@mui/material';
 import Script from 'next/script';
-import { userAPI } from '@/lib/api/users';
-import { User } from '@/lib/types/users';
 import { useRef, useEffect } from 'react';
 
 declare global {
@@ -15,25 +13,36 @@ declare global {
 export default function LandingPageComponent() {
   const googleButtonRef = useRef<HTMLDivElement>(null);
 
-  const handleCredentialResponse = (response: any) => {
+  const handleCredentialResponse = async (response: any) => {
     console.log('Google Auth Response:', response);
 
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-    console.log("Payload: ", payload);
+    try {
+      // Send Google JWT to YOUR backend instead of storing in localStorage
+      const result = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json' 
+        },
+        credentials: 'include', // Important: Include cookies
+        body: JSON.stringify({ 
+          googleToken: response.credential 
+        })
+      });
 
-    const user: User = {
-      email: payload.email,
-    };
-
-    localStorage.setItem('google_token', response.credential);
-
-    //!Since user is autenticated, create new user in the backend. 
-    const backendResponse = userAPI.createUser(user);
-    console.log("User created: ", backendResponse);
-
-    window.dispatchEvent(new CustomEvent('auth-changed', {
-      detail: { authenticated: true, token: response.credential }
-    }));
+      if (result.ok) {
+        const data = await result.json();
+        console.log('Login successful:', data);
+        
+        // Trigger auth change event
+        window.dispatchEvent(new CustomEvent('auth-changed', {
+          detail: { authenticated: true, user: data.user }
+        }));
+      } else {
+        console.error('Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+    }
   };
 
   useEffect(() => {
