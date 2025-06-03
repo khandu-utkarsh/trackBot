@@ -66,10 +66,6 @@ func SetupRouter(userHandler *handlers.UserHandler,
 			log.Println("🔑 Logout endpoint hit")
 			authHandler.Logout(w, r)
 		})
-		r.Get("/auth/me", func(w http.ResponseWriter, r *http.Request) {
-			log.Println("🔑 Auth me endpoint hit")
-			authHandler.Me(w, r)
-		})
 
 		// Protected routes
 		r.Group(func(r chi.Router) {
@@ -82,6 +78,12 @@ func SetupRouter(userHandler *handlers.UserHandler,
 					log.Printf("🔒 PROTECTED ROUTE ACCESS: %s %s", r.Method, r.URL.Path)
 					next.ServeHTTP(w, r)
 				})
+			})
+
+			// Auth me endpoint (protected)
+			r.Get("/auth/me", func(w http.ResponseWriter, r *http.Request) {
+				log.Println("🔑 Auth me endpoint hit")
+				authHandler.Me(w, r)
 			})
 
 			RegisterUserRoutes(r, userHandler, workoutHandler, exerciseHandler, conversationHandler, messageHandler)

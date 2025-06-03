@@ -140,13 +140,5 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return user information
-	userResponse := map[string]interface{}{
-		"user_id": user.UserID,
-		"email":   user.Email,
-		"name":    user.Name,
-		"picture": user.Picture,
-	}
-
-	respondWithJSON(w, http.StatusOK, userResponse)
+	respondWithJSON(w, http.StatusOK, user)
 }

@@ -4,6 +4,7 @@ import React, { createContext, useContext, ReactNode, useState, useEffect } from
 import { useRouter } from 'next/navigation';
 import { Conversation } from '@/lib/types/chat';
 import {User} from '@/lib/types/users';
+import { userAPI } from '@/lib/api/users';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -27,19 +28,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include' // Include cookies
-        });
-        
-        if (response.ok) {
-          const userData = await response.json();
-          setUser({
-            id: userData.user_id,
-            email: userData.email,
-            name: userData.name,
-            picture: userData.picture
-          });
+        const user = await userAPI.getUser();
+        console.log("user", user);
+        if(user){
+          setUser(user);
           setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -68,19 +64,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signOut = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
+      await userAPI.logout();
+      setUser(null);
+      setIsAuthenticated(false);
+      window.dispatchEvent(new CustomEvent('auth-changed', { 
+        detail: { authenticated: false, user: null } 
+      }));
     } catch (error) {
       console.error('Logout error:', error);
     }
-    
-    setUser(null);
-    setIsAuthenticated(false);
-    window.dispatchEvent(new CustomEvent('auth-changed', { 
-      detail: { authenticated: false, user: null } 
-    }));
   };
 
   const value: AuthContextType = {
