@@ -38,6 +38,7 @@ func GetUserModelInstance(db *sql.DB, name string) *UserModel {
 
 // Initialize creates the users table if it doesn't exist.
 func (m *UserModel) Initialize(ctx context.Context) error {
+	modelsLogger.Println("UserModel: Initialize called") //! Logging the request.
 	schema := `
 		id SERIAL PRIMARY KEY,
 		email VARCHAR(255) UNIQUE NOT NULL CHECK (email <> ''),
@@ -73,6 +74,7 @@ func (m *UserModel) scanUser(row *sql.Row) (*User, error) {
 
 // Create inserts a new user into the database.
 func (m *UserModel) Create(ctx context.Context, user *User) (int64, error) {
+	modelsLogger.Println("UserModel: Create called") //! Logging the request.
 	if err := m.validateUser(user); err != nil {
 		return 0, err
 	}
@@ -92,6 +94,7 @@ func (m *UserModel) Create(ctx context.Context, user *User) (int64, error) {
 
 // Get retrieves a user by ID.
 func (m *UserModel) Get(ctx context.Context, id int64) (*User, error) {
+	modelsLogger.Println("UserModel: Get called") //! Logging the request.
 	if id <= 0 {
 		return nil, fmt.Errorf("%w: invalid user ID", ErrInvalidInput)
 	}
@@ -102,6 +105,7 @@ func (m *UserModel) Get(ctx context.Context, id int64) (*User, error) {
 
 // GetByEmail retrieves a user by email.
 func (m *UserModel) GetByEmail(ctx context.Context, email string) (*User, error) {
+	modelsLogger.Println("UserModel: GetByEmail called") //! Logging the request.
 	if email == "" {
 		return nil, fmt.Errorf("%w: email cannot be empty", ErrInvalidInput)
 	}
@@ -112,6 +116,7 @@ func (m *UserModel) GetByEmail(ctx context.Context, email string) (*User, error)
 
 // List retrieves all users.
 func (m *UserModel) List(ctx context.Context) ([]*User, error) {
+	modelsLogger.Println("UserModel: List called") //! Logging the request.
 	query := fmt.Sprintf("SELECT id, email, created_at, updated_at FROM %s", m.name)
 	rows, err := m.db.QueryContext(ctx, query)
 	if err != nil {
@@ -137,6 +142,7 @@ func (m *UserModel) List(ctx context.Context) ([]*User, error) {
 
 // Update updates an existing user.
 func (m *UserModel) Update(ctx context.Context, user *User) error {
+	modelsLogger.Println("UserModel: Update called") //! Logging the request.
 	if err := m.validateUser(user); err != nil {
 		return err
 	}
@@ -160,6 +166,7 @@ func (m *UserModel) Update(ctx context.Context, user *User) error {
 
 // Delete removes a user from the database.
 func (m *UserModel) Delete(ctx context.Context, id int64) error {
+	modelsLogger.Println("UserModel: Delete called") //! Logging the request.
 	if id <= 0 {
 		return fmt.Errorf("%w: invalid user ID", ErrInvalidInput)
 	}

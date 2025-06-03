@@ -16,14 +16,19 @@ import (
 	utils "workout_app_backend/internal/utils"
 )
 
-func main() {
+var mainLogger *log.Logger
 
-	//!Loading all the needed environment variables
+func init() {
 	utils.LoadEnv()
+	mainLogger = log.New(os.Stdout, "Main: ", log.LstdFlags)
+	mainLogger.Println("Main package initialized") //! Logging the initialization.
+}
+
+func main() {
 
 	db, err := SetupDB()
 	if err != nil {
-		log.Fatalf("Failed to setup database: %v", err)
+		mainLogger.Println("Failed to setup database: ", err) //! Logging the error.
 	}
 
 	// Setup models
@@ -32,6 +37,8 @@ func main() {
 	exerciseModel := models.GetExerciseModelInstance(db, "exercises", "workouts")
 	conversationModel := models.GetConversationModelInstance(db, "conversations", "users")
 	messageModel := models.GetMessageModelInstance(db, "messages", "conversations")
+
+	mainLogger.Println("Database setup complete") //! Logging the initialization.
 
 	// Setup LLM client
 	llmServiceURL := os.Getenv("LLM_SERVICE_URL")
@@ -49,8 +56,12 @@ func main() {
 	authMiddleware := middleware.NewAuthMiddleware()
 	authHandler := handlers.GetAuthHandlerInstance(authMiddleware, userModel)
 
+	mainLogger.Println("Handlers setup complete") //! Logging the initialization.
+
 	// Setup Router using the routes package
 	r := routes.SetupRouter(userHandler, workoutHandler, exerciseHandler, conversationHandler, messageHandler, authHandler)
+
+	mainLogger.Println("Router setup complete") //! Logging the initialization.
 
 	// Start server
 	port := os.Getenv("PORT")
@@ -66,9 +77,9 @@ func main() {
 
 	// Start server in a goroutine
 	go func() {
-		log.Printf("Server starting on port %s", port)
+		mainLogger.Printf("Server starting on port %s", port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server failed to start: %v", err)
+			mainLogger.Fatalf("Server failed to start: %v", err)
 		}
 	}()
 
@@ -76,16 +87,16 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down server...")
+	mainLogger.Println("Shutting down server...")
 
-	// Create a deadline for server shutdown
+	// Create a deadline for server shutdown once the quit signal is received
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	defer cancel() //! Defering the cancel.
 
 	// Attempt graceful shutdown
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
+		mainLogger.Fatal("Server forced to shutdown:", err)
 	}
 
-	log.Println("Server exiting")
+	mainLogger.Println("Server exiting")
 }

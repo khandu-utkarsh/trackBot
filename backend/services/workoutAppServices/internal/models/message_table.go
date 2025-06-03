@@ -96,6 +96,7 @@ func (m *MessageModel) scanMessage(row *sql.Row) (*Message, error) {
 
 // Create creates a new message
 func (m *MessageModel) Create(ctx context.Context, message *Message) (int64, error) {
+	modelsLogger.Println("MessageModel: Create called") //! Logging the request.
 	if err := m.validateMessage(message); err != nil {
 		return 0, err
 	}
@@ -114,6 +115,7 @@ func (m *MessageModel) Create(ctx context.Context, message *Message) (int64, err
 
 // Get retrieves a message by ID
 func (m *MessageModel) Get(ctx context.Context, id int64) (*Message, error) {
+	modelsLogger.Println("MessageModel: Get called") //! Logging the request.
 	if id <= 0 {
 		return nil, fmt.Errorf("%w: invalid message ID", ErrInvalidInput)
 	}
@@ -129,6 +131,7 @@ func (m *MessageModel) Get(ctx context.Context, id int64) (*Message, error) {
 
 // ListByConversation retrieves all messages for a conversation
 func (m *MessageModel) ListByConversation(ctx context.Context, conversationID int64) ([]*Message, error) {
+	modelsLogger.Println("MessageModel: ListByConversation called") //! Logging the request.
 	if conversationID <= 0 {
 		return nil, fmt.Errorf("%w: invalid conversation ID", ErrInvalidInput)
 	}
@@ -164,6 +167,7 @@ func (m *MessageModel) ListByConversation(ctx context.Context, conversationID in
 
 // Update updates an existing message
 func (m *MessageModel) Update(ctx context.Context, message *Message) error {
+	modelsLogger.Println("MessageModel: Update called") //! Logging the request.
 	if err := m.validateMessage(message); err != nil {
 		return err
 	}
@@ -187,6 +191,7 @@ func (m *MessageModel) Update(ctx context.Context, message *Message) error {
 
 // Delete removes a message from the database
 func (m *MessageModel) Delete(ctx context.Context, id int64) error {
+	modelsLogger.Println("MessageModel: Delete called") //! Logging the request.
 	if id <= 0 {
 		return fmt.Errorf("%w: invalid message ID", ErrInvalidInput)
 	}

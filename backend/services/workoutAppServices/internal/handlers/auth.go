@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"workout_app_backend/internal/middleware"
 	"workout_app_backend/internal/models"
@@ -29,8 +28,7 @@ type GoogleLoginRequest struct {
 
 // GoogleLogin handles POST /api/auth/google
 func (h *AuthHandler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println("GoogleLogin request received")
+	handlerLogger.Println("GoogleLogin request received") //! Logging the request.
 
 	if r.Method != http.MethodPost {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -107,6 +105,7 @@ func (h *AuthHandler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 
 // Logout handles POST /api/auth/logout
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("Logout request received") //! Logging the request.
 	if r.Method != http.MethodPost {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -128,6 +127,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 // Me handles GET /api/auth/me
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("Me request received") //! Logging the request.
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -135,7 +135,7 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 
 	// Get user from context (set by auth middleware)
 	user, ok := middleware.GetUserFromContext(r.Context())
-	fmt.Println("user obtained from context: ", user)
+	handlerLogger.Println("user obtained from context: ", user) //! Logging the user.
 	if !ok {
 		respondWithError(w, "Unauthorized", http.StatusUnauthorized)
 		return

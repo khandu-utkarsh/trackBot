@@ -39,6 +39,7 @@ func GetConversationModelInstance(db *sql.DB, name string, foreignKey string) *C
 
 // Initialize creates the conversations table if it doesn't exist
 func (m *ConversationModel) Initialize(ctx context.Context) error {
+	modelsLogger.Println("ConversationModel: Initialize called") //! Logging the request.
 	schema := fmt.Sprintf(`
 		id SERIAL PRIMARY KEY,
 		user_id BIGINT NOT NULL REFERENCES %s(id) ON DELETE CASCADE,
@@ -53,6 +54,7 @@ func (m *ConversationModel) Initialize(ctx context.Context) error {
 
 // validateConversation checks if the conversation data is valid
 func (m *ConversationModel) validateConversation(conversation *Conversation) error {
+	modelsLogger.Println("ConversationModel: validateConversation called") //! Logging the request.
 	if conversation == nil {
 		return fmt.Errorf("%w: conversation cannot be nil", ErrInvalidInput)
 	}
@@ -67,6 +69,7 @@ func (m *ConversationModel) validateConversation(conversation *Conversation) err
 
 // scanConversation scans a database row into a Conversation struct
 func (m *ConversationModel) scanConversation(row *sql.Row) (*Conversation, error) {
+	modelsLogger.Println("ConversationModel: scanConversation called") //! Logging the request.
 	var conversation Conversation
 	err := row.Scan(&conversation.ID, &conversation.UserID, &conversation.Title, &conversation.IsActive, &conversation.CreatedAt, &conversation.UpdatedAt)
 	if err == sql.ErrNoRows {
@@ -80,6 +83,7 @@ func (m *ConversationModel) scanConversation(row *sql.Row) (*Conversation, error
 
 // Create creates a new conversation
 func (m *ConversationModel) Create(ctx context.Context, conversation *Conversation) (int64, error) {
+	modelsLogger.Println("ConversationModel: Create called") //! Logging the request.
 	if err := m.validateConversation(conversation); err != nil {
 		return 0, err
 	}
@@ -98,6 +102,7 @@ func (m *ConversationModel) Create(ctx context.Context, conversation *Conversati
 
 // Get retrieves a conversation by ID
 func (m *ConversationModel) Get(ctx context.Context, id int64) (*Conversation, error) {
+	modelsLogger.Println("ConversationModel: Get called") //! Logging the request.
 	if id <= 0 {
 		return nil, fmt.Errorf("%w: invalid conversation ID", ErrInvalidInput)
 	}
@@ -113,6 +118,7 @@ func (m *ConversationModel) Get(ctx context.Context, id int64) (*Conversation, e
 
 // ListByUser retrieves all conversations for a user
 func (m *ConversationModel) ListByUser(ctx context.Context, userID int64) ([]*Conversation, error) {
+	modelsLogger.Println("ConversationModel: ListByUser called") //! Logging the request.
 	if userID <= 0 {
 		return nil, fmt.Errorf("%w: invalid user ID", ErrInvalidInput)
 	}
@@ -148,6 +154,7 @@ func (m *ConversationModel) ListByUser(ctx context.Context, userID int64) ([]*Co
 
 // Update updates an existing conversation
 func (m *ConversationModel) Update(ctx context.Context, conversation *Conversation) error {
+	modelsLogger.Println("ConversationModel: Update called") //! Logging the request.
 	if err := m.validateConversation(conversation); err != nil {
 		return err
 	}
@@ -171,6 +178,7 @@ func (m *ConversationModel) Update(ctx context.Context, conversation *Conversati
 
 // Delete removes a conversation from the database
 func (m *ConversationModel) Delete(ctx context.Context, id int64) error {
+	modelsLogger.Println("ConversationModel: Delete called") //! Logging the request.
 	if id <= 0 {
 		return fmt.Errorf("%w: invalid conversation ID", ErrInvalidInput)
 	}

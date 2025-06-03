@@ -62,6 +62,7 @@ func GetExerciseModelInstance(db *sql.DB, name string, foreignKey string) *Exerc
 
 // Initialize creates the exercises table if it doesn't exist
 func (m *ExerciseModel) Initialize(ctx context.Context) error {
+	modelsLogger.Println("ExerciseModel: Initialize called") //! Logging the request.
 	schema := fmt.Sprintf(`
 		id SERIAL PRIMARY KEY,
 		workout_id INTEGER NOT NULL REFERENCES %s(id) ON DELETE CASCADE,
@@ -87,6 +88,7 @@ func (m *ExerciseModel) Initialize(ctx context.Context) error {
 
 // validateBaseExercise checks if the base exercise data is valid
 func (m *ExerciseModel) validateBaseExercise(exercise *BaseExercise) error {
+	modelsLogger.Println("ExerciseModel: validateBaseExercise called") //! Logging the request.
 	if exercise == nil {
 		return fmt.Errorf("%w: exercise cannot be nil", ErrInvalidInput)
 	}
@@ -101,7 +103,7 @@ func (m *ExerciseModel) validateBaseExercise(exercise *BaseExercise) error {
 
 // validateCardioExercise checks if the cardio exercise data is valid
 func (m *ExerciseModel) validateCardioExercise(exercise *CardioExercise) error {
-
+	modelsLogger.Println("ExerciseModel: validateCardioExercise called") //! Logging the request.
 	if exercise == nil {
 		return fmt.Errorf("%w: exercise cannot be nil", ErrInvalidInput)
 	}
@@ -123,7 +125,7 @@ func (m *ExerciseModel) validateCardioExercise(exercise *CardioExercise) error {
 
 // validateWeightExercise checks if the weight exercise data is valid
 func (m *ExerciseModel) validateWeightExercise(exercise *WeightExercise) error {
-
+	modelsLogger.Println("ExerciseModel: validateWeightExercise called") //! Logging the request.
 	fmt.Println("Validating Weight Exercise 0, exercise: ", exercise)
 
 	if exercise == nil {
@@ -150,6 +152,7 @@ func (m *ExerciseModel) validateWeightExercise(exercise *WeightExercise) error {
 
 // scanExercise scans a database row into the appropriate exercise type
 func (m *ExerciseModel) scanExercise(row *sql.Row) (interface{}, error) {
+	modelsLogger.Println("ExerciseModel: scanExercise called") //! Logging the request.
 	var (
 		base         BaseExercise
 		exerciseType ExerciseType
@@ -206,6 +209,7 @@ func (m *ExerciseModel) scanExercise(row *sql.Row) (interface{}, error) {
 
 // CreateCardio creates a new cardio exercise
 func (m *ExerciseModel) CreateCardio(ctx context.Context, exercise *CardioExercise) (int64, error) {
+	modelsLogger.Println("ExerciseModel: CreateCardio called") //! Logging the request.
 	if err := m.validateCardioExercise(exercise); err != nil {
 		return 0, err
 	}
@@ -236,6 +240,7 @@ func (m *ExerciseModel) CreateCardio(ctx context.Context, exercise *CardioExerci
 
 // CreateWeights creates a new weight training exercise
 func (m *ExerciseModel) CreateWeights(ctx context.Context, exercise *WeightExercise) (int64, error) {
+	modelsLogger.Println("ExerciseModel: CreateWeights called") //! Logging the request.
 	if err := m.validateWeightExercise(exercise); err != nil {
 		fmt.Println("Creating Weight Exercise 0.2, validation failed error: ", err)
 
@@ -274,6 +279,7 @@ func (m *ExerciseModel) CreateWeights(ctx context.Context, exercise *WeightExerc
 
 // Get retrieves an exercise by ID and returns the correct struct type
 func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) {
+	modelsLogger.Println("ExerciseModel: Get called") //! Logging the request.
 	if id <= 0 {
 		return nil, fmt.Errorf("%w: invalid exercise ID", ErrInvalidInput)
 	}
@@ -292,6 +298,7 @@ func (m *ExerciseModel) Get(ctx context.Context, id int64) (interface{}, error) 
 
 // ListByWorkout retrieves all exercises for a workout
 func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]interface{}, error) {
+	modelsLogger.Println("ExerciseModel: ListByWorkout called") //! Logging the request.
 	if workoutID <= 0 {
 		return nil, fmt.Errorf("%w: invalid workout ID", ErrInvalidInput)
 	}
@@ -371,6 +378,7 @@ func (m *ExerciseModel) ListByWorkout(ctx context.Context, workoutID int64) ([]i
 
 // Update updates an existing exercise
 func (m *ExerciseModel) Update(ctx context.Context, exercise *BaseExercise) error {
+	modelsLogger.Println("ExerciseModel: Update called") //! Logging the request.
 	if err := m.validateBaseExercise(exercise); err != nil {
 		return err
 	}
@@ -394,6 +402,7 @@ func (m *ExerciseModel) Update(ctx context.Context, exercise *BaseExercise) erro
 
 // Delete removes an exercise from the database
 func (m *ExerciseModel) Delete(ctx context.Context, id int64) error {
+	modelsLogger.Println("ExerciseModel: Delete called") //! Logging the request.
 	if id <= 0 {
 		return fmt.Errorf("%w: invalid exercise ID", ErrInvalidInput)
 	}
@@ -417,6 +426,7 @@ func (m *ExerciseModel) Delete(ctx context.Context, id int64) error {
 
 // UpdateCardio updates an existing cardio exercise
 func (m *ExerciseModel) UpdateCardio(ctx context.Context, exercise *CardioExercise) error {
+	modelsLogger.Println("ExerciseModel: UpdateCardio called") //! Logging the request.
 	if err := m.validateCardioExercise(exercise); err != nil {
 		return err
 	}
@@ -454,6 +464,7 @@ func (m *ExerciseModel) UpdateCardio(ctx context.Context, exercise *CardioExerci
 
 // UpdateWeights updates an existing weight training exercise
 func (m *ExerciseModel) UpdateWeights(ctx context.Context, exercise *WeightExercise) error {
+	modelsLogger.Println("ExerciseModel: UpdateWeights called") //! Logging the request.
 	if err := m.validateWeightExercise(exercise); err != nil {
 		return err
 	}

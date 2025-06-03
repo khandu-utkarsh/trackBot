@@ -30,6 +30,7 @@ func NewMessageHandler(messageModel *models.MessageModel, conversationModel *mod
 
 // ListMessagesByConversation handles GET /api/users/{userID}/conversations/{conversationID}/messages
 func (h *MessageHandler) ListMessagesByConversation(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("ListMessagesByConversation request received") //! Logging the request.
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -79,6 +80,7 @@ func (h *MessageHandler) ListMessagesByConversation(w http.ResponseWriter, r *ht
 
 // CreateMessage handles POST /api/users/{userID}/conversations/{conversationID}/messages
 func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("CreateMessage request received") //! Logging the request.
 	if r.Method != http.MethodPost {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -150,6 +152,7 @@ func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 
 // processAIResponse handles the AI response generation in a separate goroutine
 func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversationID int64) {
+	handlerLogger.Println("processAIResponse request received") //! Logging the request.
 	// Get conversation history
 	messagePointers, err := h.messageModel.ListByConversation(ctx, conversationID)
 	if err != nil {
@@ -191,6 +194,7 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 
 // GetMessage handles GET /api/users/{userID}/conversations/{conversationID}/messages/{messageID}
 func (h *MessageHandler) GetMessage(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("GetMessage request received") //! Logging the request.
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -257,6 +261,7 @@ func (h *MessageHandler) GetMessage(w http.ResponseWriter, r *http.Request) {
 
 // UpdateMessage handles PUT /api/users/{userID}/conversations/{conversationID}/messages/{messageID}
 func (h *MessageHandler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("UpdateMessage request received") //! Logging the request.
 	if r.Method != http.MethodPut {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -350,6 +355,7 @@ func (h *MessageHandler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 
 // DeleteMessage handles DELETE /api/users/{userID}/conversations/{conversationID}/messages/{messageID}
 func (h *MessageHandler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("DeleteMessage request received") //! Logging the request.
 	if r.Method != http.MethodDelete {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return

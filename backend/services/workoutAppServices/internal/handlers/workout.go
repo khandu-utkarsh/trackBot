@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	models "workout_app_backend/internal/models"
@@ -29,6 +28,7 @@ func GetWorkoutHandlerInstance(workoutModel *models.WorkoutModel, userModel *mod
 
 // ListWorkouts handles GET /api/users/{userID}/workouts
 func (h *WorkoutHandler) ListWorkouts(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("ListWorkouts request received") //! Logging the request.
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -68,6 +68,7 @@ func (h *WorkoutHandler) ListWorkouts(w http.ResponseWriter, r *http.Request) {
 
 // CreateWorkout handles POST /api/users/{userID}/workouts
 func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("CreateWorkout request received") //! Logging the request.
 	if r.Method != http.MethodPost {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -92,7 +93,7 @@ func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 	// Verify user exists before creating workout
 	ctx := r.Context()
 	uout, err := h.userModel.Get(ctx, userID)
-	fmt.Println(uout)
+	handlerLogger.Println("user obtained from context: ", uout) //! Logging the user.
 	if err != nil {
 		if errors.Is(err, models.ErrUserNotFound) {
 			respondWithError(w, "User not found", http.StatusNotFound)
@@ -120,6 +121,7 @@ func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 
 // GetWorkout handles GET /api/users/{userID}/workouts/{workoutID}
 func (h *WorkoutHandler) GetWorkout(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("GetWorkout request received") //! Logging the request.
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -153,6 +155,7 @@ func (h *WorkoutHandler) GetWorkout(w http.ResponseWriter, r *http.Request) {
 
 // UpdateWorkout handles PUT /api/users/{userID}/workouts/{workoutID}
 func (h *WorkoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("UpdateWorkout request received") //! Logging the request.
 	if r.Method != http.MethodPut {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -225,6 +228,7 @@ func (h *WorkoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 
 // DeleteWorkout handles DELETE /api/users/{userID}/workouts/{workoutID}
 func (h *WorkoutHandler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("DeleteWorkout request received") //! Logging the request.
 	if r.Method != http.MethodDelete {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return

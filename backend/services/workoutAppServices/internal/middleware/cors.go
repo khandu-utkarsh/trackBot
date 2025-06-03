@@ -8,6 +8,7 @@ import (
 
 // CorsConfigured returns a configured CORS handler.
 func CorsConfigured() func(http.Handler) http.Handler {
+	middlewareLogger.Println("CORS configured: CorsConfigured called") //! Logging the request.
 	// Configure CORS options
 	corsMiddleware := cors.New(cors.Options{
 		// AllowedOrigins: []string{"https://foo.com"}, // Use this to allow specific origin domains
@@ -19,6 +20,8 @@ func CorsConfigured() func(http.Handler) http.Handler {
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	})
+
+	middlewareLogger.Println("CORS configured: CorsConfigured called: returning corsMiddleware.Handler") //! Logging the request.
 
 	return corsMiddleware.Handler
 }

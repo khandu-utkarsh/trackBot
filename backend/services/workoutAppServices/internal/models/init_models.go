@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	database_utilities "workout_app_backend/internal/database/utils"
@@ -34,6 +33,7 @@ func GetMigrationModelInstance(db *sql.DB) *MigrationModel {
 
 // Initialize creates the migrations table if it doesn't exist
 func (m *MigrationModel) Initialize(ctx context.Context) error {
+	modelsLogger.Println("MigrationModel: Initialize called") //! Logging the request.
 	schema := `
 		id SERIAL PRIMARY KEY,
 		name VARCHAR(255) NOT NULL UNIQUE,
@@ -44,6 +44,7 @@ func (m *MigrationModel) Initialize(ctx context.Context) error {
 
 // HasMigration checks if a migration has been applied
 func (m *MigrationModel) HasMigration(ctx context.Context, name string) (bool, error) {
+	modelsLogger.Println("MigrationModel: HasMigration called") //! Logging the request.
 	var exists bool
 	query := "SELECT EXISTS(SELECT 1 FROM migrations WHERE name = $1)"
 	err := m.db.QueryRowContext(ctx, query, name).Scan(&exists)
@@ -55,6 +56,7 @@ func (m *MigrationModel) HasMigration(ctx context.Context, name string) (bool, e
 
 // ApplyMigration records a migration as applied
 func (m *MigrationModel) ApplyMigration(ctx context.Context, name string) error {
+	modelsLogger.Println("MigrationModel: ApplyMigration called") //! Logging the request.
 	query := "INSERT INTO migrations (name) VALUES ($1)"
 	_, err := m.db.ExecContext(ctx, query, name)
 	if err != nil {
@@ -65,6 +67,7 @@ func (m *MigrationModel) ApplyMigration(ctx context.Context, name string) error 
 
 // InitializeModels initializes all database tables using migrations
 func InitializeModels(db *sql.DB) error {
+	modelsLogger.Println("InitializeModels called") //! Logging the request.
 	ctx := context.Background()
 
 	// Start a transaction
@@ -88,6 +91,7 @@ func InitializeModels(db *sql.DB) error {
 		{
 			name: "create_users_table",
 			fn: func(ctx context.Context, tx *sql.Tx) error {
+				modelsLogger.Println("create_users_table migration called") //! Logging the request.
 				userModel := GetUserModelInstance(db, "users")
 				return userModel.Initialize(ctx)
 			},
@@ -95,6 +99,7 @@ func InitializeModels(db *sql.DB) error {
 		{
 			name: "create_workouts_table",
 			fn: func(ctx context.Context, tx *sql.Tx) error {
+				modelsLogger.Println("create_workouts_table migration called") //! Logging the request.
 				workoutModel := GetWorkoutModelInstance(db, "workouts", "users")
 				return workoutModel.Initialize(ctx)
 			},
@@ -102,6 +107,7 @@ func InitializeModels(db *sql.DB) error {
 		{
 			name: "create_exercises_table",
 			fn: func(ctx context.Context, tx *sql.Tx) error {
+				modelsLogger.Println("create_exercises_table migration called") //! Logging the request.
 				exerciseModel := GetExerciseModelInstance(db, "exercises", "workouts")
 				return exerciseModel.Initialize(ctx)
 			},
@@ -109,6 +115,7 @@ func InitializeModels(db *sql.DB) error {
 		{
 			name: "create_conversations_table",
 			fn: func(ctx context.Context, tx *sql.Tx) error {
+				modelsLogger.Println("create_conversations_table migration called") //! Logging the request.
 				conversationModel := GetConversationModelInstance(db, "conversations", "users")
 				return conversationModel.Initialize(ctx)
 			},
@@ -116,6 +123,7 @@ func InitializeModels(db *sql.DB) error {
 		{
 			name: "create_messages_table",
 			fn: func(ctx context.Context, tx *sql.Tx) error {
+				modelsLogger.Println("create_messages_table migration called") //! Logging the request.
 				messageModel := GetMessageModelInstance(db, "messages", "conversations")
 				return messageModel.Initialize(ctx)
 			},
@@ -124,13 +132,14 @@ func InitializeModels(db *sql.DB) error {
 
 	// Apply each migration if not already applied
 	for _, migration := range migrations {
+		modelsLogger.Println("Applying migration: ", migration.name) //! Logging the request.
 		exists, err := migrationModel.HasMigration(ctx, migration.name)
 		if err != nil {
 			return fmt.Errorf("error checking migration %s: %w", migration.name, err)
 		}
 
 		if !exists {
-			log.Printf("Applying migration: %s", migration.name)
+			modelsLogger.Println("Applying migration: ", migration.name) //! Logging the request.
 			if err := migration.fn(ctx, tx); err != nil {
 				return fmt.Errorf("error applying migration %s: %w", migration.name, err)
 			}
@@ -146,6 +155,6 @@ func InitializeModels(db *sql.DB) error {
 		return fmt.Errorf("error committing migrations: %w", err)
 	}
 
-	log.Println("All migrations completed successfully")
+	modelsLogger.Println("All migrations completed successfully") //! Logging the request.
 	return nil
 }

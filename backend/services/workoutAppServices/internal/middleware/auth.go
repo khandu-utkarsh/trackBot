@@ -61,8 +61,7 @@ var jwtSecret = []byte(os.Getenv("TRACKBOT_JWT_SECRET_KEY"))
 
 // CreateJWT creates your own JWT token
 func (a *AuthMiddleware) CreateJWT(userID int, email, name, picture, googleSub string) (string, error) {
-
-	fmt.Println("Creating JWT for user:", userID, email, name, picture, googleSub)
+	middlewareLogger.Println("Creating JWT for user:", userID, email, name, picture, googleSub) //! Logging the request.
 
 	claims := TrackBotJWTClaims{
 		UserID:    userID,
@@ -87,43 +86,37 @@ const userKey contextKey = "user"
 
 // ValidateJWT middleware - validates YOUR JWT tokens from cookies
 func (a *AuthMiddleware) ValidateJWT() func(http.Handler) http.Handler {
-	fmt.Println("Validating JWT")
+	middlewareLogger.Println("Validating JWT: Middleware Called Level 1") //! Logging the request.
 	return func(next http.Handler) http.Handler {
-		fmt.Println("Validating JWT middleware")
+		middlewareLogger.Println("Validating JWT: Middleware Called Level 2") //! Logging the request.
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Println("🔐 ValidateJWT middleware called for:", r.Method, r.URL.Path)
+			middlewareLogger.Println("Validating JWT: Middleware Called Level 3") //! Logging the request.
 
 			// Debug: Print all cookies
 			cookies := r.Cookies()
-			fmt.Printf("🍪 Found %d cookies:\n", len(cookies))
+			middlewareLogger.Printf("🍪 Found %d cookies:\n", len(cookies)) //! Logging the cookies.
 			for i, cookie := range cookies {
-				fmt.Printf("   [%d] %s = %s\n", i+1, cookie.Name, cookie.Value)
+				middlewareLogger.Printf("   [%d] %s\n", i+1, cookie.Name) //! Logging the cookie name.
 			}
 
 			// Get JWT from cookie (not Authorization header)
 			cookie, err := r.Cookie("trackbot_auth_token")
 			if err != nil {
-				fmt.Printf("❌ No auth_token cookie found: %v\n", err)
+				middlewareLogger.Println("NO trackbot_auth_token cookie found: ", err) //! Logging the error.
 				http.Error(w, "Authentication required", http.StatusUnauthorized)
 				return
 			}
-
-			// Show first 50 chars of cookie for debugging
-			cookiePreview := cookie.Value
-			if len(cookiePreview) > 50 {
-				cookiePreview = cookiePreview[:50] + "..."
-			}
-			fmt.Printf("🍪 Found auth_token cookie: %s\n", cookiePreview)
+			middlewareLogger.Println("FOUND trackbot_auth_token cookie.") //! Logging the cookie.
 
 			// Parse and validate YOUR JWT
 			claims, err := a.validateTrackBotJWT(cookie.Value)
 			if err != nil {
-				fmt.Printf("❌ JWT validation failed: %v\n", err)
+				middlewareLogger.Println("JWT validation failed: ", err) //! Logging the error.
 				http.Error(w, "Invalid token: "+err.Error(), http.StatusUnauthorized)
 				return
 			}
 
-			fmt.Printf("✅ JWT validation successful for user: %d (%s)\n", claims.UserID, claims.Email)
+			middlewareLogger.Println("JWT validation successful for user: ", claims.UserID, claims.Email) //! Logging the user.
 
 			// Create user context from YOUR claims
 			userCtx := &UserContext{
@@ -134,7 +127,7 @@ func (a *AuthMiddleware) ValidateJWT() func(http.Handler) http.Handler {
 			}
 
 			ctx := context.WithValue(r.Context(), userKey, userCtx)
-			fmt.Printf("🚀 Calling next handler for user: %d\n", claims.UserID)
+			middlewareLogger.Println("Calling next handler for user: ", claims.UserID, " sending request further.") //! Logging the user.
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
@@ -142,18 +135,22 @@ func (a *AuthMiddleware) ValidateJWT() func(http.Handler) http.Handler {
 
 // validateTrackBotJWT validates YOUR JWT token
 func (a *AuthMiddleware) validateTrackBotJWT(tokenString string) (*TrackBotJWTClaims, error) {
+	middlewareLogger.Println("Validating JWT: validateTrackBotJWT called") //! Logging the request.
 	token, err := jwt.ParseWithClaims(tokenString, &TrackBotJWTClaims{}, func(token *jwt.Token) (any, error) {
 		return jwtSecret, nil
 	})
 
 	if err != nil {
+		middlewareLogger.Println("JWT validation failed: ", err) //! Logging the error.
 		return nil, err
 	}
 
 	if claims, ok := token.Claims.(*TrackBotJWTClaims); ok && token.Valid {
+		middlewareLogger.Println("JWT validation successful for user: ", claims.UserID, claims.Email) //! Logging the user.
 		return claims, nil
 	}
 
+	middlewareLogger.Println("JWT validation failed: invalid token") //! Logging the error.
 	return nil, errors.New("invalid token")
 }
 
@@ -185,8 +182,10 @@ var googleKeysCache = &GoogleKeysCache{
 
 // fetchGooglePublicKeys fetches Google's public keys for JWT verification with caching
 func (a *AuthMiddleware) fetchGooglePublicKeys() (*GoogleJWKS, error) {
+	middlewareLogger.Println("Fetching Google public keys: fetchGooglePublicKeys called") //! Logging the request.
 	// Check if we have cached keys that are still valid
 	if googleKeysCache.keys != nil && time.Since(googleKeysCache.fetchedAt) < googleKeysCache.ttl {
+		middlewareLogger.Println("Google public keys already cached") //! Logging the request.
 		return googleKeysCache.keys, nil
 	}
 
@@ -252,28 +251,33 @@ func (a *AuthMiddleware) rsaPublicKeyFromJWK(jwk *GooglePublicKey) (*rsa.PublicK
 
 // validateGoogleJWT validates a Google JWT token with proper signature verification and audience check
 func (a *AuthMiddleware) ValidateGoogleJWT(tokenString string) (*GoogleJWTClaims, error) {
+	middlewareLogger.Println("Validating Google JWT: ValidateGoogleJWT called") //! Logging the request.
 	// Parse the token to get the header
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Check the signing method
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			middlewareLogger.Println("Unexpected signing method: ", token.Header["alg"]) //! Logging the error.
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
 		// Get the key ID from the header
 		kid, ok := token.Header["kid"].(string)
 		if !ok {
+			middlewareLogger.Println("Missing key ID in token header") //! Logging the error.
 			return nil, errors.New("missing key ID in token header")
 		}
 
 		// Fetch Google's public keys
 		jwks, err := a.fetchGooglePublicKeys()
 		if err != nil {
+			middlewareLogger.Println("Failed to fetch Google public keys: ", err) //! Logging the error.
 			return nil, err
 		}
 
 		// Get the public key for this kid
 		publicKey, err := a.getPublicKeyByKid(jwks, kid)
 		if err != nil {
+			middlewareLogger.Println("Failed to get public key for kid: ", kid) //! Logging the error.
 			return nil, err
 		}
 
@@ -281,12 +285,14 @@ func (a *AuthMiddleware) ValidateGoogleJWT(tokenString string) (*GoogleJWTClaims
 	})
 
 	if err != nil {
+		middlewareLogger.Println("Failed to parse or verify token: ", err) //! Logging the error.
 		return nil, fmt.Errorf("failed to parse or verify token: %v", err)
 	}
 
 	// Extract claims
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
+		middlewareLogger.Println("Invalid token or claims") //! Logging the error.
 		return nil, errors.New("invalid token or claims")
 	}
 
@@ -329,31 +335,37 @@ func (a *AuthMiddleware) ValidateGoogleJWT(tokenString string) (*GoogleJWTClaims
 
 	// Validate issuer
 	if googleClaims.Iss != "accounts.google.com" && googleClaims.Iss != "https://accounts.google.com" {
+		middlewareLogger.Println("Invalid issuer") //! Logging the error.
 		return nil, errors.New("invalid issuer")
 	}
 
 	// Validate audience - check against your Google OAuth client ID
 	expectedAudience := os.Getenv("GOOGLE_CLIENT_ID")
 	if expectedAudience == "" {
+		middlewareLogger.Println("GOOGLE_CLIENT_ID environment variable not set") //! Logging the error.
 		return nil, errors.New("GOOGLE_CLIENT_ID environment variable not set")
 	}
 	if googleClaims.Aud != expectedAudience {
+		middlewareLogger.Println("Invalid audience: expected ", expectedAudience, " got ", googleClaims.Aud) //! Logging the error.
 		return nil, fmt.Errorf("invalid audience: expected %s, got %s", expectedAudience, googleClaims.Aud)
 	}
 
 	// Check if token is expired
 	now := time.Now().Unix()
 	if googleClaims.Exp > 0 && googleClaims.Exp < now {
+		middlewareLogger.Println("Token expired") //! Logging the error.
 		return nil, errors.New("token expired")
 	}
 
 	// Check if token is not yet valid
 	if googleClaims.Iat > 0 && googleClaims.Iat > now+300 { // Allow 5 minutes clock skew
+		middlewareLogger.Println("Token not yet valid") //! Logging the error.
 		return nil, errors.New("token not yet valid")
 	}
 
 	// Ensure email is verified
 	if !googleClaims.EmailVerified {
+		middlewareLogger.Println("Email not verified") //! Logging the error.
 		return nil, errors.New("email not verified")
 	}
 
@@ -362,6 +374,7 @@ func (a *AuthMiddleware) ValidateGoogleJWT(tokenString string) (*GoogleJWTClaims
 
 // GetUserFromContext extracts user context from request context
 func GetUserFromContext(ctx context.Context) (*UserContext, bool) {
+	middlewareLogger.Println("Getting user from context: GetUserFromContext called") //! Logging the request.
 	user, ok := ctx.Value(userKey).(*UserContext)
 	return user, ok
 }

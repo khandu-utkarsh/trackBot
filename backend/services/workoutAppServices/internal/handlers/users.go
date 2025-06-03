@@ -3,11 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 	models "workout_app_backend/internal/models"
+
+	"github.com/go-chi/chi/v5"
 )
 
 //!Functions needed
@@ -29,6 +30,7 @@ func GetUserHandlerInstance(userModel *models.UserModel) *UserHandler {
 
 // ListUsers handles GET /api/users
 func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("ListUsers request received") //! Logging the request.
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -46,6 +48,7 @@ func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 
 // CreateUser handles POST /api/users
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("CreateUser request received") //! Logging the request.
 	if r.Method != http.MethodPost {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -57,8 +60,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("DBG: User: ", user)
-
 	if err := validateUserInput(&user); err != nil {
 		respondWithError(w, err.Error(), http.StatusBadRequest)
 		return
@@ -69,7 +70,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			respondWithError(w, "Email already exists", http.StatusConflict)
-			fmt.Println("DBG: Email already exists")
 			return
 		}
 		respondWithError(w, "Failed to create user", http.StatusInternalServerError)
@@ -88,18 +88,15 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // GetUser handles GET /api/users/{userID}
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("GetUser request received") //! Logging the request.
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	userID, err := extractUserID(r.URL.Path)
-	if err != nil {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
-
-	if userID <= 0 {
+	userIDStr := chi.URLParam(r, "userID")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil || userID <= 0 {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
@@ -120,18 +117,15 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 // UpdateUser handles PUT /api/users/{userID}
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("UpdateUser request received") //! Logging the request.
 	if r.Method != http.MethodPut {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	userID, err := extractUserID(r.URL.Path)
-	if err != nil {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
-
-	if userID <= 0 {
+	userIDStr := chi.URLParam(r, "userID")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil || userID <= 0 {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
@@ -174,18 +168,15 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUser handles DELETE /api/users/{userID}
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("DeleteUser request received") //! Logging the request.
 	if r.Method != http.MethodDelete {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	userID, err := extractUserID(r.URL.Path)
-	if err != nil {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
-
-	if userID <= 0 {
+	userIDStr := chi.URLParam(r, "userID")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil || userID <= 0 {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
@@ -205,23 +196,6 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 // Helper functions
 
-func respondWithError(w http.ResponseWriter, message string, code int) {
-	respondWithJSON(w, code, map[string]string{"error": message})
-}
-
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, err := json.Marshal(payload)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error": "Failed to marshal response"}`))
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	w.Write(response)
-}
-
 func validateUserInput(user *models.User) error {
 	if user.Email == "" {
 		return errors.New("email is required")
@@ -230,12 +204,4 @@ func validateUserInput(user *models.User) error {
 		return errors.New("invalid email format")
 	}
 	return nil
-}
-
-func extractUserID(path string) (int64, error) {
-	parts := strings.Split(path, "/")
-	if len(parts) != 4 {
-		return 0, errors.New("invalid path format")
-	}
-	return strconv.ParseInt(parts[3], 10, 64)
 }

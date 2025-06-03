@@ -38,6 +38,7 @@ func GetWorkoutModelInstance(db *sql.DB, name string, foreignKey string) *Workou
 
 // Initialize creates the workouts table if it doesn't exist
 func (m *WorkoutModel) Initialize(ctx context.Context) error {
+	modelsLogger.Println("WorkoutModel: Initialize called") //! Logging the request.
 	schema := fmt.Sprintf(`
 		id SERIAL PRIMARY KEY,
 		user_id BIGINT NOT NULL REFERENCES %s(id) ON DELETE CASCADE,
@@ -50,6 +51,7 @@ func (m *WorkoutModel) Initialize(ctx context.Context) error {
 
 // validateWorkout checks if the workout data is valid
 func (m *WorkoutModel) validateWorkout(workout *Workout) error {
+	modelsLogger.Println("WorkoutModel: validateWorkout called") //! Logging the request.
 	if workout == nil {
 		return fmt.Errorf("%w: workout cannot be nil", ErrInvalidInput)
 	}
@@ -61,6 +63,7 @@ func (m *WorkoutModel) validateWorkout(workout *Workout) error {
 
 // scanWorkout scans a database row into a Workout struct
 func (m *WorkoutModel) scanWorkout(row *sql.Row) (*Workout, error) {
+	modelsLogger.Println("WorkoutModel: scanWorkout called") //! Logging the request.
 	var workout Workout
 	err := row.Scan(&workout.ID, &workout.UserID, &workout.CreatedAt, &workout.UpdatedAt)
 	if err == sql.ErrNoRows {
@@ -74,6 +77,7 @@ func (m *WorkoutModel) scanWorkout(row *sql.Row) (*Workout, error) {
 
 // Create creates a new workout
 func (m *WorkoutModel) Create(ctx context.Context, workout *Workout) (int64, error) {
+	modelsLogger.Println("WorkoutModel: Create called") //! Logging the request.
 	if err := m.validateWorkout(workout); err != nil {
 		return 0, err
 	}
@@ -92,6 +96,7 @@ func (m *WorkoutModel) Create(ctx context.Context, workout *Workout) (int64, err
 
 // Get retrieves a workout by ID
 func (m *WorkoutModel) Get(ctx context.Context, id int64) (*Workout, error) {
+	modelsLogger.Println("WorkoutModel: Get called") //! Logging the request.
 	if id <= 0 {
 		return nil, fmt.Errorf("%w: invalid workout ID", ErrInvalidInput)
 	}
@@ -113,95 +118,88 @@ type WorkoutListParams struct {
 }
 
 // List retrieves all workouts for a user
+// List retrieves all workouts for a user, with optional date filtering
 func (m *WorkoutModel) List(ctx context.Context, params WorkoutListParams) ([]*Workout, error) {
+	modelsLogger.Println("WorkoutModel: List called") //! Logging the request.
+
 	if params.UserID <= 0 {
 		return nil, fmt.Errorf("%w: invalid user ID", ErrInvalidInput)
 	}
 
-	var query string
-	if params.Year != "" {
-		if params.Month != "" {
-			if params.Day != "" {
-				//!Filtering out particular day
+	var (
+		query string
+		args  []any
+	)
 
-				//!Convert year, month, day to time.Time
-				year, err := strconv.Atoi(params.Year)
-				if err != nil {
-					return nil, fmt.Errorf("%w: invalid year", ErrInvalidInput)
-				}
-				month, err := strconv.Atoi(params.Month)
-				if err != nil {
-					return nil, fmt.Errorf("%w: invalid month", ErrInvalidInput)
-				}
+	if params.Year != "" {
+		year, err := strconv.Atoi(params.Year)
+		if err != nil {
+			return nil, fmt.Errorf("%w: invalid year", ErrInvalidInput)
+		}
+
+		if params.Month != "" {
+			month, err := strconv.Atoi(params.Month)
+			if err != nil {
+				return nil, fmt.Errorf("%w: invalid month", ErrInvalidInput)
+			}
+
+			if params.Day != "" {
 				day, err := strconv.Atoi(params.Day)
 				if err != nil {
 					return nil, fmt.Errorf("%w: invalid day", ErrInvalidInput)
 				}
+				// Specific day filter
 				dateFilter := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
-
 				query = fmt.Sprintf(`
 					SELECT id, user_id, created_at, updated_at
 					FROM %s
-					WHERE user_id = $1 AND created_at = $2
+					WHERE user_id = $1 AND DATE(created_at) = $2
 					ORDER BY created_at DESC
-					`, m.name, dateFilter)
+				`, m.name)
+				args = []any{params.UserID, dateFilter.Format("2006-01-02")}
 
 			} else {
-				//!Filtering out particular month
-				year, err := strconv.Atoi(params.Year)
-				if err != nil {
-					return nil, fmt.Errorf("%w: invalid year", ErrInvalidInput)
-				}
-				month, err := strconv.Atoi(params.Month)
-				if err != nil {
-					return nil, fmt.Errorf("%w: invalid month", ErrInvalidInput)
-				}
-				dateFilter := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
-
+				// Month range filter
+				start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+				end := start.AddDate(0, 1, 0)
 				query = fmt.Sprintf(`
 					SELECT id, user_id, created_at, updated_at
 					FROM %s
 					WHERE user_id = $1 AND created_at >= $2 AND created_at < $3
 					ORDER BY created_at DESC
-					`, m.name, dateFilter, dateFilter.AddDate(0, 1, 0))
-
+				`, m.name)
+				args = []any{params.UserID, start, end}
 			}
 		} else {
-			//!Filtering out particular yea
-			year, err := strconv.Atoi(params.Year)
-			if err != nil {
-				return nil, fmt.Errorf("%w: invalid year", ErrInvalidInput)
-			}
-			dateFilter := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+			// Year range filter
+			start := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+			end := start.AddDate(1, 0, 0)
 			query = fmt.Sprintf(`
 				SELECT id, user_id, created_at, updated_at
 				FROM %s
 				WHERE user_id = $1 AND created_at >= $2 AND created_at < $3
 				ORDER BY created_at DESC
-				`, m.name, dateFilter, dateFilter.AddDate(1, 0, 0))
+			`, m.name)
+			args = []any{params.UserID, start, end}
 		}
 	} else {
-		//!No filters, return all workouts
+		// No filters
 		query = fmt.Sprintf(`
 			SELECT id, user_id, created_at, updated_at
 			FROM %s
 			WHERE user_id = $1
 			ORDER BY created_at DESC
-			`, m.name)
-
+		`, m.name)
+		args = []any{params.UserID}
 	}
 
-	if query == "" {
-		return nil, fmt.Errorf("%w: invalid query", ErrInvalidInput)
-	}
-
-	rows, err := m.db.QueryContext(ctx, query, params.UserID)
+	rows, err := m.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error querying workouts: %w", err)
 	}
 	defer rows.Close()
 
-	workouts := make([]*Workout, 0)
+	var workouts []*Workout
 	for rows.Next() {
 		var workout Workout
 		if err := rows.Scan(&workout.ID, &workout.UserID, &workout.CreatedAt, &workout.UpdatedAt); err != nil {
@@ -210,7 +208,7 @@ func (m *WorkoutModel) List(ctx context.Context, params WorkoutListParams) ([]*W
 		workouts = append(workouts, &workout)
 	}
 
-	if err = rows.Err(); err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("error iterating workout rows: %w", err)
 	}
 
@@ -219,7 +217,7 @@ func (m *WorkoutModel) List(ctx context.Context, params WorkoutListParams) ([]*W
 
 // Helper function with defaults
 func (m *WorkoutModel) ListWithDefaults(ctx context.Context, userID int64) ([]*Workout, error) {
-
+	modelsLogger.Println("WorkoutModel: ListWithDefaults called") //! Logging the request.
 	return m.List(ctx, WorkoutListParams{
 		UserID: userID,
 		Year:   "",
@@ -230,6 +228,7 @@ func (m *WorkoutModel) ListWithDefaults(ctx context.Context, userID int64) ([]*W
 
 // Update updates an existing workout
 func (m *WorkoutModel) Update(ctx context.Context, workout *Workout) error {
+	modelsLogger.Println("WorkoutModel: Update called") //! Logging the request.
 	if err := m.validateWorkout(workout); err != nil {
 		return err
 	}
@@ -253,6 +252,7 @@ func (m *WorkoutModel) Update(ctx context.Context, workout *Workout) error {
 
 // Delete removes a workout from the database
 func (m *WorkoutModel) Delete(ctx context.Context, id int64) error {
+	modelsLogger.Println("WorkoutModel: Delete called") //! Logging the request.
 	if id <= 0 {
 		return fmt.Errorf("%w: invalid workout ID", ErrInvalidInput)
 	}

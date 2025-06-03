@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"time"
 	handlers "workout_app_backend/internal/handlers"
@@ -19,22 +17,21 @@ func SetupRouter(userHandler *handlers.UserHandler,
 	messageHandler *handlers.MessageHandler,
 	authHandler *handlers.AuthHandler) *chi.Mux {
 
-	log.Println("Setting up router...")
+	routesLogger.Println("Setting up router...") //! Logging the request.
 
 	r := chi.NewRouter()
 
 	// Add debug middleware to log all incoming requests
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			log.Printf("🔵 INCOMING REQUEST: %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
+			routesLogger.Printf("INCOMING REQUEST: %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr) //! Logging the request.
 			next.ServeHTTP(w, r)
-			log.Printf("🟢 COMPLETED REQUEST: %s %s", r.Method, r.URL.Path)
+			routesLogger.Printf("COMPLETED REQUEST: %s %s", r.Method, r.URL.Path) //! Logging the request.
 		})
 	})
 
 	// Public middleware
 	r.Use(middleware.CorsConfigured())
-	r.Use(middleware.Logger())
 	r.Use(middleware.Recovery())
 
 	//!Additional Middleware
@@ -45,7 +42,7 @@ func SetupRouter(userHandler *handlers.UserHandler,
 
 	// Health check (public)
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("🟡 Health check endpoint hit")
+		routesLogger.Println("Health check endpoint hit") //! Logging the request.
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
@@ -54,35 +51,33 @@ func SetupRouter(userHandler *handlers.UserHandler,
 	authMiddleware := middleware.NewAuthMiddleware()
 
 	r.Route("/api", func(r chi.Router) {
-		log.Println("🔶 Setting up /api routes")
+		routesLogger.Println("🔶 Setting up /api routes") //! Logging the request.
 
-		fmt.Println("Setting up auth routes")
+		routesLogger.Println("Setting up auth routes") //! Logging the request.
 		// Unprotected routes first
 		r.Post("/auth/google", func(w http.ResponseWriter, r *http.Request) {
-			log.Println("🔑 Google auth endpoint hit")
 			authHandler.GoogleLogin(w, r)
 		})
 		r.Post("/auth/logout", func(w http.ResponseWriter, r *http.Request) {
-			log.Println("🔑 Logout endpoint hit")
 			authHandler.Logout(w, r)
 		})
 
 		// Protected routes
 		r.Group(func(r chi.Router) {
-			log.Println("🔒 Setting up protected routes group")
-			r.Use(authMiddleware.ValidateJWT()) // Protect only this group
+			routesLogger.Println("🔒 Setting up protected routes group") //! Logging the request.
+			r.Use(authMiddleware.ValidateJWT())                         // Protect only this group
 
 			// Add middleware to log protected route access
 			r.Use(func(next http.Handler) http.Handler {
 				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					log.Printf("🔒 PROTECTED ROUTE ACCESS: %s %s", r.Method, r.URL.Path)
+					routesLogger.Printf("🔒 PROTECTED ROUTE ACCESS: %s %s", r.Method, r.URL.Path) //! Logging the request.
 					next.ServeHTTP(w, r)
 				})
 			})
 
 			// Auth me endpoint (protected)
 			r.Get("/auth/me", func(w http.ResponseWriter, r *http.Request) {
-				log.Println("🔑 Auth me endpoint hit")
+				routesLogger.Println("🔑 Auth me endpoint hit") //! Logging the request.
 				authHandler.Me(w, r)
 			})
 
@@ -91,20 +86,20 @@ func SetupRouter(userHandler *handlers.UserHandler,
 	})
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("❌ Route not found: %s %s", r.Method, r.URL.Path)
+		routesLogger.Printf("Route not found: %s %s", r.Method, r.URL.Path) //! Logging the request.
 		http.Error(w, "Route not found", http.StatusNotFound)
 	})
 
 	r.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("❌ Method not allowed: %s %s", r.Method, r.URL.Path)
+		routesLogger.Printf("Method not allowed: %s %s", r.Method, r.URL.Path) //! Logging the request.
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	})
 
 	chi.Walk(r, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		log.Printf("[%s] %s", method, route)
+		routesLogger.Printf("[%s] %s", method, route) //! Logging the request.
 		return nil
 	})
 
-	log.Println("✅ Router setup completed successfully")
+	routesLogger.Println("Router setup completed successfully") //! Logging the request.
 	return r
 }

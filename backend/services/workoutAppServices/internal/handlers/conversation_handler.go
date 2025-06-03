@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	models "workout_app_backend/internal/models"
@@ -27,7 +26,7 @@ func NewConversationHandler(conversationModel *models.ConversationModel, userMod
 
 // ListConversationsByUser handles GET /api/users/{userID}/conversations
 func (h *ConversationHandler) ListConversationsByUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ListConversationsByUser called")
+	handlerLogger.Println("ListConversationsByUser request received") //! Logging the request.
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -65,6 +64,7 @@ func (h *ConversationHandler) ListConversationsByUser(w http.ResponseWriter, r *
 
 // CreateConversation handles POST /api/users/{userID}/conversations
 func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("CreateConversation request received") //! Logging the request.
 	if r.Method != http.MethodPost {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -121,6 +121,7 @@ func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.
 
 // GetConversation handles GET /api/users/{userID}/conversations/{conversationID}
 func (h *ConversationHandler) GetConversation(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("GetConversation request received") //! Logging the request.
 	if r.Method != http.MethodGet {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -164,6 +165,7 @@ func (h *ConversationHandler) GetConversation(w http.ResponseWriter, r *http.Req
 
 // UpdateConversation handles PUT /api/users/{userID}/conversations/{conversationID}
 func (h *ConversationHandler) UpdateConversation(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("UpdateConversation request received") //! Logging the request.
 	if r.Method != http.MethodPut {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -233,6 +235,7 @@ func (h *ConversationHandler) UpdateConversation(w http.ResponseWriter, r *http.
 
 // DeleteConversation handles DELETE /api/users/{userID}/conversations/{conversationID}
 func (h *ConversationHandler) DeleteConversation(w http.ResponseWriter, r *http.Request) {
+	handlerLogger.Println("DeleteConversation request received") //! Logging the request.
 	if r.Method != http.MethodDelete {
 		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
