@@ -1,14 +1,10 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
-	"strconv"
 	"strings"
 	models "workout_app_backend/internal/models"
-
-	"github.com/go-chi/chi/v5"
 )
 
 //!Functions needed
@@ -30,9 +26,10 @@ func GetUserHandlerInstance(userModel *models.UserModel) *UserHandler {
 
 // ListUsers handles GET /api/users
 func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("ListUsers request received") //! Logging the request.
-	if r.Method != http.MethodGet {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("ListUsers")
+
+	if err := validateHTTPMethod(r, http.MethodGet); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -48,15 +45,16 @@ func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 
 // CreateUser handles POST /api/users
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("CreateUser request received") //! Logging the request.
-	if r.Method != http.MethodPost {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("CreateUser")
+
+	if err := validateHTTPMethod(r, http.MethodPost); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
 	var user models.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		respondWithError(w, "Invalid request body", http.StatusBadRequest)
+	if err := decodeJSONBody(r, &user); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -88,16 +86,16 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // GetUser handles GET /api/users/{userID}
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("GetUser request received") //! Logging the request.
-	if r.Method != http.MethodGet {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("GetUser")
+
+	if err := validateHTTPMethod(r, http.MethodGet); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -117,22 +115,22 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 // UpdateUser handles PUT /api/users/{userID}
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("UpdateUser request received") //! Logging the request.
-	if r.Method != http.MethodPut {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("UpdateUser")
+
+	if err := validateHTTPMethod(r, http.MethodPut); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
 	var user models.User
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		respondWithError(w, "Invalid request body", http.StatusBadRequest)
+	if err := decodeJSONBody(r, &user); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -168,16 +166,16 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUser handles DELETE /api/users/{userID}
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("DeleteUser request received") //! Logging the request.
-	if r.Method != http.MethodDelete {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("DeleteUser")
+
+	if err := validateHTTPMethod(r, http.MethodDelete); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 

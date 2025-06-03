@@ -1,13 +1,9 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
-	"strconv"
 	models "workout_app_backend/internal/models"
-
-	"github.com/go-chi/chi/v5"
 )
 
 //!Functions needed
@@ -28,21 +24,16 @@ func GetWorkoutHandlerInstance(workoutModel *models.WorkoutModel, userModel *mod
 
 // ListWorkouts handles GET /api/users/{userID}/workouts
 func (h *WorkoutHandler) ListWorkouts(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("ListWorkouts request received") //! Logging the request.
-	if r.Method != http.MethodGet {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("ListWorkouts")
+
+	if err := validateHTTPMethod(r, http.MethodGet); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
-
-	if userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -68,22 +59,22 @@ func (h *WorkoutHandler) ListWorkouts(w http.ResponseWriter, r *http.Request) {
 
 // CreateWorkout handles POST /api/users/{userID}/workouts
 func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("CreateWorkout request received") //! Logging the request.
-	if r.Method != http.MethodPost {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("CreateWorkout")
+
+	if err := validateHTTPMethod(r, http.MethodPost); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
+	userID, err := parseIDFromURL(r, "userID")
+	if err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
 	var workout models.Workout
-	if err := json.NewDecoder(r.Body).Decode(&workout); err != nil {
-		respondWithError(w, "Invalid request body", http.StatusBadRequest)
+	if err := decodeJSONBody(r, &workout); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -121,21 +112,16 @@ func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 
 // GetWorkout handles GET /api/users/{userID}/workouts/{workoutID}
 func (h *WorkoutHandler) GetWorkout(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("GetWorkout request received") //! Logging the request.
-	if r.Method != http.MethodGet {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("GetWorkout")
+
+	if err := validateHTTPMethod(r, http.MethodGet); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
-	workoutIDStr := chi.URLParam(r, "workoutID")
-	workoutID, err := strconv.ParseInt(workoutIDStr, 10, 64)
-	if err != nil || workoutID <= 0 {
-		respondWithError(w, "Invalid workout ID", http.StatusBadRequest)
-		return
-	}
-
-	if workoutID <= 0 {
-		respondWithError(w, "Invalid workout ID", http.StatusBadRequest)
+	workoutID, err := parseIDFromURL(r, "workoutID")
+	if err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -155,39 +141,22 @@ func (h *WorkoutHandler) GetWorkout(w http.ResponseWriter, r *http.Request) {
 
 // UpdateWorkout handles PUT /api/users/{userID}/workouts/{workoutID}
 func (h *WorkoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("UpdateWorkout request received") //! Logging the request.
-	if r.Method != http.MethodPut {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("UpdateWorkout")
+
+	if err := validateHTTPMethod(r, http.MethodPut); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
-	workoutIDStr := chi.URLParam(r, "workoutID")
-	workoutID, err := strconv.ParseInt(workoutIDStr, 10, 64)
+	userID, workoutID, err := parseUserAndWorkoutIDs(r)
 	if err != nil {
-		respondWithError(w, "Invalid workout ID", http.StatusBadRequest)
-		return
-	}
-
-	if workoutID <= 0 {
-		respondWithError(w, "Invalid workout ID", http.StatusBadRequest)
-		return
-	}
-
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
-
-	if userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
+		handleHTTPError(w, err)
 		return
 	}
 
 	var workout models.Workout
-	if err := json.NewDecoder(r.Body).Decode(&workout); err != nil {
-		respondWithError(w, "Invalid request body", http.StatusBadRequest)
+	if err := decodeJSONBody(r, &workout); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -228,33 +197,16 @@ func (h *WorkoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 
 // DeleteWorkout handles DELETE /api/users/{userID}/workouts/{workoutID}
 func (h *WorkoutHandler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("DeleteWorkout request received") //! Logging the request.
-	if r.Method != http.MethodDelete {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("DeleteWorkout")
+
+	if err := validateHTTPMethod(r, http.MethodDelete); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
-	workoutIDStr := chi.URLParam(r, "workoutID")
-	workoutID, err := strconv.ParseInt(workoutIDStr, 10, 64)
+	userID, workoutID, err := parseUserAndWorkoutIDs(r)
 	if err != nil {
-		respondWithError(w, "Invalid workout ID", http.StatusBadRequest)
-		return
-	}
-
-	if workoutID <= 0 {
-		respondWithError(w, "Invalid workout ID", http.StatusBadRequest)
-		return
-	}
-
-	userIDStr := chi.URLParam(r, "userID")
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil || userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
-
-	if userID <= 0 {
-		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
+		handleHTTPError(w, err)
 		return
 	}
 

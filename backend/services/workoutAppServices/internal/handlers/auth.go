@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"workout_app_backend/internal/middleware"
 	"workout_app_backend/internal/models"
@@ -28,16 +27,16 @@ type GoogleLoginRequest struct {
 
 // GoogleLogin handles POST /api/auth/google
 func (h *AuthHandler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("GoogleLogin request received") //! Logging the request.
+	logRequest("GoogleLogin")
 
-	if r.Method != http.MethodPost {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	if err := validateHTTPMethod(r, http.MethodPost); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
 	var req GoogleLoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondWithError(w, "Invalid request body", http.StatusBadRequest)
+	if err := decodeJSONBody(r, &req); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -105,9 +104,10 @@ func (h *AuthHandler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 
 // Logout handles POST /api/auth/logout
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("Logout request received") //! Logging the request.
-	if r.Method != http.MethodPost {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("Logout")
+
+	if err := validateHTTPMethod(r, http.MethodPost); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
@@ -127,9 +127,10 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 // Me handles GET /api/auth/me
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("Me request received") //! Logging the request.
-	if r.Method != http.MethodGet {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	logRequest("Me")
+
+	if err := validateHTTPMethod(r, http.MethodGet); err != nil {
+		handleHTTPError(w, err)
 		return
 	}
 
