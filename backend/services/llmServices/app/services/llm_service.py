@@ -1,14 +1,14 @@
 from typing import Dict, Any, List
-import httpx
 from langchain.chat_models import init_chat_model
 from langchain.prompts import ChatPromptTemplate
-from langchain.output_parsers import PydanticOutputParser
 from langchain.schema import HumanMessage, AIMessage, SystemMessage
-from app.models import WorkoutAction
 from app.config.settings import get_settings
+import logging
+
 
 settings = get_settings()
-
+logger = logging.getLogger(__name__)
+'''
 class LLMService:
     def __init__(self):
         self.llm = init_chat_model(
@@ -159,4 +159,47 @@ class LLMService:
             "metadata": {
                 "response_type": "simple_chat"
             }
+        } 
+
+'''
+
+class LLMService:
+    def __init__(self):
+        self.llm = init_chat_model(
+            model_name=settings.MODEL_NAME,
+            api_key=settings.OPENAI_API_KEY
+        )
+                 
+    async def process_chat_message(
+        self, 
+        user_message: str, 
+    ) -> Dict[str, Any]:
+        """
+        Process a chat message using LangChain/LangGraph for fitness coaching
+        """
+        logger.info(f"Processing chat message: {user_message}")
+        try:
+            messages = [HumanMessage(content=user_message)]
+            
+            # Regular chat response
+            logger.info(f"Calling LLM with messages: {messages}")
+            response = await self.llm.ainvoke(messages)
+            logger.info(f"LLM response: {response}")
+            return {
+                "message": response.content
+            }
+            
+        except Exception as e:
+            return {
+                "message": "I'm sorry, I encountered an error processing your message. Please try again.",
+                "error": str(e)
+            }
+
+
+    async def process_request(self, user_input: str) -> Dict[str, Any]:
+        logger.info(f"Processing request: {user_input}")
+        result = await self.process_chat_message(user_input)
+        logger.info(f"Result: {result}")
+        return {
+            "message": result.get("message")
         } 

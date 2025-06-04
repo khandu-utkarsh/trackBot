@@ -73,7 +73,7 @@ func (c *LLMClient) ProcessChatMessage(ctx context.Context, messages []models.Me
 	}
 
 	// Create HTTP request
-	url := fmt.Sprintf("%s/api/v1/chat/message", c.baseURL)
+	url := fmt.Sprintf("%s/api/v1/process_messages", c.baseURL)
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)

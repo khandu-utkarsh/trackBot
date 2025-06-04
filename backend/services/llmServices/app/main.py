@@ -6,10 +6,17 @@ from fastapi import FastAPI
 from app.config.settings import get_settings
 from app.api.v1.api import api_router
 from app.middleware import ErrorHandlerMiddleware
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 settings = get_settings()
 
-app  = FastAPI(title=settings.PROJECT_NAME)
+app = FastAPI(title=settings.PROJECT_NAME)
 app.add_middleware(ErrorHandlerMiddleware)
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
