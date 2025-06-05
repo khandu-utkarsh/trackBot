@@ -178,9 +178,11 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 	assistantMessage := &models.Message{
 		ConversationID: conversationID,
 		UserID:         userID,
-		Content:        llmResponse.Message,
+		Content:        llmResponse.Message.Content,
 		MessageType:    models.MessageTypeAssistant,
 	}
+
+	handlerLogger.Println("Assistant message from the handler: ", assistantMessage) //! Logging the request.
 
 	// Save the assistant message
 	_, err = h.messageModel.Create(ctx, assistantMessage)

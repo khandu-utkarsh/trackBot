@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 	models "workout_app_backend/internal/models"
@@ -32,9 +33,17 @@ type ChatRequest struct {
 
 // ChatResponse represents the response from the LLM service
 type ChatResponse struct {
-	Message     string                 `json:"message"`
-	MessageType string                 `json:"message_type"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Message MessageContent `json:"message"`
+}
+
+// MessageContent represents the content of the message from the LLM service
+type MessageContent struct {
+	Content          string                 `json:"content"`
+	AdditionalKwargs map[string]interface{} `json:"additional_kwargs"`
+	ResponseMetadata map[string]interface{} `json:"response_metadata"`
+	Type             string                 `json:"type"`
+	Name             *string                `json:"name"`
+	ID               string                 `json:"id"`
 }
 
 // NewLLMClient creates a new LLM client
@@ -90,15 +99,26 @@ func (c *LLMClient) ProcessChatMessage(ctx context.Context, messages []models.Me
 
 	// Check response status
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("LLM service returned status %d", resp.StatusCode)
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("LLM service returned status %d: %s", resp.StatusCode, string(bodyBytes))
 	}
+
+	// Read the response body
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	// Print response for debugging
+	fmt.Println("Response body:", string(bodyBytes))
 
 	// Parse the response
 	var chatResponse ChatResponse
-	if err := json.NewDecoder(resp.Body).Decode(&chatResponse); err != nil {
+	if err := json.Unmarshal(bodyBytes, &chatResponse); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
+	fmt.Println("Chat response:", chatResponse)
 	return &chatResponse, nil
 }
 

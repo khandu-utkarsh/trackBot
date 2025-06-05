@@ -1,15 +1,37 @@
 from pydantic import BaseModel, Field
-from typing import Dict, Any
+from typing import Dict, Any, Literal, Union, List, Optional
 from datetime import datetime
-from typing import List, Optional
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, BaseMessage
 
 
-class ProcessTextRequest(BaseModel):
-    input: str
+# Models need to process the conversation
+class TrackBotHumanMessage(BaseModel):
+    role: Literal["user"]
+    content: str
 
-class ProcessTextResponse(BaseModel):
-    output: str
+    def to_langchain(self) -> BaseMessage:
+        return HumanMessage(content=self.content)
 
+class TrackBotAIMessage(BaseModel):
+    role: Literal["assistant"]
+    content: str
+
+    def to_langchain(self) -> BaseMessage:
+        return AIMessage(content=self.content)
+
+Message = Union[TrackBotHumanMessage, TrackBotAIMessage]
+
+class ProcessMessagesRequest(BaseModel):
+    messages: List[Message]
+    user_id: int
+
+
+# Only contains the generated output of one call.
+class ProcessMessagesResponse(BaseModel):
+    message: BaseMessage
+
+
+# Models for the workout app
 class WorkoutRequest(BaseModel):
     user_input: str = Field(description="User's workout description or request")
     user_id: str = Field(description="ID of the user making the request")

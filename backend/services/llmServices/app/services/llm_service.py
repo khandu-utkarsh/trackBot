@@ -1,7 +1,8 @@
 from typing import Dict, Any, List
 from langchain.chat_models import init_chat_model
 from langchain.prompts import ChatPromptTemplate
-from langchain.schema import HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, BaseMessage
+
 from app.config.settings import get_settings
 import logging
 
@@ -166,40 +167,34 @@ class LLMService:
 class LLMService:
     def __init__(self):
         self.llm = init_chat_model(
-            model_name=settings.MODEL_NAME,
+            model=settings.MODEL_NAME,
             api_key=settings.OPENAI_API_KEY
         )
                  
     async def process_chat_message(
         self, 
-        user_message: str, 
-    ) -> Dict[str, Any]:
+        messages: List[BaseMessage],
+        user_id: int
+    ) -> AIMessage:
         """
         Process a chat message using LangChain/LangGraph for fitness coaching
         """
-        logger.info(f"Processing chat message: {user_message}")
+        logger.info(f"Processing chat message: {messages}")
+        logger.info(f"User ID: {user_id}")
+
         try:
-            messages = [HumanMessage(content=user_message)]
-            
             # Regular chat response
             logger.info(f"Calling LLM with messages: {messages}")
-            response = await self.llm.ainvoke(messages)
-            logger.info(f"LLM response: {response}")
-            return {
-                "message": response.content
-            }
-            
+            logger.info(f"User ID: {user_id}")
+            response: AIMessage = await self.llm.ainvoke(messages)
+            logger.info(f"LLM response: {response.content}")
+            return response
+
         except Exception as e:
-            return {
-                "message": "I'm sorry, I encountered an error processing your message. Please try again.",
-                "error": str(e)
-            }
+            logger.error(f"Error processing chat message: {e}")
+            return AIMessage(content="I'm sorry, I encountered an error processing your message. Please try again.")
 
 
-    async def process_request(self, user_input: str) -> Dict[str, Any]:
-        logger.info(f"Processing request: {user_input}")
-        result = await self.process_chat_message(user_input)
-        logger.info(f"Result: {result}")
-        return {
-            "message": result.get("message")
-        } 
+    async def process_request(self, messages: List[BaseMessage], user_id: int) -> AIMessage:
+        result = await self.process_chat_message(messages, user_id)
+        return result
