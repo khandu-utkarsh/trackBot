@@ -34,7 +34,7 @@ docker run --rm \
   -o /local/generated/go/models \
   --package-name models \
   --additional-properties=packageName=models,generateInterfaces=true \
-  --global-property=models,supportingFiles
+  --global-property=models
 
 # Copy models to backend services (optional)
 # echo -e "${YELLOW} Copying generated models to backend services...${NC}"
