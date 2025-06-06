@@ -32,7 +32,9 @@ docker run --rm \
   -i /local/openapi.yaml \
   -g typescript-axios \
   -o /local/generated/typescript/api-client \
-  --additional-properties=npmName=@trackbot-app/api-client,npmVersion=1.0.0,supportsES6=true,typescriptThreePlus=true
+  --additional-properties=npmName=@trackbot-app/api-client,npmVersion=1.0.0,supportsES6=true,typescriptThreePlus=true \
+  --global-property=apiTests=false,modelTests=false,apiDocs=false,modelDocs=false \
+  --ignore-file-override=/local/.openapi-generator-ignore
 
 
 # Copy to frontend directory
