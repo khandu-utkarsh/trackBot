@@ -1,0 +1,8 @@
+.gitlab-ci.yml
+.travis.yml
+git_push.sh
+README.md
+setup.cfg
+tox.ini
+test/
+docs/

@@ -20,6 +20,11 @@ API_CONTRACTS_DIR="$(dirname "$SCRIPT_DIR")"
 OPENAPI_FILE="$API_CONTRACTS_DIR/openapi.yaml"
 OUTPUT_DIR="$API_CONTRACTS_DIR/generated/python"
 
+echo "SCRIPT_DIR: $SCRIPT_DIR"
+echo "API_CONTRACTS_DIR: $API_CONTRACTS_DIR"
+echo "OPENAPI_FILE: $OPENAPI_FILE"
+echo "OUTPUT_DIR: $OUTPUT_DIR"
+
 # Check if Docker is available
 if ! command -v docker &> /dev/null; then
     echo -e "${RED}Docker not found. Please install Docker first.${NC}"
@@ -31,38 +36,22 @@ echo -e "${YELLOW} Cleaning previous generated files...${NC}"
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-# Generate Python Pydantic models
-echo -e "${BLUE} Generating Python Pydantic models...${NC}"
-docker run --rm \
-  -v "$API_CONTRACTS_DIR:/local" \
-  openapitools/openapi-generator-cli generate \
-  -i /local/openapi.yaml \
-  -g python-pydantic-v1 \
-  -o /local/generated/python/models \
-  --package-name trackbot_models \
-  --additional-properties=packageName=trackbot_models,packageVersion=1.0.0,packageUrl=https://github.com/yourorg/trackbot
 
-# Generate Python FastAPI server (optional)
-echo -e "${BLUE} Generating FastAPI server code...${NC}"
-docker run --rm \
-  -v "$API_CONTRACTS_DIR:/local" \
-  openapitools/openapi-generator-cli generate \
-  -i /local/openapi.yaml \
-  -g python-fastapi \
-  -o /local/generated/python/fastapi-server \
-  --package-name trackbot_api \
-  --additional-properties=packageName=trackbot_api,packageVersion=1.0.0,generateSourceCodeOnly=false
+## Commenting out the client generation for now
+## TODO: Uncomment this when we have a use case for it
 
 # Generate Python HTTP client
-echo -e "${BLUE} Generating Python HTTP client...${NC}"
-docker run --rm \
-  -v "$API_CONTRACTS_DIR:/local" \
-  openapitools/openapi-generator-cli generate \
-  -i /local/openapi.yaml \
-  -g python \
-  -o /local/generated/python/client \
-  --package-name trackbot_client \
-  --additional-properties=packageName=trackbot_client,packageVersion=1.0.0,library=urllib3
+#echo -e "${BLUE} Generating Python HTTP client...${NC}"
+#docker run --rm \
+#  -v "$API_CONTRACTS_DIR:/local" \
+#  openapitools/openapi-generator-cli generate \
+#  -i /local/openapi.yaml \
+#  -g python \
+#  -o /local/generated/python/client \
+#  --package-name trackbot_client \
+#  --additional-properties=packageName=trackbot_client,packageVersion=1.0.0,library=urllib3 \
+#  --global-property=apiTests=false,modelTests=false,apiDocs=false,modelDocs=false \
+#  --ignore-file-override=/local/.openapi-generator-ignore
 
 # Generate advanced Pydantic v2 models using Docker
 echo -e "${BLUE} Generating Pydantic v2 models with datamodel-codegen...${NC}"
