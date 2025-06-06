@@ -26,10 +26,12 @@ mkdir -p "$OUTPUT_DIR"
 
 # Generate TypeScript types and API client
 echo -e "${BLUE} Generating TypeScript types and API client...${NC}"
-openapi-generator-cli generate \
-  -i "$OPENAPI_FILE" \
+docker run --rm \
+  -v "$API_CONTRACTS_DIR:/local" \
+  openapitools/openapi-generator-cli generate \
+  -i /local/openapi.yaml \
   -g typescript-axios \
-  -o "$OUTPUT_DIR/api-client" \
+  -o /local/generated/typescript/api-client \
   --additional-properties=npmName=@trackbot-app/api-client,npmVersion=1.0.0,supportsES6=true,typescriptThreePlus=true
 
 

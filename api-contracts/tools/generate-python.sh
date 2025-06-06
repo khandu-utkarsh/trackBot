@@ -20,10 +20,9 @@ API_CONTRACTS_DIR="$(dirname "$SCRIPT_DIR")"
 OPENAPI_FILE="$API_CONTRACTS_DIR/openapi.yaml"
 OUTPUT_DIR="$API_CONTRACTS_DIR/generated/python"
 
-# Check if OpenAPI generator is available
-if ! command -v openapi-generator-cli &> /dev/null; then
-    echo -e "${RED}openapi-generator-cli not found. Please install it first:${NC}"
-    echo -e "${BLUE}pip install openapi-generator-cli${NC}"
+# Check if Docker is available
+if ! command -v docker &> /dev/null; then
+    echo -e "${RED}Docker not found. Please install Docker first.${NC}"
     exit 1
 fi
 
@@ -34,38 +33,51 @@ mkdir -p "$OUTPUT_DIR"
 
 # Generate Python Pydantic models
 echo -e "${BLUE} Generating Python Pydantic models...${NC}"
-openapi-generator-cli generate \
-  -i "$OPENAPI_FILE" \
+docker run --rm \
+  -v "$API_CONTRACTS_DIR:/local" \
+  openapitools/openapi-generator-cli generate \
+  -i /local/openapi.yaml \
   -g python-pydantic-v1 \
-  -o "$OUTPUT_DIR/models" \
+  -o /local/generated/python/models \
   --package-name trackbot_models \
   --additional-properties=packageName=trackbot_models,packageVersion=1.0.0,packageUrl=https://github.com/yourorg/trackbot
 
 # Generate Python FastAPI server (optional)
 echo -e "${BLUE} Generating FastAPI server code...${NC}"
-openapi-generator-cli generate \
-  -i "$OPENAPI_FILE" \
+docker run --rm \
+  -v "$API_CONTRACTS_DIR:/local" \
+  openapitools/openapi-generator-cli generate \
+  -i /local/openapi.yaml \
   -g python-fastapi \
-  -o "$OUTPUT_DIR/fastapi-server" \
+  -o /local/generated/python/fastapi-server \
   --package-name trackbot_api \
   --additional-properties=packageName=trackbot_api,packageVersion=1.0.0,generateSourceCodeOnly=false
 
 # Generate Python HTTP client
 echo -e "${BLUE} Generating Python HTTP client...${NC}"
-openapi-generator-cli generate \
-  -i "$OPENAPI_FILE" \
+docker run --rm \
+  -v "$API_CONTRACTS_DIR:/local" \
+  openapitools/openapi-generator-cli generate \
+  -i /local/openapi.yaml \
   -g python \
-  -o "$OUTPUT_DIR/client" \
+  -o /local/generated/python/client \
   --package-name trackbot_client \
   --additional-properties=packageName=trackbot_client,packageVersion=1.0.0,library=urllib3
 
-# Generate advanced Pydantic v2 models (if datamodel-codegen is available)
+# Generate advanced Pydantic v2 models using Docker
 echo -e "${BLUE} Generating Pydantic v2 models with datamodel-codegen...${NC}"
-if command -v datamodel-codegen &> /dev/null; then
+mkdir -p "$OUTPUT_DIR/pydantic-v2"
+
+docker run --rm \
+  -v "$API_CONTRACTS_DIR:/workspace" \
+  -w /workspace \
+  python:3.11-slim \
+  sh -c "
+    pip install 'datamodel-code-generator[http]' && \
     datamodel-codegen \
-        --input "$OPENAPI_FILE" \
+        --input /workspace/openapi.yaml \
         --input-file-type openapi \
-        --output "$OUTPUT_DIR/pydantic-v2/models.py" \
+        --output /workspace/generated/python/pydantic-v2/models.py \
         --output-model-type pydantic_v2.BaseModel \
         --field-constraints \
         --use-annotated \
@@ -76,11 +88,9 @@ if command -v datamodel-codegen &> /dev/null; then
         --snake-case-field \
         --strict-nullable \
         --target-python-version 3.11
-    
-    echo -e "${GREEN} Pydantic v2 models generated with datamodel-codegen${NC}"
-else
-    echo -e "${YELLOW}⚠️ datamodel-codegen not found. Install with: pip install datamodel-code-generator[http]${NC}"
-fi
+  "
+
+echo -e "${GREEN} Pydantic v2 models generated with datamodel-codegen${NC}"
 
 
 # Copy models to potential Python services
@@ -95,7 +105,6 @@ fi
 #    cp -r "$OUTPUT_DIR/models/"* "$PYTHON_SERVICES_DIR/shared/models/"
 #fi
 
-#if ! command -v datamodel-codegen &> /dev/null; then
-#    echo -e "\n${YELLOW}💡 Tip: Install datamodel-codegen for better Pydantic v2 support:${NC}"
-#    echo -e "${BLUE}pip install 'datamodel-code-generator[http]'${NC}"
-#fi 
+# All dependencies are handled via Docker containers
+echo -e "\n${GREEN}✅ All Python code generation completed using Docker containers${NC}"
+echo -e "${BLUE}Generated files are available in: $OUTPUT_DIR${NC}" 
