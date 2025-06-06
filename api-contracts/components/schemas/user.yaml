@@ -1,0 +1,51 @@
+schemas:
+  User:
+    type: object
+    required:
+      - id
+      - email
+      - created_at
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: Unique identifier for the user. Created by the database.
+        example: 1
+      email:
+        type: string
+        format: email
+        description: User's email address. This is the primary key for the user and obtained from the Google Auth.
+        example: "user@gmail.com"
+      created_at:
+        type: string
+        format: date-time
+        description: Timestamp when the user was created. Created by the database.
+        example: "2024-01-15T10:30:00Z"
+
+  CreateUserRequest:
+    type: object
+    required:
+      - email
+    properties:
+      email:
+        type: string
+        format: email
+        description: User's email address. This is the primary key for the user and obtained from the Google Auth.
+        example: "user@gmail.com"
+
+  CreateUserResponse:
+    type: object
+    required:
+      - id
+      - email
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: ID of the created user. Created by the database.
+        example: 1 
+      email:
+        type: string
+        format: email
+        description: User's email address. This is the primary key for the user and obtained from the Google Auth.
+        example: "user@gmail.com"

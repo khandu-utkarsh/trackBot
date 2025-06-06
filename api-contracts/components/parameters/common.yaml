@@ -1,0 +1,94 @@
+UserIdPath:
+  name: userId
+  in: path
+  required: true
+  schema:
+    type: integer
+    format: int64
+    minimum: 1
+  description: User ID
+  example: 1
+
+WorkoutIdPath:
+  name: workoutId
+  in: path
+  required: true
+  schema:
+    type: integer
+    format: int64
+    minimum: 1
+  description: Workout ID
+  example: 1
+
+ExerciseIdPath:
+  name: exerciseId
+  in: path
+  required: true
+  schema:
+    type: integer
+    format: int64
+    minimum: 1
+  description: Exercise ID
+  example: 1
+
+ConversationIdPath:
+  name: conversationId
+  in: path
+  required: true
+  schema:
+    type: integer
+    format: int64
+    minimum: 1
+  description: Conversation ID
+  example: 1
+
+MessageIdPath:
+  name: messageId
+  in: path
+  required: true
+  schema:
+    type: integer
+    format: int64
+    minimum: 1
+  description: Message ID
+  example: 1
+
+EmailPath:
+  name: email
+  in: path
+  required: true
+  schema:
+    type: string
+    format: email
+  description: User email address
+  example: "user@example.com"
+
+YearQuery:
+  name: year
+  in: query
+  required: false
+  schema:
+    type: string
+    pattern: '^\d{4}$'
+  description: Filter by year (YYYY format)
+  example: "2024"
+
+MonthQuery:
+  name: month
+  in: query
+  required: false
+  schema:
+    type: string
+    pattern: '^(0[1-9]|1[0-2])$'
+  description: Filter by month (MM format)
+  example: "01"
+
+DayQuery:
+  name: day
+  in: query
+  required: false
+  schema:
+    type: string
+    pattern: '^(0[1-9]|[12][0-9]|3[01])$'
+  description: Filter by day (DD format)
+  example: "15" 

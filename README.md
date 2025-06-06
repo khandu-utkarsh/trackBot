@@ -14,6 +14,13 @@ Once the basic logging functionality is in place, the goal is to implement intel
 
 ---
 
+#Things that I need to write good docuementation about
+- Google Auth
+- Cookies and Session data
+- Dockerization
+- Open API
+
+
 ## 🤝 Contributing
 
 This is an active and ongoing project. Any help, ideas, or discussion are very welcome!  

@@ -1,0 +1,630 @@
+openapi: 3.0.3
+info:
+  title: TrackBot App API
+  description: |
+    Comprehensive API for the TrackBot Application helping in logging workouts, exercises and nutrition using AI.
+    
+    This API provides endpoints for:
+    - User management
+    - Workout tracking and management
+    - Exercise logging (cardio and weight training)
+    - AI conversation and messaging
+    
+    All timestamps are in ISO 8601 format (UTC).
+  version: 1.0.0
+  contact:
+    name: Utkarsh Khandelwal
+    email: utkarshkhandelwal2011@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Development server
+  - url: https://api.trackbotapp.com/v1
+    description: Production server
+
+tags:
+  - name: Users
+    description: User management operations
+  - name: Workouts
+    description: Workout session management
+  - name: Exercises
+    description: Exercise tracking and logging
+  - name: Conversations
+    description: AI conversation management
+  - name: Messages
+    description: Message handling within conversations
+
+paths:
+  # User endpoints
+  /users:
+    get:
+      summary: List all users
+      description: Retrieve a list of all users in the system
+      operationId: listUsers
+      tags: [Users]
+      responses:
+        '200':
+          description: List of users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create a new user
+      description: Create a new user account
+      operationId: createUser
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+        '200':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/{userId}:
+    get:
+      summary: Get user by ID
+      description: Retrieve a specific user by their ID
+      operationId: getUserById
+      tags: [Users]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete user
+      description: Delete a user and all associated data
+      operationId: deleteUser
+      tags: [Users]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/email/{email}:
+    get:
+      summary: Get user by email
+      description: Retrieve a user by their email address
+      operationId: getUserByEmail
+      tags: [Users]
+      parameters:
+        - $ref: '#/components/parameters/EmailPath'
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Workout endpoints
+  /users/{userId}/workouts:
+    get:
+      summary: List workouts for a user
+      description: Retrieve all workouts for a specific user with optional date filtering
+      operationId: listWorkouts
+      tags: [Workouts]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+        - $ref: '#/components/parameters/YearQuery'
+        - $ref: '#/components/parameters/MonthQuery'
+        - $ref: '#/components/parameters/DayQuery'
+      responses:
+        '200':
+          description: List of workouts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Workout'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create a new workout
+      description: Create a new workout session for a user
+      operationId: createWorkout
+      tags: [Workouts]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorkoutRequest'
+      responses:
+        '201':
+          description: Workout created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateWorkoutResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /workouts/{workoutId}:
+    get:
+      summary: Get workout by ID
+      description: Retrieve a specific workout by its ID
+      operationId: getWorkoutById
+      tags: [Workouts]
+      parameters:
+        - $ref: '#/components/parameters/WorkoutIdPath'
+      responses:
+        '200':
+          description: Workout details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      summary: Update workout
+      description: Update an existing workout
+      operationId: updateWorkout
+      tags: [Workouts]
+      parameters:
+        - $ref: '#/components/parameters/WorkoutIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWorkoutRequest'
+      responses:
+        '200':
+          description: Workout updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete workout
+      description: Delete a workout and all associated exercises
+      operationId: deleteWorkout
+      tags: [Workouts]
+      parameters:
+        - $ref: '#/components/parameters/WorkoutIdPath'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Exercise endpoints
+  /workouts/{workoutId}/exercises:
+    get:
+      summary: List exercises for a workout
+      description: Retrieve all exercises for a specific workout
+      operationId: listExercises
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/WorkoutIdPath'
+      responses:
+        '200':
+          description: List of exercises retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exercise'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create a new exercise
+      description: Add a new exercise to a workout (cardio or weight training)
+      operationId: createExercise
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/WorkoutIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExerciseRequest'
+      responses:
+        '201':
+          description: Exercise created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateExerciseResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /exercises/{exerciseId}:
+    get:
+      summary: Get exercise by ID
+      description: Retrieve a specific exercise by its ID
+      operationId: getExerciseById
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseIdPath'
+      responses:
+        '200':
+          description: Exercise details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      summary: Update exercise
+      description: Update an existing exercise
+      operationId: updateExercise
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExerciseRequest'
+      responses:
+        '200':
+          description: Exercise updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete exercise
+      description: Delete an exercise from a workout
+      operationId: deleteExercise
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseIdPath'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Conversation endpoints
+  /users/{userId}/conversations:
+    get:
+      summary: List conversations for a user
+      description: Retrieve all conversations for a specific user
+      operationId: listConversations
+      tags: [Conversations]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '200':
+          description: List of conversations retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conversation'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create a new conversation
+      description: Start a new conversation with the AI assistant
+      operationId: createConversation
+      tags: [Conversations]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConversationRequest'
+      responses:
+        '201':
+          description: Conversation created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateConversationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /conversations/{conversationId}:
+    get:
+      summary: Get conversation by ID
+      description: Retrieve a specific conversation by its ID
+      operationId: getConversationById
+      tags: [Conversations]
+      parameters:
+        - $ref: '#/components/parameters/ConversationIdPath'
+      responses:
+        '200':
+          description: Conversation details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversation'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete conversation
+      description: Delete a conversation and all associated messages
+      operationId: deleteConversation
+      tags: [Conversations]
+      parameters:
+        - $ref: '#/components/parameters/ConversationIdPath'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Message endpoints
+  /conversations/{conversationId}/messages:
+    get:
+      summary: List messages in a conversation
+      description: Retrieve all messages in a specific conversation
+      operationId: listMessages
+      tags: [Messages]
+      parameters:
+        - $ref: '#/components/parameters/ConversationIdPath'
+      responses:
+        '200':
+          description: List of messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create a new message
+      description: Send a new message in a conversation
+      operationId: createMessage
+      tags: [Messages]
+      parameters:
+        - $ref: '#/components/parameters/ConversationIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+      responses:
+        '201':
+          description: Message created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /messages/{messageId}:
+    get:
+      summary: Get message by ID
+      description: Retrieve a specific message by its ID
+      operationId: getMessageById
+      tags: [Messages]
+      parameters:
+        - $ref: '#/components/parameters/MessageIdPath'
+      responses:
+        '200':
+          description: Message details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete message
+      description: Delete a message from a conversation
+      operationId: deleteMessage
+      tags: [Messages]
+      parameters:
+        - $ref: '#/components/parameters/MessageIdPath'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    # Import all schema components
+    User:
+      $ref: './components/schemas/user.yaml#/schemas/User'
+    CreateUserRequest:
+      $ref: './components/schemas/user.yaml#/schemas/CreateUserRequest'
+    CreateUserResponse:
+      $ref: './components/schemas/user.yaml#/schemas/CreateUserResponse'
+
+    Workout:
+      $ref: './components/schemas/workout.yaml#/schemas/Workout'
+    WorkoutListParams:
+      $ref: './components/schemas/workout.yaml#/schemas/WorkoutListParams'
+    CreateWorkoutRequest:
+      $ref: './components/schemas/workout.yaml#/schemas/CreateWorkoutRequest'
+    UpdateWorkoutRequest:
+      $ref: './components/schemas/workout.yaml#/schemas/UpdateWorkoutRequest'
+    CreateWorkoutResponse:
+      $ref: './components/schemas/workout.yaml#/schemas/CreateWorkoutResponse'
+
+    ExerciseType:
+      $ref: './components/schemas/exercise.yaml#/schemas/ExerciseType'
+    BaseExercise:
+      $ref: './components/schemas/exercise.yaml#/schemas/BaseExercise'
+    CardioExercise:
+      $ref: './components/schemas/exercise.yaml#/schemas/CardioExercise'
+    WeightExercise:
+      $ref: './components/schemas/exercise.yaml#/schemas/WeightExercise'
+    Exercise:
+      $ref: './components/schemas/exercise.yaml#/schemas/Exercise'
+    CreateCardioExerciseRequest:
+      $ref: './components/schemas/exercise.yaml#/schemas/CreateCardioExerciseRequest'
+    CreateWeightExerciseRequest:
+      $ref: './components/schemas/exercise.yaml#/schemas/CreateWeightExerciseRequest'
+    CreateExerciseRequest:
+      $ref: './components/schemas/exercise.yaml#/schemas/CreateExerciseRequest'
+    UpdateExerciseRequest:
+      $ref: './components/schemas/exercise.yaml#/schemas/UpdateExerciseRequest'
+    CreateExerciseResponse:
+      $ref: './components/schemas/exercise.yaml#/schemas/CreateExerciseResponse'
+
+    Conversation:
+      $ref: './components/schemas/conversation.yaml#/schemas/Conversation'
+    CreateConversationRequest:
+      $ref: './components/schemas/conversation.yaml#/schemas/CreateConversationRequest'
+    CreateConversationResponse:
+      $ref: './components/schemas/conversation.yaml#/schemas/CreateConversationResponse'
+
+    MessageType:
+      $ref: './components/schemas/message.yaml#/schemas/MessageType'
+    Message:
+      $ref: './components/schemas/message.yaml#/schemas/Message'
+    CreateMessageRequest:
+      $ref: './components/schemas/message.yaml#/schemas/CreateMessageRequest'
+    CreateMessageResponse:
+      $ref: './components/schemas/message.yaml#/schemas/CreateMessageResponse'
+
+    Error:
+      $ref: './components/responses/errors.yaml#/components/schemas/Error'
+
+  parameters:
+    UserIdPath:
+      $ref: './components/parameters/common.yaml#/UserIdPath'
+    WorkoutIdPath:
+      $ref: './components/parameters/common.yaml#/WorkoutIdPath'
+    ExerciseIdPath:
+      $ref: './components/parameters/common.yaml#/ExerciseIdPath'
+    ConversationIdPath:
+      $ref: './components/parameters/common.yaml#/ConversationIdPath'
+    MessageIdPath:
+      $ref: './components/parameters/common.yaml#/MessageIdPath'
+    EmailPath:
+      $ref: './components/parameters/common.yaml#/EmailPath'
+    YearQuery:
+      $ref: './components/parameters/common.yaml#/YearQuery'
+    MonthQuery:
+      $ref: './components/parameters/common.yaml#/MonthQuery'
+    DayQuery:
+      $ref: './components/parameters/common.yaml#/DayQuery'
+
+  responses:
+    BadRequest:
+      $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
+    Unauthorized:
+      $ref: './components/responses/errors.yaml#/components/responses/Unauthorized'
+    Forbidden:
+      $ref: './components/responses/errors.yaml#/components/responses/Forbidden'
+    NotFound:
+      $ref: './components/responses/errors.yaml#/components/responses/NotFound'
+    Conflict:
+      $ref: './components/responses/errors.yaml#/components/responses/Conflict'
+    UnprocessableEntity:
+      $ref: './components/responses/errors.yaml#/components/responses/UnprocessableEntity'
+    InternalServerError:
+      $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
+    NoContent:
+      $ref: './components/responses/errors.yaml#/components/responses/NoContent'

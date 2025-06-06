@@ -1,0 +1,131 @@
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: "INVALID_INPUT"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "The provided input is invalid"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input or parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            invalid_input:
+              summary: Invalid input
+              value:
+                code: "INVALID_INPUT"
+                message: "The provided input is invalid"
+            validation_failed:
+              summary: Validation failed
+              value:
+                code: "VALIDATION_FAILED"
+                message: "Request validation failed"
+                details:
+                  field: "email"
+                  reason: "Invalid email format"
+
+    Unauthorized:
+      description: Unauthorized - authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "UNAUTHORIZED"
+            message: "Authentication is required to access this resource"
+
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "FORBIDDEN"
+            message: "You do not have permission to access this resource"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            user_not_found:
+              summary: User not found
+              value:
+                code: "USER_NOT_FOUND"
+                message: "The requested user was not found"
+            workout_not_found:
+              summary: Workout not found
+              value:
+                code: "WORKOUT_NOT_FOUND"
+                message: "The requested workout was not found"
+            exercise_not_found:
+              summary: Exercise not found
+              value:
+                code: "EXERCISE_NOT_FOUND"
+                message: "The requested exercise was not found"
+            conversation_not_found:
+              summary: Conversation not found
+              value:
+                code: "CONVERSATION_NOT_FOUND"
+                message: "The requested conversation was not found"
+            message_not_found:
+              summary: Message not found
+              value:
+                code: "MESSAGE_NOT_FOUND"
+                message: "The requested message was not found"
+
+    Conflict:
+      description: Conflict with current state of resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            duplicate_email:
+              summary: Duplicate email
+              value:
+                code: "DUPLICATE_EMAIL"
+                message: "A user with this email already exists"
+
+    UnprocessableEntity:
+      description: Unprocessable Entity - request is valid but cannot be processed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "UNPROCESSABLE_ENTITY"
+            message: "The request is well-formed but contains semantic errors"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: "INTERNAL_ERROR"
+            message: "An internal server error occurred"
+
+    NoContent:
+      description: Operation completed successfully with no content to return 
