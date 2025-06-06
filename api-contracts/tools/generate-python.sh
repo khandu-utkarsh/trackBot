@@ -83,17 +83,19 @@ echo -e "${GREEN} Pydantic v2 models generated with datamodel-codegen${NC}"
 
 
 # Copy models to potential Python services
-#echo -e "${YELLOW} Setting up Python service directories...${NC}"
+echo -e "${YELLOW} Setting up Python service directories...${NC}"
 
 # Create Python service directories (if they don't exist)
-#PYTHON_SERVICES_DIR="$API_CONTRACTS_DIR/../backend/services/pythonServices"
-#mkdir -p "$PYTHON_SERVICES_DIR/shared/models"
+PYTHON_SERVICES_DIR="$API_CONTRACTS_DIR/../backend/services/llmServices/internal/generated/models"
+echo "PYTHON_SERVICES_DIR: $PYTHON_SERVICES_DIR"
+mkdir -p "$PYTHON_SERVICES_DIR"
 
 # Copy Pydantic models
-#if [ -d "$OUTPUT_DIR/models" ]; then
-#    cp -r "$OUTPUT_DIR/models/"* "$PYTHON_SERVICES_DIR/shared/models/"
-#fi
+if [ -d "$OUTPUT_DIR/pydantic-v2" ]; then
+    cp -r "$OUTPUT_DIR/pydantic-v2/"* "$PYTHON_SERVICES_DIR"
+fi
 
-# All dependencies are handled via Docker containers
-echo -e "\n${GREEN}✅ All Python code generation completed using Docker containers${NC}"
-echo -e "${BLUE}Generated files are available in: $OUTPUT_DIR${NC}" 
+echo -e "${GREEN}Python code generation completed successfully!${NC}"
+echo -e "${BLUE} Generated files are in: $OUTPUT_DIR${NC}"
+echo -e "${BLUE} Models copied to backend services${NC}"
+

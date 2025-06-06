@@ -6,3 +6,11 @@ setup.cfg
 tox.ini
 test/
 docs/
+.npm
+.gitignore
+.npmignore
+git_push.sh
+package-lock.json
+package.json
+tsconfig.json
+tsconfig.esm.json

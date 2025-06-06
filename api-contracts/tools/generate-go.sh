@@ -37,11 +37,11 @@ docker run --rm \
   --global-property=models
 
 # Copy models to backend services (optional)
-# echo -e "${YELLOW} Copying generated models to backend services...${NC}"
-# WORKOUT_SERVICE_DIR="$API_CONTRACTS_DIR/../backend/services/workoutAppServices/internal/generated"
-# mkdir -p "$WORKOUT_SERVICE_DIR"
-# cp -r "$OUTPUT_DIR/models/"* "$WORKOUT_SERVICE_DIR/"
+echo -e "${YELLOW} Copying generated models to backend services...${NC}"
+WORKOUT_SERVICE_DIR="$API_CONTRACTS_DIR/../backend/services/workoutAppServices/internal/generated"
+mkdir -p "$WORKOUT_SERVICE_DIR"
+cp -r "$OUTPUT_DIR/models/"* "$WORKOUT_SERVICE_DIR/"
 
-# echo -e "${GREEN}Go code generation completed successfully!${NC}"
-# echo -e "${BLUE} Generated files are in: $OUTPUT_DIR${NC}"
-# echo -e "${BLUE} Models copied to backend services${NC}"
+echo -e "${GREEN}Go code generation completed successfully!${NC}"
+echo -e "${BLUE} Generated files are in: $OUTPUT_DIR${NC}"
+echo -e "${BLUE} Models copied to backend services${NC}"

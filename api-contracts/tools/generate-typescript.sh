@@ -38,50 +38,16 @@ docker run --rm \
 
 
 # Copy to frontend directory
-#echo -e "${YELLOW} Copying generated types to frontend...${NC}"
-#`FRONTEND_DIR="$API_CONTRACTS_DIR/../frontend/src/types/generated"
-#mkdir -p "$FRONTEND_DIR"
+echo -e "${YELLOW} Copying generated types to frontend...${NC}"
+FRONTEND_DIR="$API_CONTRACTS_DIR/../frontend/src/lib/types/generated"
+mkdir -p "$FRONTEND_DIR"
 
 # Copy the main types
-#if [ -d "$OUTPUT_DIR/types" ]; then
-#  cp -r "$OUTPUT_DIR/types/"* "$FRONTEND_DIR/"
-#fi
+# Copy only .ts files from the generated client
+if [ -d "$OUTPUT_DIR/api-client" ]; then
+  find "$OUTPUT_DIR/api-client" -name '*.ts' -exec cp {} "$FRONTEND_DIR/" \;
+fi
 
-# Copy API client to frontend
-#FRONTEND_API_DIR="$API_CONTRACTS_DIR/../frontend/src/api/generated"
-#mkdir -p "$FRONTEND_API_DIR"
-
-#if [ -d "$OUTPUT_DIR/api-client" ]; then
-#  cp -r "$OUTPUT_DIR/api-client/"* "$FRONTEND_API_DIR/"
-#fi
-
-# Generate package.json for the TypeScript client
-#cat > "$OUTPUT_DIR/api-client/package.json" << EOF
-#{
-#  "name": "@trackbot-app/api-client",
-#  "version": "1.0.0",
-#  "description": "Generated TypeScript API client for TrackBot App",
-#  "main": "dist/index.js",
-#  "types": "dist/index.d.ts",
-#  "scripts": {
-#    "build": "tsc",
-#    "prepublishOnly": "npm run build"
-#  },
-#  "dependencies": {
-#    "axios": "^1.6.0"
-#  },
-#  "devDependencies": {
-#    "typescript": "^5.0.0",
-#    "@types/node": "^20.0.0"
-#  },
-#  "files": [
-#    "dist",
-#    "src"
-#  ]
-#}
-#EOF
-
-
-#echo -e "${GREEN} TypeScript code generation completed successfully!${NC}"
-#echo -e "${BLUE} Generated files are in: $OUTPUT_DIR${NC}"
-#echo -e "${BLUE} Types and API client copied to frontend${NC}"
+echo -e "${GREEN} TypeScript code generation completed successfully!${NC}"
+echo -e "${BLUE} Generated files are in: $OUTPUT_DIR${NC}"
+echo -e "${BLUE} Types and API client copied to frontend${NC}"
