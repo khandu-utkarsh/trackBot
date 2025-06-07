@@ -37,9 +37,16 @@ docker run --rm \
   --ignore-file-override=/local/.openapi-generator-ignore
 
 
+
+for file in .travis.yml .gitignore .openapi-generator-ignore README.md git_push.sh .npmignore package-lock.json tsconfig.json tsconfig.esm.json package.json; do
+  rm -f "$OUTPUT_DIR/api-client/$file"
+done
+
+
 # Copy to frontend directory
 echo -e "${YELLOW} Copying generated types to frontend...${NC}"
 FRONTEND_DIR="$API_CONTRACTS_DIR/../frontend/src/lib/types/generated"
+rm -rf "$WORKOUT_SERVICE_DIR"
 mkdir -p "$FRONTEND_DIR"
 
 # Copy the main types

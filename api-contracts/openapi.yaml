@@ -39,46 +39,12 @@ tags:
 
 paths:
   # User endpoints
-  /users:
-    post:
-      summary: Create a new user
-      description: Create a new user account
-      operationId: createUser
-      tags: [Users]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: './components/schemas/user.yaml#/components/schemas/CreateUserRequest'
-      responses:
-        '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/user.yaml#/components/schemas/CreateUserResponse'
-        '200':
-          description: User already exists
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/user.yaml#/components/schemas/User'
-        '400':
-          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
-        '409':
-          $ref: './components/responses/errors.yaml#/components/responses/Conflict'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-
-  /users/email/{email}:
+  /auth/me:
     get:
-      summary: Get user by email
-      description: Retrieve a user by their email address
-      operationId: getUserByEmail
+      summary: Get current user
+      description: Retrieve the currently authenticated user
+      operationId: getCurrentUser
       tags: [Users]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/EmailPath'
       responses:
         '200':
           description: User details retrieved successfully
@@ -86,17 +52,60 @@ paths:
             application/json:
               schema:
                 $ref: './components/schemas/user.yaml#/components/schemas/User'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
+        '401':
+          $ref: './components/responses/errors.yaml#/components/responses/Unauthorized'
         '500':
           $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
+
+  /auth/logout:
+    post:
+      summary: Log out the current user
+      description: Log out the current user
+      operationId: logout
+      tags: [Users]
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/user.yaml#/components/schemas/User'
+        '401':
+          $ref: './components/responses/errors.yaml#/components/responses/Unauthorized'
+        '500':
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
+
+  /auth/google:
+    post:
+      summary: Google login
+      description: Authenticate with Google and create a new user if they don't exist
+      operationId: googleLogin
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/user.yaml#/components/schemas/GoogleLoginRequest'
+      responses:
+        '200':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/user.yaml#/components/schemas/User'
+        '409':
+          $ref: './components/responses/errors.yaml#/components/responses/Conflict'
+        '500':
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
+
+  # User endpoints
+  #No user endpoint would be there
 
   # Workout endpoints
   /users/{userId}/workouts:
     get:
       summary: List workouts for a user
-      description: Retrieve all workouts for a specific user with optional date filtering
-      operationId: listWorkouts
       tags: [Workouts]
       parameters:
         - $ref: './components/parameters/common.yaml#/UserIdPath'
@@ -143,7 +152,7 @@ paths:
         '500':
           $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
-  /workouts/{workoutId}:
+  /users/{userId}/workouts/{workoutId}:
     get:
       summary: Get workout by ID
       description: Retrieve a specific workout by its ID
@@ -203,14 +212,15 @@ paths:
         '500':
           $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
-  # Exercise endpoints
-  /workouts/{workoutId}/exercises:
+  # Exercise endpoints (nested under users and workouts)
+  /users/{userId}/workouts/{workoutId}/exercises:
     get:
       summary: List exercises for a workout
       description: Retrieve all exercises for a specific workout
       operationId: listExercises
       tags: [Exercises]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
         - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
       responses:
         '200':
@@ -227,6 +237,7 @@ paths:
       operationId: createExercise
       tags: [Exercises]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
         - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
       requestBody:
         required: true
@@ -248,13 +259,15 @@ paths:
         '500':
           $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
-  /exercises/{exerciseId}:
+  /users/{userId}/workouts/{workoutId}/exercises/{exerciseId}:
     get:
       summary: Get exercise by ID
       description: Retrieve a specific exercise by its ID
       operationId: getExerciseById
       tags: [Exercises]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
+        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
         - $ref: './components/parameters/common.yaml#/ExerciseIdPath'
       responses:
         '200':
@@ -273,6 +286,8 @@ paths:
       operationId: updateExercise
       tags: [Exercises]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
+        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
         - $ref: './components/parameters/common.yaml#/ExerciseIdPath'
       requestBody:
         required: true
@@ -299,6 +314,8 @@ paths:
       operationId: deleteExercise
       tags: [Exercises]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
+        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
         - $ref: './components/parameters/common.yaml#/ExerciseIdPath'
       responses:
         '204':
@@ -353,13 +370,14 @@ paths:
         '500':
           $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
-  /conversations/{conversationId}:
+  /users/{userId}/conversations/{conversationId}:
     get:
       summary: Get conversation by ID
       description: Retrieve a specific conversation by its ID
       operationId: getConversationById
       tags: [Conversations]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
         - $ref: './components/parameters/common.yaml#/ConversationIdPath'
       responses:
         '200':
@@ -378,6 +396,7 @@ paths:
       operationId: updateConversation
       tags: [Conversations]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
         - $ref: './components/parameters/common.yaml#/ConversationIdPath'
       requestBody:
         required: true
@@ -404,6 +423,7 @@ paths:
       operationId: deleteConversation
       tags: [Conversations]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
         - $ref: './components/parameters/common.yaml#/ConversationIdPath'
       requestBody:
         required: false
@@ -423,14 +443,15 @@ paths:
         '500':
           $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
-  # Message endpoints
-  /conversations/{conversationId}/messages:
+  # Message endpoints (nested under conversations)
+  /users/{userId}/conversations/{conversationId}/messages:
     get:
       summary: List messages in a conversation
       description: Retrieve all messages in a specific conversation
       operationId: listMessages
       tags: [Messages]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
         - $ref: './components/parameters/common.yaml#/ConversationIdPath'
         - name: limit
           in: query
@@ -462,6 +483,7 @@ paths:
       operationId: createMessage
       tags: [Messages]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
         - $ref: './components/parameters/common.yaml#/ConversationIdPath'
       requestBody:
         required: true
@@ -483,13 +505,15 @@ paths:
         '500':
           $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
-  /messages/{messageId}:
+  /users/{userId}/conversations/{conversationId}/messages/{messageId}:
     get:
       summary: Get message by ID
       description: Retrieve a specific message by its ID
       operationId: getMessageById
       tags: [Messages]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
+        - $ref: './components/parameters/common.yaml#/ConversationIdPath'
         - $ref: './components/parameters/common.yaml#/MessageIdPath'
       responses:
         '200':
@@ -508,6 +532,8 @@ paths:
       operationId: deleteMessage
       tags: [Messages]
       parameters:
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
+        - $ref: './components/parameters/common.yaml#/ConversationIdPath'
         - $ref: './components/parameters/common.yaml#/MessageIdPath'
       responses:
         '204':
@@ -522,10 +548,8 @@ components:
     # Import all schema components
     User:
       $ref: './components/schemas/user.yaml#/components/schemas/User'
-    CreateUserRequest:
-      $ref: './components/schemas/user.yaml#/components/schemas/CreateUserRequest'
-    CreateUserResponse:
-      $ref: './components/schemas/user.yaml#/components/schemas/CreateUserResponse'
+    GoogleLoginRequest:
+      $ref: './components/schemas/user.yaml#/components/schemas/GoogleLoginRequest'
 
     Workout:
       $ref: './components/schemas/workout.yaml#/components/schemas/Workout'

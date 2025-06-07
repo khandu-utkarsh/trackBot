@@ -25,22 +25,28 @@ rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR/models"
 
 # Generate Go models using Docker
-echo -e "${BLUE} Generating Go models...${NC}"
+echo -e "${BLUE} Generating Go API models and interfaces...${NC}"
 docker run --rm \
   -v "$API_CONTRACTS_DIR:/local" \
   openapitools/openapi-generator-cli generate \
   -i /local/openapi.yaml \
   -g go \
   -o /local/generated/go/models \
-  --package-name models \
-  --additional-properties=packageName=models,generateInterfaces=true \
-  --global-property=models
+  --skip-validate-spec \
+  --package-name api_models \
+  --global-property models,supportingFiles,apiDocs=false,modelDocs=false,modelTests=false,apiTests=false \
+  --additional-properties=packageName=api_models,generateInterfaces=true
+
+for file in .travis.yml .gitignore .openapi-generator-ignore README.md git_push.sh client.go configuration.go response.go; do
+  rm -f "$OUTPUT_DIR/models/$file"
+done
 
 # Copy models to backend services (optional)
 echo -e "${YELLOW} Copying generated models to backend services...${NC}"
 WORKOUT_SERVICE_DIR="$API_CONTRACTS_DIR/../backend/services/workoutAppServices/internal/generated"
+rm -rf "$WORKOUT_SERVICE_DIR"
 mkdir -p "$WORKOUT_SERVICE_DIR"
-cp -r "$OUTPUT_DIR/models/"* "$WORKOUT_SERVICE_DIR/"
+find "$OUTPUT_DIR" -type f -name "*.go" ! -name "api_*.go" ! -name "client.go" ! -name "configuration.go" ! -name "response.go" -exec cp {} "$WORKOUT_SERVICE_DIR" \;
 
 echo -e "${GREEN}Go code generation completed successfully!${NC}"
 echo -e "${BLUE} Generated files are in: $OUTPUT_DIR${NC}"

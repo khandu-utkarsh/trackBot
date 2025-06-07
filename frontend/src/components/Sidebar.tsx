@@ -14,10 +14,8 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useRouter, useParams} from 'next/navigation';
-import { chatAPI } from '@/lib/api/chat';
-import { Conversation } from '@/lib/types/chat';
+import { chatAPI, Conversation, User } from '@/lib/api';
 import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
-import { User } from '@/lib/types/users';
 import SidebarList from './SidebarList';
 
 const DRAWER_WIDTH = 240;
@@ -70,7 +68,7 @@ export default function Sidebar() {
     try {
       data = await chatAPI.getConversations(user.id);
     } catch (err) {
-      console.error('Unable to fetch the conversations for the  user:', user.name, " error: ", err);
+      console.error('Unable to fetch the conversations for the  user:', user.email, " error: ", err);
     }
 
     const newMap = new Map(conversations);
@@ -88,9 +86,12 @@ export default function Sidebar() {
   //!When user deletes a conversation
   const handleDeleteConversation = async (user: User | null, conversationId: number, event: React.MouseEvent, currentConversationId: number | null) => {
     event.stopPropagation(); // Prevent chat selection
-    
+    if(!user){
+      console.error('User is null');
+      return;
+    }
     try {
-      await chatAPI.deleteConversation(user?.id || 0, conversationId);
+      await chatAPI.deleteConversation(user.id, conversationId, true);
       //!Doesn't make sense to reload everything, simply delete from the map using the id.
       if (user) {
         const newMap = new Map(conversations);
@@ -105,7 +106,7 @@ export default function Sidebar() {
     } catch (err) {
       console.error('Error deleting conversation with the id: ', conversationId, ' error: ', err);
     }
-  };
+  }; 
 
   //!When user selects a conversation, routing to the correct chat page
   const handleChatSelect = (conversationId: number) => {

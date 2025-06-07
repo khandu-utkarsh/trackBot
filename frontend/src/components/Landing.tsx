@@ -18,8 +18,10 @@ export default function LandingPageComponent() {
     console.log('Google Auth Response:', response);
 
     try {
-      // Send Google JWT to YOUR backend instead of storing in localStorage
-      const result = await userAPI.createUser(response.credential);
+      // Send Google JWT to YOUR backend with correct object structure
+      const result = await userAPI.createUser({
+        googleToken: response.credential
+      });
       console.log('Login successful:', result);
 
       if (result) {

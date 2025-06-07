@@ -6,9 +6,8 @@ import {
   useTheme,
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { chatAPI } from '@/lib/api/chat';
+import { chatAPI, Conversation } from '@/lib/api';
 import ChatInputBar from './ChatInputBar';
-import { Conversation } from '@/lib/types/chat';
 import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
 
 let chatIdTemp : number = 0;
@@ -37,7 +36,7 @@ function ChatPageComponent() {
             chatIdTemp++;
 
             //!Send message to the conversation.
-              const message = await chatAPI.createMessage(user.id , conversation.id, {
+              const message = await chatAPI.createMessage(user.id, conversation.id, {
               content: inputMessage,
               message_type: 'user',                
             });

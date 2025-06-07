@@ -28,7 +28,6 @@ type GoogleLoginRequest struct {
 // GoogleLogin handles POST /api/auth/google
 func (h *AuthHandler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	logRequest("GoogleLogin")
-
 	if err := validateHTTPMethod(r, http.MethodPost); err != nil {
 		handleHTTPError(w, err)
 		return
@@ -99,7 +98,15 @@ func (h *AuthHandler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 	})
 
-	respondWithJSON(w, http.StatusOK, user)
+	//!Respond with the user from the conext
+	userCtx := &middleware.UserContext{
+		UserID:  int(user.ID),
+		Email:   user.Email,
+		Name:    googleClaims.Name,
+		Picture: googleClaims.Picture,
+	}
+
+	respondWithJSON(w, http.StatusOK, userCtx)
 }
 
 // Logout handles POST /api/auth/logout

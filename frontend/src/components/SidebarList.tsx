@@ -1,8 +1,7 @@
 'use client';
 
 import { List } from '@mui/material';
-import { Conversation } from '@/lib/types/chat';
-import { User } from '@/lib/types/users';
+import { Conversation, User } from '@/lib/api';
 import SidebarListItem from './SidebarListItem';
 
 interface SidebarListProps {
@@ -26,7 +25,7 @@ export default function SidebarList({
   user,
 }: SidebarListProps) {
   const sortedConversations = Array.from(conversations.values()).sort(
-    (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
   return (

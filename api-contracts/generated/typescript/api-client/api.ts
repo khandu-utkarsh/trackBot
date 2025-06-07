@@ -30,13 +30,13 @@ import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerM
  */
 export interface BaseExercise {
     /**
-     * Unique identifier for the exercise. Created by the database.
+     * Unique identifier for the exercise.
      * @type {number}
      * @memberof BaseExercise
      */
     'id': number;
     /**
-     * ID of the workout this exercise belongs to. Obtained from the workout table.
+     * ID of the workout this exercise belongs to.
      * @type {number}
      * @memberof BaseExercise
      */
@@ -54,13 +54,13 @@ export interface BaseExercise {
      */
     'type': ExerciseType;
     /**
-     * Additional notes about the exercise
+     * Additional notes
      * @type {string}
      * @memberof BaseExercise
      */
     'notes'?: string;
     /**
-     * Timestamp when the exercise was created. Created by the database.
+     * Timestamp when the exercise was created.
      * @type {string}
      * @memberof BaseExercise
      */
@@ -75,13 +75,13 @@ export interface BaseExercise {
  */
 export interface CardioExercise {
     /**
-     * Unique identifier for the exercise. Created by the database.
+     * Unique identifier for the exercise.
      * @type {number}
      * @memberof CardioExercise
      */
     'id': number;
     /**
-     * ID of the workout this exercise belongs to. Obtained from the workout table.
+     * ID of the workout this exercise belongs to.
      * @type {number}
      * @memberof CardioExercise
      */
@@ -99,19 +99,19 @@ export interface CardioExercise {
      */
     'type': CardioExerciseTypeEnum;
     /**
-     * Additional notes about the exercise
+     * Additional notes
      * @type {string}
      * @memberof CardioExercise
      */
     'notes'?: string;
     /**
-     * Timestamp when the exercise was created. Created by the database.
+     * Timestamp when the exercise was created.
      * @type {string}
      * @memberof CardioExercise
      */
     'created_at': string;
     /**
-     * Distance covered in meters
+     * Distance in meters
      * @type {number}
      * @memberof CardioExercise
      */
@@ -131,31 +131,31 @@ export const CardioExerciseTypeEnum = {
 export type CardioExerciseTypeEnum = typeof CardioExerciseTypeEnum[keyof typeof CardioExerciseTypeEnum];
 
 /**
- * 
+ * Represents a conversation.
  * @export
  * @interface Conversation
  */
 export interface Conversation {
     /**
-     * Unique identifier for the conversation. Created by the database.
+     * Unique ID for the conversation.
      * @type {number}
      * @memberof Conversation
      */
     'id': number;
     /**
-     * ID of the user who owns this conversation. Obtained from the user table.
+     * ID of the user.
      * @type {number}
      * @memberof Conversation
      */
     'user_id': number;
     /**
-     * Title of the conversation. This is the title of the conversation.
+     * Conversation title.
      * @type {string}
      * @memberof Conversation
      */
     'title': string;
     /**
-     * Timestamp when the conversation was created. Created by the database.
+     * Timestamp of creation.
      * @type {string}
      * @memberof Conversation
      */
@@ -206,30 +206,48 @@ export const CreateCardioExerciseRequestTypeEnum = {
 export type CreateCardioExerciseRequestTypeEnum = typeof CreateCardioExerciseRequestTypeEnum[keyof typeof CreateCardioExerciseRequestTypeEnum];
 
 /**
- * 
+ * Request to create a conversation.
  * @export
  * @interface CreateConversationRequest
  */
 export interface CreateConversationRequest {
     /**
-     * Title of the conversation
+     * Title of the conversation.
      * @type {string}
      * @memberof CreateConversationRequest
      */
     'title': string;
 }
 /**
- * 
+ * Response after creating a conversation.
  * @export
  * @interface CreateConversationResponse
  */
 export interface CreateConversationResponse {
     /**
-     * ID of the created conversation. Created by the database.
+     * 
      * @type {number}
      * @memberof CreateConversationResponse
      */
     'id': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateConversationResponse
+     */
+    'title': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateConversationResponse
+     */
+    'user_id': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateConversationResponse
+     */
+    'created_at': string;
 }
 /**
  * @type CreateExerciseRequest
@@ -238,26 +256,13 @@ export interface CreateConversationResponse {
 export type CreateExerciseRequest = { type: 'cardio' } & CreateCardioExerciseRequest | { type: 'weights' } & CreateWeightExerciseRequest;
 
 /**
- * 
- * @export
- * @interface CreateExerciseResponse
- */
-export interface CreateExerciseResponse {
-    /**
-     * ID of the created exercise
-     * @type {number}
-     * @memberof CreateExerciseResponse
-     */
-    'id': number;
-}
-/**
- * 
+ * Payload to create a new message.
  * @export
  * @interface CreateMessageRequest
  */
 export interface CreateMessageRequest {
     /**
-     * Content of the message. This is the message that the user or assistant sends.
+     * Content of the message.
      * @type {string}
      * @memberof CreateMessageRequest
      */
@@ -271,51 +276,6 @@ export interface CreateMessageRequest {
 }
 
 
-/**
- * 
- * @export
- * @interface CreateMessageResponse
- */
-export interface CreateMessageResponse {
-    /**
-     * ID of the created message. Created by the database.
-     * @type {number}
-     * @memberof CreateMessageResponse
-     */
-    'id': number;
-}
-/**
- * 
- * @export
- * @interface CreateUserRequest
- */
-export interface CreateUserRequest {
-    /**
-     * User\'s email address. This is the primary key for the user and obtained from the Google Auth.
-     * @type {string}
-     * @memberof CreateUserRequest
-     */
-    'email': string;
-}
-/**
- * 
- * @export
- * @interface CreateUserResponse
- */
-export interface CreateUserResponse {
-    /**
-     * ID of the created user. Created by the database.
-     * @type {number}
-     * @memberof CreateUserResponse
-     */
-    'id': number;
-    /**
-     * User\'s email address. This is the primary key for the user and obtained from the Google Auth.
-     * @type {string}
-     * @memberof CreateUserResponse
-     */
-    'email': string;
-}
 /**
  * 
  * @export
@@ -347,13 +307,13 @@ export interface CreateWeightExerciseRequest {
      */
     'sets': number;
     /**
-     * Number of repetitions per set
+     * Reps per set
      * @type {number}
      * @memberof CreateWeightExerciseRequest
      */
     'reps': number;
     /**
-     * Weight in kilograms
+     * Weight in kg
      * @type {number}
      * @memberof CreateWeightExerciseRequest
      */
@@ -367,30 +327,74 @@ export const CreateWeightExerciseRequestTypeEnum = {
 export type CreateWeightExerciseRequestTypeEnum = typeof CreateWeightExerciseRequestTypeEnum[keyof typeof CreateWeightExerciseRequestTypeEnum];
 
 /**
- * 
+ * Request to create a new workout.
  * @export
  * @interface CreateWorkoutRequest
  */
 export interface CreateWorkoutRequest {
     /**
-     * ID of the user creating the workout
+     * ID of the user creating the workout.
      * @type {number}
      * @memberof CreateWorkoutRequest
      */
     'user_id'?: number;
 }
 /**
- * 
+ * Response returned after creating a workout.
  * @export
  * @interface CreateWorkoutResponse
  */
 export interface CreateWorkoutResponse {
     /**
-     * ID of the created workout
+     * ID of the created workout.
      * @type {number}
      * @memberof CreateWorkoutResponse
      */
     'id': number;
+}
+/**
+ * Request to delete a conversation and all its messages.
+ * @export
+ * @interface DeleteConversationRequest
+ */
+export interface DeleteConversationRequest {
+    /**
+     * Confirmation flag to prevent accidental deletion.
+     * @type {boolean}
+     * @memberof DeleteConversationRequest
+     */
+    'confirm'?: boolean;
+}
+/**
+ * Response after successfully deleting a conversation and its messages.
+ * @export
+ * @interface DeleteConversationResponse
+ */
+export interface DeleteConversationResponse {
+    /**
+     * ID of the deleted conversation.
+     * @type {number}
+     * @memberof DeleteConversationResponse
+     */
+    'id': number;
+    /**
+     * Title of the deleted conversation.
+     * @type {string}
+     * @memberof DeleteConversationResponse
+     */
+    'title': string;
+    /**
+     * Timestamp when the conversation was deleted.
+     * @type {string}
+     * @memberof DeleteConversationResponse
+     */
+    'deleted_at': string;
+    /**
+     * Number of messages that were deleted along with the conversation.
+     * @type {number}
+     * @memberof DeleteConversationResponse
+     */
+    'messages_deleted_count': number;
 }
 /**
  * @type Exercise
@@ -413,31 +417,127 @@ export type ExerciseType = typeof ExerciseType[keyof typeof ExerciseType];
 
 
 /**
+ * Payload for Google OAuth login.
+ * @export
+ * @interface GoogleLoginRequest
+ */
+export interface GoogleLoginRequest {
+    /**
+     * Google JWT credential token
+     * @type {string}
+     * @memberof GoogleLoginRequest
+     */
+    'googleToken': string;
+}
+/**
+ * Response containing a list of conversations.
+ * @export
+ * @interface ListConversationsResponse
+ */
+export interface ListConversationsResponse {
+    /**
+     * 
+     * @type {Array<Conversation>}
+     * @memberof ListConversationsResponse
+     */
+    'conversations': Array<Conversation>;
+}
+/**
+ * A list of exercises
+ * @export
+ * @interface ListExercisesResponse
+ */
+export interface ListExercisesResponse {
+    /**
+     * 
+     * @type {Array<Exercise>}
+     * @memberof ListExercisesResponse
+     */
+    'exercises': Array<Exercise>;
+}
+/**
  * 
+ * @export
+ * @interface ListMessagesRequest
+ */
+export interface ListMessagesRequest {
+    /**
+     * 
+     * @type {number}
+     * @memberof ListMessagesRequest
+     */
+    'conversation_id'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListMessagesRequest
+     */
+    'user_id'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListMessagesRequest
+     */
+    'limit'?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof ListMessagesRequest
+     */
+    'offset'?: number;
+}
+/**
+ * Response containing a list of messages.
+ * @export
+ * @interface ListMessagesResponse
+ */
+export interface ListMessagesResponse {
+    /**
+     * 
+     * @type {Array<Message>}
+     * @memberof ListMessagesResponse
+     */
+    'messages': Array<Message>;
+}
+/**
+ * Response containing a list of workouts.
+ * @export
+ * @interface ListWorkoutsResponse
+ */
+export interface ListWorkoutsResponse {
+    /**
+     * 
+     * @type {Array<Workout>}
+     * @memberof ListWorkoutsResponse
+     */
+    'workouts': Array<Workout>;
+}
+/**
+ * Represents a message in a conversation.
  * @export
  * @interface Message
  */
 export interface Message {
     /**
-     * Unique identifier for the message. Created by the database.
+     * Unique identifier for the message.
      * @type {number}
      * @memberof Message
      */
     'id': number;
     /**
-     * ID of the conversation this message belongs to. Obtained from the conversation table.
+     * Conversation ID this message belongs to.
      * @type {number}
      * @memberof Message
      */
     'conversation_id': number;
     /**
-     * ID of the user who sent this message. Obtained from the user table.
+     * User ID who sent the message.
      * @type {number}
      * @memberof Message
      */
     'user_id': number;
     /**
-     * Content of the message. This is the message that the user or assistant sends.
+     * Content of the message.
      * @type {string}
      * @memberof Message
      */
@@ -449,7 +549,7 @@ export interface Message {
      */
     'message_type': MessageType;
     /**
-     * Timestamp when the message was created. Created by the database.
+     * Creation timestamp.
      * @type {string}
      * @memberof Message
      */
@@ -498,26 +598,33 @@ export interface ModelError {
     'details'?: { [key: string]: any; };
 }
 /**
- * @type UpdateExerciseRequest
+ * Request to update a conversation.
  * @export
+ * @interface UpdateConversationRequest
  */
-export type UpdateExerciseRequest = { type: 'cardio' } & CreateCardioExerciseRequest | { type: 'weights' } & CreateWeightExerciseRequest;
-
+export interface UpdateConversationRequest {
+    /**
+     * Updated title of the conversation.
+     * @type {string}
+     * @memberof UpdateConversationRequest
+     */
+    'title'?: string;
+}
 /**
- * 
+ * Request to update a workout.
  * @export
  * @interface UpdateWorkoutRequest
  */
 export interface UpdateWorkoutRequest {
     /**
-     * ID of the user who owns the workout
+     * ID of the user who owns the workout.
      * @type {number}
      * @memberof UpdateWorkoutRequest
      */
     'user_id'?: number;
 }
 /**
- * 
+ * Represents a registered user in the system.
  * @export
  * @interface User
  */
@@ -529,17 +636,29 @@ export interface User {
      */
     'id': number;
     /**
-     * User\'s email address. This is the primary key for the user and obtained from the Google Auth.
+     * User\'s email address. This is the primary key for the user and obtained from Google Auth.
      * @type {string}
      * @memberof User
      */
     'email': string;
     /**
+     * User\'s full name from Google profile.
+     * @type {string}
+     * @memberof User
+     */
+    'name': string;
+    /**
+     * User\'s profile picture URL from Google.
+     * @type {string}
+     * @memberof User
+     */
+    'picture': string;
+    /**
      * Timestamp when the user was created. Created by the database.
      * @type {string}
      * @memberof User
      */
-    'created_at': string;
+    'created_at'?: string | null;
 }
 /**
  * 
@@ -548,13 +667,13 @@ export interface User {
  */
 export interface WeightExercise {
     /**
-     * Unique identifier for the exercise. Created by the database.
+     * Unique identifier for the exercise.
      * @type {number}
      * @memberof WeightExercise
      */
     'id': number;
     /**
-     * ID of the workout this exercise belongs to. Obtained from the workout table.
+     * ID of the workout this exercise belongs to.
      * @type {number}
      * @memberof WeightExercise
      */
@@ -572,13 +691,13 @@ export interface WeightExercise {
      */
     'type': WeightExerciseTypeEnum;
     /**
-     * Additional notes about the exercise
+     * Additional notes
      * @type {string}
      * @memberof WeightExercise
      */
     'notes'?: string;
     /**
-     * Timestamp when the exercise was created. Created by the database.
+     * Timestamp when the exercise was created.
      * @type {string}
      * @memberof WeightExercise
      */
@@ -590,7 +709,7 @@ export interface WeightExercise {
      */
     'sets': number;
     /**
-     * Number of repetitions per set
+     * Repetitions per set
      * @type {number}
      * @memberof WeightExercise
      */
@@ -610,62 +729,62 @@ export const WeightExerciseTypeEnum = {
 export type WeightExerciseTypeEnum = typeof WeightExerciseTypeEnum[keyof typeof WeightExerciseTypeEnum];
 
 /**
- * 
+ * Represents a workout session.
  * @export
  * @interface Workout
  */
 export interface Workout {
     /**
-     * Unique identifier for the workout. Created by the database.
+     * Unique identifier for the workout.
      * @type {number}
      * @memberof Workout
      */
     'id': number;
     /**
-     * ID of the user who owns this workout. Obtained from the user table.
+     * ID of the user who owns the workout.
      * @type {number}
      * @memberof Workout
      */
     'user_id': number;
     /**
-     * Timestamp when the workout was created. Created by the database.
+     * When the workout was created.
      * @type {string}
      * @memberof Workout
      */
     'created_at': string;
     /**
-     * Timestamp when the workout was last updated. Created by the database.
+     * When the workout was last updated.
      * @type {string}
      * @memberof Workout
      */
     'updated_at': string;
 }
 /**
- * 
+ * Parameters for filtering workout list.
  * @export
  * @interface WorkoutListParams
  */
 export interface WorkoutListParams {
     /**
-     * ID of the user to filter workouts
+     * 
      * @type {number}
      * @memberof WorkoutListParams
      */
     'user_id'?: number;
     /**
-     * Filter by year (YYYY format)
+     * 
      * @type {string}
      * @memberof WorkoutListParams
      */
     'year'?: string;
     /**
-     * Filter by month (MM format)
+     * 
      * @type {string}
      * @memberof WorkoutListParams
      */
     'month'?: string;
     /**
-     * Filter by day (DD format)
+     * 
      * @type {string}
      * @memberof WorkoutListParams
      */
@@ -721,14 +840,19 @@ export const ConversationsApiAxiosParamCreator = function (configuration?: Confi
         /**
          * Delete a conversation and all associated messages
          * @summary Delete conversation
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
+         * @param {DeleteConversationRequest} [deleteConversationRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteConversation: async (conversationId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteConversation: async (userId: number, conversationId: number, deleteConversationRequest?: DeleteConversationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('deleteConversation', 'userId', userId)
             // verify required parameter 'conversationId' is not null or undefined
             assertParamExists('deleteConversation', 'conversationId', conversationId)
-            const localVarPath = `/conversations/{conversationId}`
+            const localVarPath = `/users/{userId}/conversations/{conversationId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
                 .replace(`{${"conversationId"}}`, encodeURIComponent(String(conversationId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -743,9 +867,12 @@ export const ConversationsApiAxiosParamCreator = function (configuration?: Confi
 
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(deleteConversationRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -755,14 +882,18 @@ export const ConversationsApiAxiosParamCreator = function (configuration?: Confi
         /**
          * Retrieve a specific conversation by its ID
          * @summary Get conversation by ID
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getConversationById: async (conversationId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getConversationById: async (userId: number, conversationId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('getConversationById', 'userId', userId)
             // verify required parameter 'conversationId' is not null or undefined
             assertParamExists('getConversationById', 'conversationId', conversationId)
-            const localVarPath = `/conversations/{conversationId}`
+            const localVarPath = `/users/{userId}/conversations/{conversationId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
                 .replace(`{${"conversationId"}}`, encodeURIComponent(String(conversationId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -820,6 +951,50 @@ export const ConversationsApiAxiosParamCreator = function (configuration?: Confi
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * Update an existing conversation
+         * @summary Update conversation
+         * @param {number} userId User ID
+         * @param {number} conversationId Conversation ID
+         * @param {UpdateConversationRequest} updateConversationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateConversation: async (userId: number, conversationId: number, updateConversationRequest: UpdateConversationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('updateConversation', 'userId', userId)
+            // verify required parameter 'conversationId' is not null or undefined
+            assertParamExists('updateConversation', 'conversationId', conversationId)
+            // verify required parameter 'updateConversationRequest' is not null or undefined
+            assertParamExists('updateConversation', 'updateConversationRequest', updateConversationRequest)
+            const localVarPath = `/users/{userId}/conversations/{conversationId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
+                .replace(`{${"conversationId"}}`, encodeURIComponent(String(conversationId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateConversationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -847,12 +1022,14 @@ export const ConversationsApiFp = function(configuration?: Configuration) {
         /**
          * Delete a conversation and all associated messages
          * @summary Delete conversation
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
+         * @param {DeleteConversationRequest} [deleteConversationRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteConversation(conversationId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteConversation(conversationId, options);
+        async deleteConversation(userId: number, conversationId: number, deleteConversationRequest?: DeleteConversationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeleteConversationResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteConversation(userId, conversationId, deleteConversationRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ConversationsApi.deleteConversation']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -860,12 +1037,13 @@ export const ConversationsApiFp = function(configuration?: Configuration) {
         /**
          * Retrieve a specific conversation by its ID
          * @summary Get conversation by ID
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getConversationById(conversationId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Conversation>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getConversationById(conversationId, options);
+        async getConversationById(userId: number, conversationId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Conversation>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getConversationById(userId, conversationId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ConversationsApi.getConversationById']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -877,10 +1055,25 @@ export const ConversationsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listConversations(userId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Conversation>>> {
+        async listConversations(userId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListConversationsResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listConversations(userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ConversationsApi.listConversations']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Update an existing conversation
+         * @summary Update conversation
+         * @param {number} userId User ID
+         * @param {number} conversationId Conversation ID
+         * @param {UpdateConversationRequest} updateConversationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateConversation(userId: number, conversationId: number, updateConversationRequest: UpdateConversationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Conversation>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateConversation(userId, conversationId, updateConversationRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ConversationsApi.updateConversation']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -907,22 +1100,25 @@ export const ConversationsApiFactory = function (configuration?: Configuration, 
         /**
          * Delete a conversation and all associated messages
          * @summary Delete conversation
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
+         * @param {DeleteConversationRequest} [deleteConversationRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteConversation(conversationId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteConversation(conversationId, options).then((request) => request(axios, basePath));
+        deleteConversation(userId: number, conversationId: number, deleteConversationRequest?: DeleteConversationRequest, options?: RawAxiosRequestConfig): AxiosPromise<DeleteConversationResponse> {
+            return localVarFp.deleteConversation(userId, conversationId, deleteConversationRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieve a specific conversation by its ID
          * @summary Get conversation by ID
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getConversationById(conversationId: number, options?: RawAxiosRequestConfig): AxiosPromise<Conversation> {
-            return localVarFp.getConversationById(conversationId, options).then((request) => request(axios, basePath));
+        getConversationById(userId: number, conversationId: number, options?: RawAxiosRequestConfig): AxiosPromise<Conversation> {
+            return localVarFp.getConversationById(userId, conversationId, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieve all conversations for a specific user
@@ -931,8 +1127,20 @@ export const ConversationsApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listConversations(userId: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<Conversation>> {
+        listConversations(userId: number, options?: RawAxiosRequestConfig): AxiosPromise<ListConversationsResponse> {
             return localVarFp.listConversations(userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Update an existing conversation
+         * @summary Update conversation
+         * @param {number} userId User ID
+         * @param {number} conversationId Conversation ID
+         * @param {UpdateConversationRequest} updateConversationRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateConversation(userId: number, conversationId: number, updateConversationRequest: UpdateConversationRequest, options?: RawAxiosRequestConfig): AxiosPromise<Conversation> {
+            return localVarFp.updateConversation(userId, conversationId, updateConversationRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -960,25 +1168,28 @@ export class ConversationsApi extends BaseAPI {
     /**
      * Delete a conversation and all associated messages
      * @summary Delete conversation
+     * @param {number} userId User ID
      * @param {number} conversationId Conversation ID
+     * @param {DeleteConversationRequest} [deleteConversationRequest] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ConversationsApi
      */
-    public deleteConversation(conversationId: number, options?: RawAxiosRequestConfig) {
-        return ConversationsApiFp(this.configuration).deleteConversation(conversationId, options).then((request) => request(this.axios, this.basePath));
+    public deleteConversation(userId: number, conversationId: number, deleteConversationRequest?: DeleteConversationRequest, options?: RawAxiosRequestConfig) {
+        return ConversationsApiFp(this.configuration).deleteConversation(userId, conversationId, deleteConversationRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Retrieve a specific conversation by its ID
      * @summary Get conversation by ID
+     * @param {number} userId User ID
      * @param {number} conversationId Conversation ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ConversationsApi
      */
-    public getConversationById(conversationId: number, options?: RawAxiosRequestConfig) {
-        return ConversationsApiFp(this.configuration).getConversationById(conversationId, options).then((request) => request(this.axios, this.basePath));
+    public getConversationById(userId: number, conversationId: number, options?: RawAxiosRequestConfig) {
+        return ConversationsApiFp(this.configuration).getConversationById(userId, conversationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -991,6 +1202,20 @@ export class ConversationsApi extends BaseAPI {
      */
     public listConversations(userId: number, options?: RawAxiosRequestConfig) {
         return ConversationsApiFp(this.configuration).listConversations(userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Update an existing conversation
+     * @summary Update conversation
+     * @param {number} userId User ID
+     * @param {number} conversationId Conversation ID
+     * @param {UpdateConversationRequest} updateConversationRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ConversationsApi
+     */
+    public updateConversation(userId: number, conversationId: number, updateConversationRequest: UpdateConversationRequest, options?: RawAxiosRequestConfig) {
+        return ConversationsApiFp(this.configuration).updateConversation(userId, conversationId, updateConversationRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1005,17 +1230,21 @@ export const ExercisesApiAxiosParamCreator = function (configuration?: Configura
         /**
          * Add a new exercise to a workout (cardio or weight training)
          * @summary Create a new exercise
+         * @param {number} userId User ID
          * @param {number} workoutId Workout ID
          * @param {CreateExerciseRequest} createExerciseRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createExercise: async (workoutId: number, createExerciseRequest: CreateExerciseRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createExercise: async (userId: number, workoutId: number, createExerciseRequest: CreateExerciseRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('createExercise', 'userId', userId)
             // verify required parameter 'workoutId' is not null or undefined
             assertParamExists('createExercise', 'workoutId', workoutId)
             // verify required parameter 'createExerciseRequest' is not null or undefined
             assertParamExists('createExercise', 'createExerciseRequest', createExerciseRequest)
-            const localVarPath = `/workouts/{workoutId}/exercises`
+            const localVarPath = `/users/{userId}/workouts/{workoutId}/exercises`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
                 .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1045,14 +1274,22 @@ export const ExercisesApiAxiosParamCreator = function (configuration?: Configura
         /**
          * Delete an exercise from a workout
          * @summary Delete exercise
+         * @param {number} userId User ID
+         * @param {number} workoutId Workout ID
          * @param {number} exerciseId Exercise ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteExercise: async (exerciseId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteExercise: async (userId: number, workoutId: number, exerciseId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('deleteExercise', 'userId', userId)
+            // verify required parameter 'workoutId' is not null or undefined
+            assertParamExists('deleteExercise', 'workoutId', workoutId)
             // verify required parameter 'exerciseId' is not null or undefined
             assertParamExists('deleteExercise', 'exerciseId', exerciseId)
-            const localVarPath = `/exercises/{exerciseId}`
+            const localVarPath = `/users/{userId}/workouts/{workoutId}/exercises/{exerciseId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
+                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)))
                 .replace(`{${"exerciseId"}}`, encodeURIComponent(String(exerciseId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1079,14 +1316,22 @@ export const ExercisesApiAxiosParamCreator = function (configuration?: Configura
         /**
          * Retrieve a specific exercise by its ID
          * @summary Get exercise by ID
+         * @param {number} userId User ID
+         * @param {number} workoutId Workout ID
          * @param {number} exerciseId Exercise ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getExerciseById: async (exerciseId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getExerciseById: async (userId: number, workoutId: number, exerciseId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('getExerciseById', 'userId', userId)
+            // verify required parameter 'workoutId' is not null or undefined
+            assertParamExists('getExerciseById', 'workoutId', workoutId)
             // verify required parameter 'exerciseId' is not null or undefined
             assertParamExists('getExerciseById', 'exerciseId', exerciseId)
-            const localVarPath = `/exercises/{exerciseId}`
+            const localVarPath = `/users/{userId}/workouts/{workoutId}/exercises/{exerciseId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
+                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)))
                 .replace(`{${"exerciseId"}}`, encodeURIComponent(String(exerciseId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1113,14 +1358,18 @@ export const ExercisesApiAxiosParamCreator = function (configuration?: Configura
         /**
          * Retrieve all exercises for a specific workout
          * @summary List exercises for a workout
+         * @param {number} userId User ID
          * @param {number} workoutId Workout ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listExercises: async (workoutId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listExercises: async (userId: number, workoutId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('listExercises', 'userId', userId)
             // verify required parameter 'workoutId' is not null or undefined
             assertParamExists('listExercises', 'workoutId', workoutId)
-            const localVarPath = `/workouts/{workoutId}/exercises`
+            const localVarPath = `/users/{userId}/workouts/{workoutId}/exercises`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
                 .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1147,17 +1396,25 @@ export const ExercisesApiAxiosParamCreator = function (configuration?: Configura
         /**
          * Update an existing exercise
          * @summary Update exercise
+         * @param {number} userId User ID
+         * @param {number} workoutId Workout ID
          * @param {number} exerciseId Exercise ID
-         * @param {UpdateExerciseRequest} updateExerciseRequest 
+         * @param {CreateExerciseRequest} createExerciseRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateExercise: async (exerciseId: number, updateExerciseRequest: UpdateExerciseRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateExercise: async (userId: number, workoutId: number, exerciseId: number, createExerciseRequest: CreateExerciseRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('updateExercise', 'userId', userId)
+            // verify required parameter 'workoutId' is not null or undefined
+            assertParamExists('updateExercise', 'workoutId', workoutId)
             // verify required parameter 'exerciseId' is not null or undefined
             assertParamExists('updateExercise', 'exerciseId', exerciseId)
-            // verify required parameter 'updateExerciseRequest' is not null or undefined
-            assertParamExists('updateExercise', 'updateExerciseRequest', updateExerciseRequest)
-            const localVarPath = `/exercises/{exerciseId}`
+            // verify required parameter 'createExerciseRequest' is not null or undefined
+            assertParamExists('updateExercise', 'createExerciseRequest', createExerciseRequest)
+            const localVarPath = `/users/{userId}/workouts/{workoutId}/exercises/{exerciseId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
+                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)))
                 .replace(`{${"exerciseId"}}`, encodeURIComponent(String(exerciseId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1177,7 +1434,7 @@ export const ExercisesApiAxiosParamCreator = function (configuration?: Configura
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateExerciseRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(createExerciseRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1197,13 +1454,14 @@ export const ExercisesApiFp = function(configuration?: Configuration) {
         /**
          * Add a new exercise to a workout (cardio or weight training)
          * @summary Create a new exercise
+         * @param {number} userId User ID
          * @param {number} workoutId Workout ID
          * @param {CreateExerciseRequest} createExerciseRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createExercise(workoutId: number, createExerciseRequest: CreateExerciseRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateExerciseResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createExercise(workoutId, createExerciseRequest, options);
+        async createExercise(userId: number, workoutId: number, createExerciseRequest: CreateExerciseRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Exercise>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createExercise(userId, workoutId, createExerciseRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ExercisesApi.createExercise']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1211,12 +1469,14 @@ export const ExercisesApiFp = function(configuration?: Configuration) {
         /**
          * Delete an exercise from a workout
          * @summary Delete exercise
+         * @param {number} userId User ID
+         * @param {number} workoutId Workout ID
          * @param {number} exerciseId Exercise ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteExercise(exerciseId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteExercise(exerciseId, options);
+        async deleteExercise(userId: number, workoutId: number, exerciseId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteExercise(userId, workoutId, exerciseId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ExercisesApi.deleteExercise']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1224,12 +1484,14 @@ export const ExercisesApiFp = function(configuration?: Configuration) {
         /**
          * Retrieve a specific exercise by its ID
          * @summary Get exercise by ID
+         * @param {number} userId User ID
+         * @param {number} workoutId Workout ID
          * @param {number} exerciseId Exercise ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getExerciseById(exerciseId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Exercise>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getExerciseById(exerciseId, options);
+        async getExerciseById(userId: number, workoutId: number, exerciseId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Exercise>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getExerciseById(userId, workoutId, exerciseId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ExercisesApi.getExerciseById']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1237,12 +1499,13 @@ export const ExercisesApiFp = function(configuration?: Configuration) {
         /**
          * Retrieve all exercises for a specific workout
          * @summary List exercises for a workout
+         * @param {number} userId User ID
          * @param {number} workoutId Workout ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listExercises(workoutId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Exercise>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listExercises(workoutId, options);
+        async listExercises(userId: number, workoutId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListExercisesResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listExercises(userId, workoutId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ExercisesApi.listExercises']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1250,13 +1513,15 @@ export const ExercisesApiFp = function(configuration?: Configuration) {
         /**
          * Update an existing exercise
          * @summary Update exercise
+         * @param {number} userId User ID
+         * @param {number} workoutId Workout ID
          * @param {number} exerciseId Exercise ID
-         * @param {UpdateExerciseRequest} updateExerciseRequest 
+         * @param {CreateExerciseRequest} createExerciseRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateExercise(exerciseId: number, updateExerciseRequest: UpdateExerciseRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Exercise>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateExercise(exerciseId, updateExerciseRequest, options);
+        async updateExercise(userId: number, workoutId: number, exerciseId: number, createExerciseRequest: CreateExerciseRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Exercise>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateExercise(userId, workoutId, exerciseId, createExerciseRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ExercisesApi.updateExercise']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1274,54 +1539,62 @@ export const ExercisesApiFactory = function (configuration?: Configuration, base
         /**
          * Add a new exercise to a workout (cardio or weight training)
          * @summary Create a new exercise
+         * @param {number} userId User ID
          * @param {number} workoutId Workout ID
          * @param {CreateExerciseRequest} createExerciseRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createExercise(workoutId: number, createExerciseRequest: CreateExerciseRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateExerciseResponse> {
-            return localVarFp.createExercise(workoutId, createExerciseRequest, options).then((request) => request(axios, basePath));
+        createExercise(userId: number, workoutId: number, createExerciseRequest: CreateExerciseRequest, options?: RawAxiosRequestConfig): AxiosPromise<Exercise> {
+            return localVarFp.createExercise(userId, workoutId, createExerciseRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Delete an exercise from a workout
          * @summary Delete exercise
+         * @param {number} userId User ID
+         * @param {number} workoutId Workout ID
          * @param {number} exerciseId Exercise ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteExercise(exerciseId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteExercise(exerciseId, options).then((request) => request(axios, basePath));
+        deleteExercise(userId: number, workoutId: number, exerciseId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteExercise(userId, workoutId, exerciseId, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieve a specific exercise by its ID
          * @summary Get exercise by ID
+         * @param {number} userId User ID
+         * @param {number} workoutId Workout ID
          * @param {number} exerciseId Exercise ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getExerciseById(exerciseId: number, options?: RawAxiosRequestConfig): AxiosPromise<Exercise> {
-            return localVarFp.getExerciseById(exerciseId, options).then((request) => request(axios, basePath));
+        getExerciseById(userId: number, workoutId: number, exerciseId: number, options?: RawAxiosRequestConfig): AxiosPromise<Exercise> {
+            return localVarFp.getExerciseById(userId, workoutId, exerciseId, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieve all exercises for a specific workout
          * @summary List exercises for a workout
+         * @param {number} userId User ID
          * @param {number} workoutId Workout ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listExercises(workoutId: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<Exercise>> {
-            return localVarFp.listExercises(workoutId, options).then((request) => request(axios, basePath));
+        listExercises(userId: number, workoutId: number, options?: RawAxiosRequestConfig): AxiosPromise<ListExercisesResponse> {
+            return localVarFp.listExercises(userId, workoutId, options).then((request) => request(axios, basePath));
         },
         /**
          * Update an existing exercise
          * @summary Update exercise
+         * @param {number} userId User ID
+         * @param {number} workoutId Workout ID
          * @param {number} exerciseId Exercise ID
-         * @param {UpdateExerciseRequest} updateExerciseRequest 
+         * @param {CreateExerciseRequest} createExerciseRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateExercise(exerciseId: number, updateExerciseRequest: UpdateExerciseRequest, options?: RawAxiosRequestConfig): AxiosPromise<Exercise> {
-            return localVarFp.updateExercise(exerciseId, updateExerciseRequest, options).then((request) => request(axios, basePath));
+        updateExercise(userId: number, workoutId: number, exerciseId: number, createExerciseRequest: CreateExerciseRequest, options?: RawAxiosRequestConfig): AxiosPromise<Exercise> {
+            return localVarFp.updateExercise(userId, workoutId, exerciseId, createExerciseRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1336,63 +1609,71 @@ export class ExercisesApi extends BaseAPI {
     /**
      * Add a new exercise to a workout (cardio or weight training)
      * @summary Create a new exercise
+     * @param {number} userId User ID
      * @param {number} workoutId Workout ID
      * @param {CreateExerciseRequest} createExerciseRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ExercisesApi
      */
-    public createExercise(workoutId: number, createExerciseRequest: CreateExerciseRequest, options?: RawAxiosRequestConfig) {
-        return ExercisesApiFp(this.configuration).createExercise(workoutId, createExerciseRequest, options).then((request) => request(this.axios, this.basePath));
+    public createExercise(userId: number, workoutId: number, createExerciseRequest: CreateExerciseRequest, options?: RawAxiosRequestConfig) {
+        return ExercisesApiFp(this.configuration).createExercise(userId, workoutId, createExerciseRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Delete an exercise from a workout
      * @summary Delete exercise
+     * @param {number} userId User ID
+     * @param {number} workoutId Workout ID
      * @param {number} exerciseId Exercise ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ExercisesApi
      */
-    public deleteExercise(exerciseId: number, options?: RawAxiosRequestConfig) {
-        return ExercisesApiFp(this.configuration).deleteExercise(exerciseId, options).then((request) => request(this.axios, this.basePath));
+    public deleteExercise(userId: number, workoutId: number, exerciseId: number, options?: RawAxiosRequestConfig) {
+        return ExercisesApiFp(this.configuration).deleteExercise(userId, workoutId, exerciseId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Retrieve a specific exercise by its ID
      * @summary Get exercise by ID
+     * @param {number} userId User ID
+     * @param {number} workoutId Workout ID
      * @param {number} exerciseId Exercise ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ExercisesApi
      */
-    public getExerciseById(exerciseId: number, options?: RawAxiosRequestConfig) {
-        return ExercisesApiFp(this.configuration).getExerciseById(exerciseId, options).then((request) => request(this.axios, this.basePath));
+    public getExerciseById(userId: number, workoutId: number, exerciseId: number, options?: RawAxiosRequestConfig) {
+        return ExercisesApiFp(this.configuration).getExerciseById(userId, workoutId, exerciseId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Retrieve all exercises for a specific workout
      * @summary List exercises for a workout
+     * @param {number} userId User ID
      * @param {number} workoutId Workout ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ExercisesApi
      */
-    public listExercises(workoutId: number, options?: RawAxiosRequestConfig) {
-        return ExercisesApiFp(this.configuration).listExercises(workoutId, options).then((request) => request(this.axios, this.basePath));
+    public listExercises(userId: number, workoutId: number, options?: RawAxiosRequestConfig) {
+        return ExercisesApiFp(this.configuration).listExercises(userId, workoutId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Update an existing exercise
      * @summary Update exercise
+     * @param {number} userId User ID
+     * @param {number} workoutId Workout ID
      * @param {number} exerciseId Exercise ID
-     * @param {UpdateExerciseRequest} updateExerciseRequest 
+     * @param {CreateExerciseRequest} createExerciseRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ExercisesApi
      */
-    public updateExercise(exerciseId: number, updateExerciseRequest: UpdateExerciseRequest, options?: RawAxiosRequestConfig) {
-        return ExercisesApiFp(this.configuration).updateExercise(exerciseId, updateExerciseRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateExercise(userId: number, workoutId: number, exerciseId: number, createExerciseRequest: CreateExerciseRequest, options?: RawAxiosRequestConfig) {
+        return ExercisesApiFp(this.configuration).updateExercise(userId, workoutId, exerciseId, createExerciseRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1407,17 +1688,21 @@ export const MessagesApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * Send a new message in a conversation
          * @summary Create a new message
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
          * @param {CreateMessageRequest} createMessageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createMessage: async (conversationId: number, createMessageRequest: CreateMessageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createMessage: async (userId: number, conversationId: number, createMessageRequest: CreateMessageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('createMessage', 'userId', userId)
             // verify required parameter 'conversationId' is not null or undefined
             assertParamExists('createMessage', 'conversationId', conversationId)
             // verify required parameter 'createMessageRequest' is not null or undefined
             assertParamExists('createMessage', 'createMessageRequest', createMessageRequest)
-            const localVarPath = `/conversations/{conversationId}/messages`
+            const localVarPath = `/users/{userId}/conversations/{conversationId}/messages`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
                 .replace(`{${"conversationId"}}`, encodeURIComponent(String(conversationId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1447,14 +1732,22 @@ export const MessagesApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * Delete a message from a conversation
          * @summary Delete message
+         * @param {number} userId User ID
+         * @param {number} conversationId Conversation ID
          * @param {number} messageId Message ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteMessage: async (messageId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteMessage: async (userId: number, conversationId: number, messageId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('deleteMessage', 'userId', userId)
+            // verify required parameter 'conversationId' is not null or undefined
+            assertParamExists('deleteMessage', 'conversationId', conversationId)
             // verify required parameter 'messageId' is not null or undefined
             assertParamExists('deleteMessage', 'messageId', messageId)
-            const localVarPath = `/messages/{messageId}`
+            const localVarPath = `/users/{userId}/conversations/{conversationId}/messages/{messageId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
+                .replace(`{${"conversationId"}}`, encodeURIComponent(String(conversationId)))
                 .replace(`{${"messageId"}}`, encodeURIComponent(String(messageId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1481,14 +1774,22 @@ export const MessagesApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * Retrieve a specific message by its ID
          * @summary Get message by ID
+         * @param {number} userId User ID
+         * @param {number} conversationId Conversation ID
          * @param {number} messageId Message ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMessageById: async (messageId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getMessageById: async (userId: number, conversationId: number, messageId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('getMessageById', 'userId', userId)
+            // verify required parameter 'conversationId' is not null or undefined
+            assertParamExists('getMessageById', 'conversationId', conversationId)
             // verify required parameter 'messageId' is not null or undefined
             assertParamExists('getMessageById', 'messageId', messageId)
-            const localVarPath = `/messages/{messageId}`
+            const localVarPath = `/users/{userId}/conversations/{conversationId}/messages/{messageId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
+                .replace(`{${"conversationId"}}`, encodeURIComponent(String(conversationId)))
                 .replace(`{${"messageId"}}`, encodeURIComponent(String(messageId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1515,14 +1816,20 @@ export const MessagesApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * Retrieve all messages in a specific conversation
          * @summary List messages in a conversation
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
+         * @param {number} [limit] 
+         * @param {number} [offset] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listMessages: async (conversationId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listMessages: async (userId: number, conversationId: number, limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'userId' is not null or undefined
+            assertParamExists('listMessages', 'userId', userId)
             // verify required parameter 'conversationId' is not null or undefined
             assertParamExists('listMessages', 'conversationId', conversationId)
-            const localVarPath = `/conversations/{conversationId}/messages`
+            const localVarPath = `/users/{userId}/conversations/{conversationId}/messages`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
                 .replace(`{${"conversationId"}}`, encodeURIComponent(String(conversationId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -1534,6 +1841,14 @@ export const MessagesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
 
 
     
@@ -1559,13 +1874,14 @@ export const MessagesApiFp = function(configuration?: Configuration) {
         /**
          * Send a new message in a conversation
          * @summary Create a new message
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
          * @param {CreateMessageRequest} createMessageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createMessage(conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateMessageResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createMessage(conversationId, createMessageRequest, options);
+        async createMessage(userId: number, conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Message>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createMessage(userId, conversationId, createMessageRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MessagesApi.createMessage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1573,12 +1889,14 @@ export const MessagesApiFp = function(configuration?: Configuration) {
         /**
          * Delete a message from a conversation
          * @summary Delete message
+         * @param {number} userId User ID
+         * @param {number} conversationId Conversation ID
          * @param {number} messageId Message ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteMessage(messageId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteMessage(messageId, options);
+        async deleteMessage(userId: number, conversationId: number, messageId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteMessage(userId, conversationId, messageId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MessagesApi.deleteMessage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1586,12 +1904,14 @@ export const MessagesApiFp = function(configuration?: Configuration) {
         /**
          * Retrieve a specific message by its ID
          * @summary Get message by ID
+         * @param {number} userId User ID
+         * @param {number} conversationId Conversation ID
          * @param {number} messageId Message ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMessageById(messageId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Message>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getMessageById(messageId, options);
+        async getMessageById(userId: number, conversationId: number, messageId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Message>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMessageById(userId, conversationId, messageId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MessagesApi.getMessageById']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1599,12 +1919,15 @@ export const MessagesApiFp = function(configuration?: Configuration) {
         /**
          * Retrieve all messages in a specific conversation
          * @summary List messages in a conversation
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
+         * @param {number} [limit] 
+         * @param {number} [offset] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listMessages(conversationId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Message>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listMessages(conversationId, options);
+        async listMessages(userId: number, conversationId: number, limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListMessagesResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listMessages(userId, conversationId, limit, offset, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MessagesApi.listMessages']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1622,43 +1945,51 @@ export const MessagesApiFactory = function (configuration?: Configuration, baseP
         /**
          * Send a new message in a conversation
          * @summary Create a new message
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
          * @param {CreateMessageRequest} createMessageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createMessage(conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateMessageResponse> {
-            return localVarFp.createMessage(conversationId, createMessageRequest, options).then((request) => request(axios, basePath));
+        createMessage(userId: number, conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig): AxiosPromise<Message> {
+            return localVarFp.createMessage(userId, conversationId, createMessageRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Delete a message from a conversation
          * @summary Delete message
+         * @param {number} userId User ID
+         * @param {number} conversationId Conversation ID
          * @param {number} messageId Message ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteMessage(messageId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteMessage(messageId, options).then((request) => request(axios, basePath));
+        deleteMessage(userId: number, conversationId: number, messageId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteMessage(userId, conversationId, messageId, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieve a specific message by its ID
          * @summary Get message by ID
+         * @param {number} userId User ID
+         * @param {number} conversationId Conversation ID
          * @param {number} messageId Message ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMessageById(messageId: number, options?: RawAxiosRequestConfig): AxiosPromise<Message> {
-            return localVarFp.getMessageById(messageId, options).then((request) => request(axios, basePath));
+        getMessageById(userId: number, conversationId: number, messageId: number, options?: RawAxiosRequestConfig): AxiosPromise<Message> {
+            return localVarFp.getMessageById(userId, conversationId, messageId, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieve all messages in a specific conversation
          * @summary List messages in a conversation
+         * @param {number} userId User ID
          * @param {number} conversationId Conversation ID
+         * @param {number} [limit] 
+         * @param {number} [offset] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listMessages(conversationId: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<Message>> {
-            return localVarFp.listMessages(conversationId, options).then((request) => request(axios, basePath));
+        listMessages(userId: number, conversationId: number, limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<ListMessagesResponse> {
+            return localVarFp.listMessages(userId, conversationId, limit, offset, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1673,50 +2004,58 @@ export class MessagesApi extends BaseAPI {
     /**
      * Send a new message in a conversation
      * @summary Create a new message
+     * @param {number} userId User ID
      * @param {number} conversationId Conversation ID
      * @param {CreateMessageRequest} createMessageRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MessagesApi
      */
-    public createMessage(conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig) {
-        return MessagesApiFp(this.configuration).createMessage(conversationId, createMessageRequest, options).then((request) => request(this.axios, this.basePath));
+    public createMessage(userId: number, conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig) {
+        return MessagesApiFp(this.configuration).createMessage(userId, conversationId, createMessageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Delete a message from a conversation
      * @summary Delete message
+     * @param {number} userId User ID
+     * @param {number} conversationId Conversation ID
      * @param {number} messageId Message ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MessagesApi
      */
-    public deleteMessage(messageId: number, options?: RawAxiosRequestConfig) {
-        return MessagesApiFp(this.configuration).deleteMessage(messageId, options).then((request) => request(this.axios, this.basePath));
+    public deleteMessage(userId: number, conversationId: number, messageId: number, options?: RawAxiosRequestConfig) {
+        return MessagesApiFp(this.configuration).deleteMessage(userId, conversationId, messageId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Retrieve a specific message by its ID
      * @summary Get message by ID
+     * @param {number} userId User ID
+     * @param {number} conversationId Conversation ID
      * @param {number} messageId Message ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MessagesApi
      */
-    public getMessageById(messageId: number, options?: RawAxiosRequestConfig) {
-        return MessagesApiFp(this.configuration).getMessageById(messageId, options).then((request) => request(this.axios, this.basePath));
+    public getMessageById(userId: number, conversationId: number, messageId: number, options?: RawAxiosRequestConfig) {
+        return MessagesApiFp(this.configuration).getMessageById(userId, conversationId, messageId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Retrieve all messages in a specific conversation
      * @summary List messages in a conversation
+     * @param {number} userId User ID
      * @param {number} conversationId Conversation ID
+     * @param {number} [limit] 
+     * @param {number} [offset] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MessagesApi
      */
-    public listMessages(conversationId: number, options?: RawAxiosRequestConfig) {
-        return MessagesApiFp(this.configuration).listMessages(conversationId, options).then((request) => request(this.axios, this.basePath));
+    public listMessages(userId: number, conversationId: number, limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
+        return MessagesApiFp(this.configuration).listMessages(userId, conversationId, limit, offset, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -1729,16 +2068,46 @@ export class MessagesApi extends BaseAPI {
 export const UsersApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Create a new user account
-         * @summary Create a new user
-         * @param {CreateUserRequest} createUserRequest 
+         * Retrieve the currently authenticated user
+         * @summary Get current user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createUser: async (createUserRequest: CreateUserRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'createUserRequest' is not null or undefined
-            assertParamExists('createUser', 'createUserRequest', createUserRequest)
-            const localVarPath = `/users`;
+        getCurrentUser: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/auth/me`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Authenticate with Google and create a new user if they don\'t exist
+         * @summary Google login
+         * @param {GoogleLoginRequest} googleLoginRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        googleLogin: async (googleLoginRequest: GoogleLoginRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'googleLoginRequest' is not null or undefined
+            assertParamExists('googleLogin', 'googleLoginRequest', googleLoginRequest)
+            const localVarPath = `/auth/google`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1757,7 +2126,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(createUserRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(googleLoginRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1765,17 +2134,13 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * Delete a user and all associated data
-         * @summary Delete user
-         * @param {number} userId User ID
+         * Log out the current user
+         * @summary Log out the current user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteUser: async (userId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            assertParamExists('deleteUser', 'userId', userId)
-            const localVarPath = `/users/{userId}`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+        logout: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/auth/logout`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1783,105 +2148,7 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
                 baseOptions = configuration.baseOptions;
             }
 
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Retrieve a user by their email address
-         * @summary Get user by email
-         * @param {string} email User email address
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getUserByEmail: async (email: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'email' is not null or undefined
-            assertParamExists('getUserByEmail', 'email', email)
-            const localVarPath = `/users/email/{email}`
-                .replace(`{${"email"}}`, encodeURIComponent(String(email)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Retrieve a specific user by their ID
-         * @summary Get user by ID
-         * @param {number} userId User ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getUserById: async (userId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            assertParamExists('getUserById', 'userId', userId)
-            const localVarPath = `/users/{userId}`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Retrieve a list of all users in the system
-         * @summary List all users
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listUsers: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/users`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -1907,67 +2174,40 @@ export const UsersApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = UsersApiAxiosParamCreator(configuration)
     return {
         /**
-         * Create a new user account
-         * @summary Create a new user
-         * @param {CreateUserRequest} createUserRequest 
+         * Retrieve the currently authenticated user
+         * @summary Get current user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createUser(createUserRequest: CreateUserRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createUser(createUserRequest, options);
+        async getCurrentUser(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCurrentUser(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UsersApi.createUser']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.getCurrentUser']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Delete a user and all associated data
-         * @summary Delete user
-         * @param {number} userId User ID
+         * Authenticate with Google and create a new user if they don\'t exist
+         * @summary Google login
+         * @param {GoogleLoginRequest} googleLoginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteUser(userId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteUser(userId, options);
+        async googleLogin(googleLoginRequest: GoogleLoginRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.googleLogin(googleLoginRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UsersApi.deleteUser']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.googleLogin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Retrieve a user by their email address
-         * @summary Get user by email
-         * @param {string} email User email address
+         * Log out the current user
+         * @summary Log out the current user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getUserByEmail(email: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserByEmail(email, options);
+        async logout(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.logout(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UsersApi.getUserByEmail']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Retrieve a specific user by their ID
-         * @summary Get user by ID
-         * @param {number} userId User ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getUserById(userId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserById(userId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UsersApi.getUserById']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Retrieve a list of all users in the system
-         * @summary List all users
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async listUsers(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<User>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listUsers(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['UsersApi.listUsers']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.logout']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -1981,53 +2221,32 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
     const localVarFp = UsersApiFp(configuration)
     return {
         /**
-         * Create a new user account
-         * @summary Create a new user
-         * @param {CreateUserRequest} createUserRequest 
+         * Retrieve the currently authenticated user
+         * @summary Get current user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createUser(createUserRequest: CreateUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<User> {
-            return localVarFp.createUser(createUserRequest, options).then((request) => request(axios, basePath));
+        getCurrentUser(options?: RawAxiosRequestConfig): AxiosPromise<User> {
+            return localVarFp.getCurrentUser(options).then((request) => request(axios, basePath));
         },
         /**
-         * Delete a user and all associated data
-         * @summary Delete user
-         * @param {number} userId User ID
+         * Authenticate with Google and create a new user if they don\'t exist
+         * @summary Google login
+         * @param {GoogleLoginRequest} googleLoginRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteUser(userId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteUser(userId, options).then((request) => request(axios, basePath));
+        googleLogin(googleLoginRequest: GoogleLoginRequest, options?: RawAxiosRequestConfig): AxiosPromise<User> {
+            return localVarFp.googleLogin(googleLoginRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * Retrieve a user by their email address
-         * @summary Get user by email
-         * @param {string} email User email address
+         * Log out the current user
+         * @summary Log out the current user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserByEmail(email: string, options?: RawAxiosRequestConfig): AxiosPromise<User> {
-            return localVarFp.getUserByEmail(email, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Retrieve a specific user by their ID
-         * @summary Get user by ID
-         * @param {number} userId User ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getUserById(userId: number, options?: RawAxiosRequestConfig): AxiosPromise<User> {
-            return localVarFp.getUserById(userId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Retrieve a list of all users in the system
-         * @summary List all users
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listUsers(options?: RawAxiosRequestConfig): AxiosPromise<Array<User>> {
-            return localVarFp.listUsers(options).then((request) => request(axios, basePath));
+        logout(options?: RawAxiosRequestConfig): AxiosPromise<User> {
+            return localVarFp.logout(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2040,62 +2259,37 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
  */
 export class UsersApi extends BaseAPI {
     /**
-     * Create a new user account
-     * @summary Create a new user
-     * @param {CreateUserRequest} createUserRequest 
+     * Retrieve the currently authenticated user
+     * @summary Get current user
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public createUser(createUserRequest: CreateUserRequest, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).createUser(createUserRequest, options).then((request) => request(this.axios, this.basePath));
+    public getCurrentUser(options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getCurrentUser(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Delete a user and all associated data
-     * @summary Delete user
-     * @param {number} userId User ID
+     * Authenticate with Google and create a new user if they don\'t exist
+     * @summary Google login
+     * @param {GoogleLoginRequest} googleLoginRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public deleteUser(userId: number, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).deleteUser(userId, options).then((request) => request(this.axios, this.basePath));
+    public googleLogin(googleLoginRequest: GoogleLoginRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).googleLogin(googleLoginRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * Retrieve a user by their email address
-     * @summary Get user by email
-     * @param {string} email User email address
+     * Log out the current user
+     * @summary Log out the current user
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUserByEmail(email: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserByEmail(email, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Retrieve a specific user by their ID
-     * @summary Get user by ID
-     * @param {number} userId User ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UsersApi
-     */
-    public getUserById(userId: number, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserById(userId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Retrieve a list of all users in the system
-     * @summary List all users
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UsersApi
-     */
-    public listUsers(options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).listUsers(options).then((request) => request(this.axios, this.basePath));
+    public logout(options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).logout(options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -2157,7 +2351,7 @@ export const WorkoutsApiAxiosParamCreator = function (configuration?: Configurat
         deleteWorkout: async (workoutId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'workoutId' is not null or undefined
             assertParamExists('deleteWorkout', 'workoutId', workoutId)
-            const localVarPath = `/workouts/{workoutId}`
+            const localVarPath = `/users/{userId}/workouts/{workoutId}`
                 .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2191,7 +2385,7 @@ export const WorkoutsApiAxiosParamCreator = function (configuration?: Configurat
         getWorkoutById: async (workoutId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'workoutId' is not null or undefined
             assertParamExists('getWorkoutById', 'workoutId', workoutId)
-            const localVarPath = `/workouts/{workoutId}`
+            const localVarPath = `/users/{userId}/workouts/{workoutId}`
                 .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2216,7 +2410,47 @@ export const WorkoutsApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
-         * Retrieve all workouts for a specific user with optional date filtering
+         * Update an existing workout
+         * @summary Update workout
+         * @param {number} workoutId Workout ID
+         * @param {UpdateWorkoutRequest} updateWorkoutRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateWorkout: async (workoutId: number, updateWorkoutRequest: UpdateWorkoutRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'workoutId' is not null or undefined
+            assertParamExists('updateWorkout', 'workoutId', workoutId)
+            // verify required parameter 'updateWorkoutRequest' is not null or undefined
+            assertParamExists('updateWorkout', 'updateWorkoutRequest', updateWorkoutRequest)
+            const localVarPath = `/users/{userId}/workouts/{workoutId}`
+                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateWorkoutRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary List workouts for a user
          * @param {number} userId User ID
          * @param {string} [year] Filter by year (YYYY format)
@@ -2225,9 +2459,9 @@ export const WorkoutsApiAxiosParamCreator = function (configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listWorkouts: async (userId: number, year?: string, month?: string, day?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        usersUserIdWorkoutsGet: async (userId: number, year?: string, month?: string, day?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
-            assertParamExists('listWorkouts', 'userId', userId)
+            assertParamExists('usersUserIdWorkoutsGet', 'userId', userId)
             const localVarPath = `/users/{userId}/workouts`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -2258,46 +2492,6 @@ export const WorkoutsApiAxiosParamCreator = function (configuration?: Configurat
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Update an existing workout
-         * @summary Update workout
-         * @param {number} workoutId Workout ID
-         * @param {UpdateWorkoutRequest} updateWorkoutRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateWorkout: async (workoutId: number, updateWorkoutRequest: UpdateWorkoutRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'workoutId' is not null or undefined
-            assertParamExists('updateWorkout', 'workoutId', workoutId)
-            // verify required parameter 'updateWorkoutRequest' is not null or undefined
-            assertParamExists('updateWorkout', 'updateWorkoutRequest', updateWorkoutRequest)
-            const localVarPath = `/workouts/{workoutId}`
-                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateWorkoutRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2355,22 +2549,6 @@ export const WorkoutsApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Retrieve all workouts for a specific user with optional date filtering
-         * @summary List workouts for a user
-         * @param {number} userId User ID
-         * @param {string} [year] Filter by year (YYYY format)
-         * @param {string} [month] Filter by month (MM format)
-         * @param {string} [day] Filter by day (DD format)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async listWorkouts(userId: number, year?: string, month?: string, day?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Workout>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listWorkouts(userId, year, month, day, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['WorkoutsApi.listWorkouts']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * Update an existing workout
          * @summary Update workout
          * @param {number} workoutId Workout ID
@@ -2382,6 +2560,22 @@ export const WorkoutsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateWorkout(workoutId, updateWorkoutRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['WorkoutsApi.updateWorkout']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List workouts for a user
+         * @param {number} userId User ID
+         * @param {string} [year] Filter by year (YYYY format)
+         * @param {string} [month] Filter by month (MM format)
+         * @param {string} [day] Filter by day (DD format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersUserIdWorkoutsGet(userId: number, year?: string, month?: string, day?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListWorkoutsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersUserIdWorkoutsGet(userId, year, month, day, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['WorkoutsApi.usersUserIdWorkoutsGet']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -2426,19 +2620,6 @@ export const WorkoutsApiFactory = function (configuration?: Configuration, baseP
             return localVarFp.getWorkoutById(workoutId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Retrieve all workouts for a specific user with optional date filtering
-         * @summary List workouts for a user
-         * @param {number} userId User ID
-         * @param {string} [year] Filter by year (YYYY format)
-         * @param {string} [month] Filter by month (MM format)
-         * @param {string} [day] Filter by day (DD format)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listWorkouts(userId: number, year?: string, month?: string, day?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Workout>> {
-            return localVarFp.listWorkouts(userId, year, month, day, options).then((request) => request(axios, basePath));
-        },
-        /**
          * Update an existing workout
          * @summary Update workout
          * @param {number} workoutId Workout ID
@@ -2448,6 +2629,19 @@ export const WorkoutsApiFactory = function (configuration?: Configuration, baseP
          */
         updateWorkout(workoutId: number, updateWorkoutRequest: UpdateWorkoutRequest, options?: RawAxiosRequestConfig): AxiosPromise<Workout> {
             return localVarFp.updateWorkout(workoutId, updateWorkoutRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List workouts for a user
+         * @param {number} userId User ID
+         * @param {string} [year] Filter by year (YYYY format)
+         * @param {string} [month] Filter by month (MM format)
+         * @param {string} [day] Filter by day (DD format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersUserIdWorkoutsGet(userId: number, year?: string, month?: string, day?: string, options?: RawAxiosRequestConfig): AxiosPromise<ListWorkoutsResponse> {
+            return localVarFp.usersUserIdWorkoutsGet(userId, year, month, day, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2497,21 +2691,6 @@ export class WorkoutsApi extends BaseAPI {
     }
 
     /**
-     * Retrieve all workouts for a specific user with optional date filtering
-     * @summary List workouts for a user
-     * @param {number} userId User ID
-     * @param {string} [year] Filter by year (YYYY format)
-     * @param {string} [month] Filter by month (MM format)
-     * @param {string} [day] Filter by day (DD format)
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof WorkoutsApi
-     */
-    public listWorkouts(userId: number, year?: string, month?: string, day?: string, options?: RawAxiosRequestConfig) {
-        return WorkoutsApiFp(this.configuration).listWorkouts(userId, year, month, day, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
      * Update an existing workout
      * @summary Update workout
      * @param {number} workoutId Workout ID
@@ -2522,6 +2701,21 @@ export class WorkoutsApi extends BaseAPI {
      */
     public updateWorkout(workoutId: number, updateWorkoutRequest: UpdateWorkoutRequest, options?: RawAxiosRequestConfig) {
         return WorkoutsApiFp(this.configuration).updateWorkout(workoutId, updateWorkoutRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List workouts for a user
+     * @param {number} userId User ID
+     * @param {string} [year] Filter by year (YYYY format)
+     * @param {string} [month] Filter by month (MM format)
+     * @param {string} [day] Filter by day (DD format)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof WorkoutsApi
+     */
+    public usersUserIdWorkoutsGet(userId: number, year?: string, month?: string, day?: string, options?: RawAxiosRequestConfig) {
+        return WorkoutsApiFp(this.configuration).usersUserIdWorkoutsGet(userId, year, month, day, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

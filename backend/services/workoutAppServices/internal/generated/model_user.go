@@ -27,8 +27,12 @@ type User struct {
 	Id int64 `json:"id"`
 	// User's email address. This is the primary key for the user and obtained from Google Auth.
 	Email string `json:"email"`
+	// User's full name from Google profile.
+	Name string `json:"name"`
+	// User's profile picture URL from Google.
+	Picture string `json:"picture"`
 	// Timestamp when the user was created. Created by the database.
-	CreatedAt NullableTime `json:"created_at"`
+	CreatedAt NullableTime `json:"created_at,omitempty"`
 }
 
 type _User User
@@ -37,11 +41,12 @@ type _User User
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewUser(id int64, email string, createdAt NullableTime) *User {
+func NewUser(id int64, email string, name string, picture string) *User {
 	this := User{}
 	this.Id = id
 	this.Email = email
-	this.CreatedAt = createdAt
+	this.Name = name
+	this.Picture = picture
 	return &this
 }
 
@@ -101,18 +106,64 @@ func (o *User) SetEmail(v string) {
 	o.Email = v
 }
 
-// GetCreatedAt returns the CreatedAt field value
-// If the value is explicit nil, the zero value for time.Time will be returned
-func (o *User) GetCreatedAt() time.Time {
-	if o == nil || o.CreatedAt.Get() == nil {
-		var ret time.Time
+// GetName returns the Name field value
+func (o *User) GetName() string {
+	if o == nil {
+		var ret string
 		return ret
 	}
 
+	return o.Name
+}
+
+// GetNameOk returns a tuple with the Name field value
+// and a boolean to check if the value has been set.
+func (o *User) GetNameOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.Name, true
+}
+
+// SetName sets field value
+func (o *User) SetName(v string) {
+	o.Name = v
+}
+
+// GetPicture returns the Picture field value
+func (o *User) GetPicture() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.Picture
+}
+
+// GetPictureOk returns a tuple with the Picture field value
+// and a boolean to check if the value has been set.
+func (o *User) GetPictureOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.Picture, true
+}
+
+// SetPicture sets field value
+func (o *User) SetPicture(v string) {
+	o.Picture = v
+}
+
+// GetCreatedAt returns the CreatedAt field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *User) GetCreatedAt() time.Time {
+	if o == nil || IsNil(o.CreatedAt.Get()) {
+		var ret time.Time
+		return ret
+	}
 	return *o.CreatedAt.Get()
 }
 
-// GetCreatedAtOk returns a tuple with the CreatedAt field value
+// GetCreatedAtOk returns a tuple with the CreatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *User) GetCreatedAtOk() (*time.Time, bool) {
@@ -122,9 +173,27 @@ func (o *User) GetCreatedAtOk() (*time.Time, bool) {
 	return o.CreatedAt.Get(), o.CreatedAt.IsSet()
 }
 
-// SetCreatedAt sets field value
+// HasCreatedAt returns a boolean if a field has been set.
+func (o *User) HasCreatedAt() bool {
+	if o != nil && o.CreatedAt.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetCreatedAt gets a reference to the given NullableTime and assigns it to the CreatedAt field.
 func (o *User) SetCreatedAt(v time.Time) {
 	o.CreatedAt.Set(&v)
+}
+// SetCreatedAtNil sets the value for CreatedAt to be an explicit nil
+func (o *User) SetCreatedAtNil() {
+	o.CreatedAt.Set(nil)
+}
+
+// UnsetCreatedAt ensures that no value is present for CreatedAt, not even an explicit nil
+func (o *User) UnsetCreatedAt() {
+	o.CreatedAt.Unset()
 }
 
 func (o User) MarshalJSON() ([]byte, error) {
@@ -139,7 +208,11 @@ func (o User) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["id"] = o.Id
 	toSerialize["email"] = o.Email
-	toSerialize["created_at"] = o.CreatedAt.Get()
+	toSerialize["name"] = o.Name
+	toSerialize["picture"] = o.Picture
+	if o.CreatedAt.IsSet() {
+		toSerialize["created_at"] = o.CreatedAt.Get()
+	}
 	return toSerialize, nil
 }
 
@@ -150,7 +223,8 @@ func (o *User) UnmarshalJSON(data []byte) (err error) {
 	requiredProperties := []string{
 		"id",
 		"email",
-		"created_at",
+		"name",
+		"picture",
 	}
 
 	allProperties := make(map[string]interface{})

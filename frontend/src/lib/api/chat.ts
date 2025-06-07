@@ -1,73 +1,58 @@
-import { Conversation, Message } from "@/lib/types/chat";
-import BaseHTTPRequest from "./baseHTTPRequest";
+import { conversationsApi, messagesApi } from './client';
+import { 
+  Conversation, 
+  Message, 
+  CreateConversationRequest, 
+  CreateMessageRequest,
+  UpdateConversationRequest,
+  DeleteConversationRequest,
+} from '@/lib/types/generated';
 
-
-export interface CreateConversationRequest {
-  title: string;
-}
-
-export interface CreateMessageRequest {
-  content: string;
-  message_type: 'user' | 'assistant' | 'system';
-}
-
-class ChatAPI extends BaseHTTPRequest {
-  //!Conversation methods
+class ChatAPI {
+  // Conversation methods
   async getConversations(userId: number): Promise<Conversation[]> {
-    return this.request<Conversation[]>(`/users/${userId}/conversations`);
+    const response = await conversationsApi.listConversations(userId);
+    return response.data.conversations;
   }
 
   async createConversation(userId: number, data: CreateConversationRequest): Promise<Conversation> {
-    return this.request<Conversation>(`/users/${userId}/conversations`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    const response = await conversationsApi.createConversation(userId, data);
+    return response.data;
   }
 
   async getConversation(userId: number, conversationId: number): Promise<Conversation> {
-    return this.request<Conversation>(`/users/${userId}/conversations/${conversationId}`);
+    const response = await conversationsApi.getConversationById(userId, conversationId);
+    return response.data;
   }
 
-  async updateConversation(userId: number, conversationId: number, data: Partial<CreateConversationRequest>): Promise<Conversation> {
-    return this.request<Conversation>(`/users/${userId}/conversations/${conversationId}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+  async updateConversation(userId: number, conversationId: number, data: UpdateConversationRequest): Promise<Conversation> {
+    const response = await conversationsApi.updateConversation(userId, conversationId, data);
+    return response.data;
   }
 
-  async deleteConversation(userId: number, conversationId: number): Promise<void> {
-    return this.request<void>(`/users/${userId}/conversations/${conversationId}`, {
-      method: 'DELETE',
-    });
+  async deleteConversation(userId: number, conversationId: number, confirm: boolean = true): Promise<void> {
+    const deleteRequest: DeleteConversationRequest = { confirm };
+    await conversationsApi.deleteConversation(userId, conversationId, deleteRequest);
   }
 
-  //!Message methods
-  async getMessages(userId: number, conversationId: number): Promise<Message[]> {
-    return this.request<Message[]>(`/users/${userId}/conversations/${conversationId}/messages`);
+  // Message methods
+  async getMessages(userId: number, conversationId: number, limit?: number, offset?: number): Promise<Message[]> {
+    const response = await messagesApi.listMessages(userId, conversationId, limit, offset);
+    return response.data.messages;
   }
 
   async createMessage(userId: number, conversationId: number, data: CreateMessageRequest): Promise<Message> {
-    return this.request<Message>(`/users/${userId}/conversations/${conversationId}/messages`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    const response = await messagesApi.createMessage(userId, conversationId, data);
+    return response.data;
   }
 
   async getMessage(userId: number, conversationId: number, messageId: number): Promise<Message> {
-    return this.request<Message>(`/users/${userId}/conversations/${conversationId}/messages/${messageId}`);
+    const response = await messagesApi.getMessageById(userId, conversationId, messageId);
+    return response.data;
   }
 
-  async updateMessage(userId: number, conversationId: number, messageId: number, data: Partial<CreateMessageRequest>): Promise<Message> {
-    return this.request<Message>(`/users/${userId}/conversations/${conversationId}/messages/${messageId}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async deleteMessage(userId: number, conversationId: number, messageId: number): Promise<void> {
-    return this.request<void>(`/users/${userId}/conversations/${conversationId}/messages/${messageId}`, {
-      method: 'DELETE',
-    });
+  async deleteMessage(userId: number, conversationId: number, messageId: number, confirm: boolean = true): Promise<void> {
+    await messagesApi.deleteMessage(userId, conversationId, messageId, confirm);
   }
 }
 

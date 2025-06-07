@@ -1,5 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
-import { Message } from '@/lib/types/chat';
+import { Message } from '@/lib/api';
 
 /*
 export interface Message {

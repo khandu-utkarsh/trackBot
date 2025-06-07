@@ -17,60 +17,60 @@ import (
 	"fmt"
 )
 
-// checks if the CreateWorkoutResponse type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &CreateWorkoutResponse{}
+// checks if the GoogleLoginRequest type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &GoogleLoginRequest{}
 
-// CreateWorkoutResponse Response returned after creating a workout.
-type CreateWorkoutResponse struct {
-	// ID of the created workout.
-	Id int64 `json:"id"`
+// GoogleLoginRequest Payload for Google OAuth login.
+type GoogleLoginRequest struct {
+	// Google JWT credential token
+	GoogleToken string `json:"googleToken"`
 }
 
-type _CreateWorkoutResponse CreateWorkoutResponse
+type _GoogleLoginRequest GoogleLoginRequest
 
-// NewCreateWorkoutResponse instantiates a new CreateWorkoutResponse object
+// NewGoogleLoginRequest instantiates a new GoogleLoginRequest object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateWorkoutResponse(id int64) *CreateWorkoutResponse {
-	this := CreateWorkoutResponse{}
-	this.Id = id
+func NewGoogleLoginRequest(googleToken string) *GoogleLoginRequest {
+	this := GoogleLoginRequest{}
+	this.GoogleToken = googleToken
 	return &this
 }
 
-// NewCreateWorkoutResponseWithDefaults instantiates a new CreateWorkoutResponse object
+// NewGoogleLoginRequestWithDefaults instantiates a new GoogleLoginRequest object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewCreateWorkoutResponseWithDefaults() *CreateWorkoutResponse {
-	this := CreateWorkoutResponse{}
+func NewGoogleLoginRequestWithDefaults() *GoogleLoginRequest {
+	this := GoogleLoginRequest{}
 	return &this
 }
 
-// GetId returns the Id field value
-func (o *CreateWorkoutResponse) GetId() int64 {
+// GetGoogleToken returns the GoogleToken field value
+func (o *GoogleLoginRequest) GetGoogleToken() string {
 	if o == nil {
-		var ret int64
+		var ret string
 		return ret
 	}
 
-	return o.Id
+	return o.GoogleToken
 }
 
-// GetIdOk returns a tuple with the Id field value
+// GetGoogleTokenOk returns a tuple with the GoogleToken field value
 // and a boolean to check if the value has been set.
-func (o *CreateWorkoutResponse) GetIdOk() (*int64, bool) {
+func (o *GoogleLoginRequest) GetGoogleTokenOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.Id, true
+	return &o.GoogleToken, true
 }
 
-// SetId sets field value
-func (o *CreateWorkoutResponse) SetId(v int64) {
-	o.Id = v
+// SetGoogleToken sets field value
+func (o *GoogleLoginRequest) SetGoogleToken(v string) {
+	o.GoogleToken = v
 }
 
-func (o CreateWorkoutResponse) MarshalJSON() ([]byte, error) {
+func (o GoogleLoginRequest) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -78,18 +78,18 @@ func (o CreateWorkoutResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o CreateWorkoutResponse) ToMap() (map[string]interface{}, error) {
+func (o GoogleLoginRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["id"] = o.Id
+	toSerialize["googleToken"] = o.GoogleToken
 	return toSerialize, nil
 }
 
-func (o *CreateWorkoutResponse) UnmarshalJSON(data []byte) (err error) {
+func (o *GoogleLoginRequest) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"id",
+		"googleToken",
 	}
 
 	allProperties := make(map[string]interface{})
@@ -106,53 +106,53 @@ func (o *CreateWorkoutResponse) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	varCreateWorkoutResponse := _CreateWorkoutResponse{}
+	varGoogleLoginRequest := _GoogleLoginRequest{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
 	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varCreateWorkoutResponse)
+	err = decoder.Decode(&varGoogleLoginRequest)
 
 	if err != nil {
 		return err
 	}
 
-	*o = CreateWorkoutResponse(varCreateWorkoutResponse)
+	*o = GoogleLoginRequest(varGoogleLoginRequest)
 
 	return err
 }
 
-type NullableCreateWorkoutResponse struct {
-	value *CreateWorkoutResponse
+type NullableGoogleLoginRequest struct {
+	value *GoogleLoginRequest
 	isSet bool
 }
 
-func (v NullableCreateWorkoutResponse) Get() *CreateWorkoutResponse {
+func (v NullableGoogleLoginRequest) Get() *GoogleLoginRequest {
 	return v.value
 }
 
-func (v *NullableCreateWorkoutResponse) Set(val *CreateWorkoutResponse) {
+func (v *NullableGoogleLoginRequest) Set(val *GoogleLoginRequest) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableCreateWorkoutResponse) IsSet() bool {
+func (v NullableGoogleLoginRequest) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableCreateWorkoutResponse) Unset() {
+func (v *NullableGoogleLoginRequest) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableCreateWorkoutResponse(val *CreateWorkoutResponse) *NullableCreateWorkoutResponse {
-	return &NullableCreateWorkoutResponse{value: val, isSet: true}
+func NewNullableGoogleLoginRequest(val *GoogleLoginRequest) *NullableGoogleLoginRequest {
+	return &NullableGoogleLoginRequest{value: val, isSet: true}
 }
 
-func (v NullableCreateWorkoutResponse) MarshalJSON() ([]byte, error) {
+func (v NullableGoogleLoginRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableCreateWorkoutResponse) UnmarshalJSON(src []byte) error {
+func (v *NullableGoogleLoginRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

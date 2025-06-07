@@ -6,7 +6,8 @@ components:
       required:
         - id
         - email
-        - created_at
+        - name
+        - picture
       properties:
         id:
           type: integer
@@ -19,6 +20,15 @@ components:
           format: email
           description: User's email address. This is the primary key for the user and obtained from Google Auth.
           example: "user@gmail.com"
+        name:
+          type: string
+          description: User's full name from Google profile.
+          example: "John Doe"
+        picture:
+          type: string
+          format: uri
+          description: User's profile picture URL from Google.
+          example: "https://lh3.googleusercontent.com/..."
         created_at:
           type: string
           format: date-time
@@ -59,4 +69,16 @@ components:
           format: email
           description: User's email address.
           example: "user@gmail.com"
+      additionalProperties: false
+
+    GoogleLoginRequest:
+      type: object
+      description: Payload for Google OAuth login.
+      required:
+        - googleToken
+      properties:
+        googleToken:
+          type: string
+          description: Google JWT credential token
+          example: "eyJhbGciOiJSUzI1NiIsImtpZCI6..."
       additionalProperties: false

@@ -15,20 +15,19 @@ import {
   Chat as ChatIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import { Conversation } from '@/lib/types/chat';
-import { GoogleUser } from '@/hooks/useGoogleAuth';
+import { Conversation, User } from '@/lib/api';
 
 interface SidebarListItemProps {
   conversation: Conversation;
   currentConversationId: number | null;
   onChatSelect: (conversationId: number) => void;
   onDeleteConversation: (
-    user: GoogleUser | null, 
+    user: User | null, 
     conversationId: number, 
     event: React.MouseEvent, 
     currentConversationId: number | null
   ) => void;
-  user: GoogleUser | null;
+  user: User | null;
 }
 
 const formatTimestamp = (dateString: string) => {
@@ -113,10 +112,10 @@ export default function SidebarListItem({
           secondary={
             <>
               <Typography variant="caption" color="text.secondary" noWrap>
-                {conversation.last_message || 'No messages yet'}
+                No messages yet
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                {formatTimestamp(conversation.updated_at)}
+                {formatTimestamp(conversation.created_at)}
               </Typography>
             </>
           }

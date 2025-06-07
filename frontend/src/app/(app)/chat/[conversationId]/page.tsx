@@ -8,8 +8,7 @@ import {
   Alert,
 } from '@mui/material';
 import { useParams} from 'next/navigation';
-import { chatAPI } from '@/lib/api/chat';
-import { Message } from '@/lib/types/chat';
+import { chatAPI, Message } from '@/lib/api';
 import { useRequireAuth} from '@/contexts/AuthContext';
 import ChatInputBar from '@/components/ChatInputBar';
 import Chatbox from '@/components/Chatbox';
@@ -48,7 +47,7 @@ export default function ChatPageContent() {
       // Load conversation details
      
       // Load messages
-      const apiMessages = await chatAPI.getMessages(user.id, convId);      
+      const apiMessages = await chatAPI.getMessages(user.id, convId, 100, 0);      
       setMessages(apiMessages);
     } catch (err) {
       setApiError('Failed to load conversation');
@@ -66,7 +65,6 @@ export default function ChatPageContent() {
       content: inputMessage.trim(),
       message_type: 'user',
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
       conversation_id: conversationId,
       user_id: user.id,
     };
@@ -88,7 +86,7 @@ export default function ChatPageContent() {
       // For now, let's poll after a short delay
       setTimeout(async () => {
         try {
-          const updatedMessages = await chatAPI.getMessages(user.id, conversationId);
+          const updatedMessages = await chatAPI.getMessages(user.id, conversationId, 100, 0);
           setMessages(updatedMessages);
         } catch (err) {
           console.error('Error fetching updated messages:', err);
@@ -105,7 +103,6 @@ export default function ChatPageContent() {
         content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
         message_type: 'assistant',
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
         conversation_id: conversationId,
         user_id: user.id,
       };
