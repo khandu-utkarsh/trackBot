@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	api_models "workout_app_backend/internal/generated"
 	models "workout_app_backend/internal/models"
 	services "workout_app_backend/internal/services"
 )
@@ -25,13 +27,42 @@ func NewMessageHandler(messageModel *models.MessageModel, conversationModel *mod
 	}
 }
 
+// Domain to API model conversion functions
+func convertMessageToAPI(internal *models.Message) api_models.Message {
+	return api_models.Message{
+		Id:             internal.ID,
+		ConversationId: internal.ConversationID,
+		UserId:         internal.UserID,
+		Content:        internal.Content,
+		MessageType:    api_models.MessageType(internal.MessageType),
+		CreatedAt:      internal.CreatedAt,
+	}
+}
+
+func convertMessagesToAPI(internals []*models.Message) []api_models.Message {
+	result := make([]api_models.Message, len(internals))
+	for i, internal := range internals {
+		result[i] = convertMessageToAPI(internal)
+	}
+	return result
+}
+
+func convertAPIMessageType(apiType api_models.MessageType) models.MessageType {
+	switch apiType {
+	case api_models.USER:
+		return models.MessageTypeUser
+	case api_models.ASSISTANT:
+		return models.MessageTypeAssistant
+	case api_models.SYSTEM:
+		return models.MessageTypeSystem
+	default:
+		return models.MessageTypeUser // Default fallback
+	}
+}
+
 // ListMessagesByConversation handles GET /api/users/{userID}/conversations/{conversationID}/messages
 func (h *MessageHandler) ListMessagesByConversation(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("ListMessagesByConversation request received") //! Logging the request.
-	if r.Method != http.MethodGet {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("ListMessagesByConversation request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
@@ -70,16 +101,17 @@ func (h *MessageHandler) ListMessagesByConversation(w http.ResponseWriter, r *ht
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, messages)
+	// Convert to API models and wrap in response
+	response := api_models.ListMessagesResponse{
+		Messages: convertMessagesToAPI(messages),
+	}
+
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // CreateMessage handles POST /api/users/{userID}/conversations/{conversationID}/messages
 func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("CreateMessage request received") //! Logging the request.
-	if r.Method != http.MethodPost {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("CreateMessage request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
@@ -93,15 +125,12 @@ func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var message models.Message
-	if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
+	// Parse request body
+	var request api_models.CreateMessageRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		respondWithError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	// Set the IDs from the URL path
-	message.ConversationID = conversationID
-	message.UserID = userID
 
 	ctx := r.Context()
 
@@ -121,8 +150,16 @@ func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Convert API model to internal domain model
+	message := &models.Message{
+		ConversationID: conversationID,
+		UserID:         userID,
+		Content:        request.Content,
+		MessageType:    convertAPIMessageType(request.MessageType),
+	}
+
 	// Create the user message
-	id, err := h.messageModel.Create(ctx, &message)
+	id, err := h.messageModel.Create(ctx, message)
 	if err != nil {
 		respondWithError(w, "Failed to create message", http.StatusInternalServerError)
 		return
@@ -135,21 +172,22 @@ func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handlerLogger.Println("Checking if the message is a user message and if the LLM client is not nil") //! Logging the request.
+	handlerLogger.Println("Checking if the message is a user message and if the LLM client is not nil")
 
-	//!Need to relay the message to the AI service, so that the AI can respond to the user.
 	// If this is a user message, trigger AI response
 	if message.MessageType == models.MessageTypeUser && h.llmClient != nil {
-		handlerLogger.Println("Message is a user message and LLM client is not nil, so we will process the AI response") //! Logging the request.
+		handlerLogger.Println("Message is a user message and LLM client is not nil, so we will process the AI response")
 		go h.processAIResponse(context.Background(), userID, conversationID)
 	}
 
-	respondWithJSON(w, http.StatusCreated, createdMessage)
+	// Convert to API model
+	response := convertMessageToAPI(createdMessage)
+	respondWithJSON(w, http.StatusCreated, response)
 }
 
 // processAIResponse handles the AI response generation in a separate goroutine
 func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversationID int64) {
-	handlerLogger.Println("processAIResponse request received") //! Logging the request.
+	handlerLogger.Println("processAIResponse request received")
 	// Get conversation history
 	messagePointers, err := h.messageModel.ListByConversation(ctx, conversationID)
 
@@ -159,9 +197,9 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 		messages[i] = *msgPtr
 	}
 
-	handlerLogger.Println("Conversation history retrieved", messages) //! Logging the request.
+	handlerLogger.Println("Conversation history retrieved", messages)
 	if err != nil {
-		handlerLogger.Println("Error getting conversation history", err) //! Logging the request.
+		handlerLogger.Println("Error getting conversation history", err)
 		// Log error but don't fail the original request
 		return
 	}
@@ -169,7 +207,7 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 	// Call LLM service
 	llmResponse, err := h.llmClient.ProcessChatMessage(ctx, messages, userID, conversationID, nil)
 	if err != nil {
-		handlerLogger.Println("Error processing AI response", err) //! Logging the request.
+		handlerLogger.Println("Error processing AI response", err)
 		// Log error but don't fail the original request
 		return
 	}
@@ -182,12 +220,12 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 		MessageType:    models.MessageTypeAssistant,
 	}
 
-	handlerLogger.Println("Assistant message from the handler: ", assistantMessage) //! Logging the request.
+	handlerLogger.Println("Assistant message from the handler: ", assistantMessage)
 
 	// Save the assistant message
 	_, err = h.messageModel.Create(ctx, assistantMessage)
 	if err != nil {
-		handlerLogger.Println("Error creating assistant message", err) //! Logging the request.
+		handlerLogger.Println("Error creating assistant message", err)
 		// Log error but don't fail the original request
 		return
 	}
@@ -198,11 +236,7 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 
 // GetMessage handles GET /api/users/{userID}/conversations/{conversationID}/messages/{messageID}
 func (h *MessageHandler) GetMessage(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("GetMessage request received") //! Logging the request.
-	if r.Method != http.MethodGet {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("GetMessage request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
@@ -257,16 +291,14 @@ func (h *MessageHandler) GetMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, message)
+	// Convert to API model
+	response := convertMessageToAPI(message)
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // UpdateMessage handles PUT /api/users/{userID}/conversations/{conversationID}/messages/{messageID}
 func (h *MessageHandler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("UpdateMessage request received") //! Logging the request.
-	if r.Method != http.MethodPut {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("UpdateMessage request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
@@ -286,16 +318,12 @@ func (h *MessageHandler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var message models.Message
-	if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
+	// Parse request body
+	var request api_models.Message // Assuming we use the full Message model for updates
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		respondWithError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	// Set the IDs from the URL path
-	message.ID = messageID
-	message.ConversationID = conversationID
-	message.UserID = userID
 
 	ctx := r.Context()
 
@@ -331,8 +359,17 @@ func (h *MessageHandler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Convert API model to internal domain model
+	message := &models.Message{
+		ID:             messageID,
+		ConversationID: conversationID,
+		UserID:         userID,
+		Content:        request.Content,
+		MessageType:    convertAPIMessageType(request.MessageType),
+	}
+
 	// Update the message
-	if err := h.messageModel.Update(ctx, &message); err != nil {
+	if err := h.messageModel.Update(ctx, message); err != nil {
 		if errors.Is(err, models.ErrMessageNotFound) {
 			respondWithError(w, "Message not found", http.StatusNotFound)
 			return
@@ -348,16 +385,14 @@ func (h *MessageHandler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, updatedMessage)
+	// Convert to API model
+	response := convertMessageToAPI(updatedMessage)
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // DeleteMessage handles DELETE /api/users/{userID}/conversations/{conversationID}/messages/{messageID}
 func (h *MessageHandler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("DeleteMessage request received") //! Logging the request.
-	if r.Method != http.MethodDelete {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("DeleteMessage request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {

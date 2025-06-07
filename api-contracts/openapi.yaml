@@ -40,22 +40,6 @@ tags:
 paths:
   # User endpoints
   /users:
-    get:
-      summary: List all users
-      description: Retrieve a list of all users in the system
-      operationId: listUsers
-      tags: [Users]
-      responses:
-        '200':
-          description: List of users retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     post:
       summary: Create a new user
       description: Create a new user account
@@ -66,60 +50,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserRequest'
+              $ref: './components/schemas/user.yaml#/components/schemas/CreateUserRequest'
       responses:
         '201':
           description: User created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateUserResponse'
+                $ref: './components/schemas/user.yaml#/components/schemas/CreateUserResponse'
         '200':
           description: User already exists
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: './components/schemas/user.yaml#/components/schemas/User'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
         '409':
-          $ref: '#/components/responses/Conflict'
+          $ref: './components/responses/errors.yaml#/components/responses/Conflict'
         '500':
-          $ref: '#/components/responses/InternalServerError'
-
-  /users/{userId}:
-    get:
-      summary: Get user by ID
-      description: Retrieve a specific user by their ID
-      operationId: getUserById
-      tags: [Users]
-      parameters:
-        - $ref: '#/components/parameters/UserIdPath'
-      responses:
-        '200':
-          description: User details retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    delete:
-      summary: Delete user
-      description: Delete a user and all associated data
-      operationId: deleteUser
-      tags: [Users]
-      parameters:
-        - $ref: '#/components/parameters/UserIdPath'
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
   /users/email/{email}:
     get:
@@ -128,18 +78,18 @@ paths:
       operationId: getUserByEmail
       tags: [Users]
       parameters:
-        - $ref: '#/components/parameters/EmailPath'
+        - $ref: './components/parameters/common.yaml#/EmailPath'
       responses:
         '200':
           description: User details retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: './components/schemas/user.yaml#/components/schemas/User'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
   # Workout endpoints
   /users/{userId}/workouts:
@@ -149,51 +99,49 @@ paths:
       operationId: listWorkouts
       tags: [Workouts]
       parameters:
-        - $ref: '#/components/parameters/UserIdPath'
-        - $ref: '#/components/parameters/YearQuery'
-        - $ref: '#/components/parameters/MonthQuery'
-        - $ref: '#/components/parameters/DayQuery'
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
+        - $ref: './components/parameters/common.yaml#/YearQuery'
+        - $ref: './components/parameters/common.yaml#/MonthQuery'
+        - $ref: './components/parameters/common.yaml#/DayQuery'
       responses:
         '200':
           description: List of workouts retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Workout'
+                $ref: './components/schemas/workout.yaml#/components/schemas/ListWorkoutsResponse'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     post:
       summary: Create a new workout
       description: Create a new workout session for a user
       operationId: createWorkout
       tags: [Workouts]
       parameters:
-        - $ref: '#/components/parameters/UserIdPath'
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateWorkoutRequest'
+              $ref: './components/schemas/workout.yaml#/components/schemas/CreateWorkoutRequest'
       responses:
         '201':
           description: Workout created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateWorkoutResponse'
+                $ref: './components/schemas/workout.yaml#/components/schemas/CreateWorkoutResponse'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
   /workouts/{workoutId}:
     get:
@@ -202,58 +150,58 @@ paths:
       operationId: getWorkoutById
       tags: [Workouts]
       parameters:
-        - $ref: '#/components/parameters/WorkoutIdPath'
+        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
       responses:
         '200':
           description: Workout details retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Workout'
+                $ref: './components/schemas/workout.yaml#/components/schemas/Workout'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     put:
       summary: Update workout
       description: Update an existing workout
       operationId: updateWorkout
       tags: [Workouts]
       parameters:
-        - $ref: '#/components/parameters/WorkoutIdPath'
+        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateWorkoutRequest'
+              $ref: './components/schemas/workout.yaml#/components/schemas/UpdateWorkoutRequest'
       responses:
         '200':
           description: Workout updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Workout'
+                $ref: './components/schemas/workout.yaml#/components/schemas/Workout'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     delete:
       summary: Delete workout
       description: Delete a workout and all associated exercises
       operationId: deleteWorkout
       tags: [Workouts]
       parameters:
-        - $ref: '#/components/parameters/WorkoutIdPath'
+        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
       responses:
         '204':
-          $ref: '#/components/responses/NoContent'
+          $ref: './components/responses/errors.yaml#/components/responses/NoContent'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
   # Exercise endpoints
   /workouts/{workoutId}/exercises:
@@ -263,46 +211,42 @@ paths:
       operationId: listExercises
       tags: [Exercises]
       parameters:
-        - $ref: '#/components/parameters/WorkoutIdPath'
+        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
       responses:
         '200':
           description: List of exercises retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Exercise'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: './components/schemas/exercise.yaml#/components/schemas/ListExercisesResponse'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     post:
       summary: Create a new exercise
       description: Add a new exercise to a workout (cardio or weight training)
       operationId: createExercise
       tags: [Exercises]
       parameters:
-        - $ref: '#/components/parameters/WorkoutIdPath'
+        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExerciseRequest'
+              $ref: './components/schemas/exercise.yaml#/components/schemas/CreateExerciseRequest'
       responses:
         '201':
           description: Exercise created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateExerciseResponse'
+                $ref: './components/schemas/exercise.yaml#/components/schemas/Exercise'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
   /exercises/{exerciseId}:
     get:
@@ -311,58 +255,58 @@ paths:
       operationId: getExerciseById
       tags: [Exercises]
       parameters:
-        - $ref: '#/components/parameters/ExerciseIdPath'
+        - $ref: './components/parameters/common.yaml#/ExerciseIdPath'
       responses:
         '200':
           description: Exercise details retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Exercise'
+                $ref: './components/schemas/exercise.yaml#/components/schemas/Exercise'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     put:
       summary: Update exercise
       description: Update an existing exercise
       operationId: updateExercise
       tags: [Exercises]
       parameters:
-        - $ref: '#/components/parameters/ExerciseIdPath'
+        - $ref: './components/parameters/common.yaml#/ExerciseIdPath'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateExerciseRequest'
+              $ref: './components/schemas/exercise.yaml#/components/schemas/CreateExerciseRequest'
       responses:
         '200':
           description: Exercise updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Exercise'
+                $ref: './components/schemas/exercise.yaml#/components/schemas/Exercise'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     delete:
       summary: Delete exercise
       description: Delete an exercise from a workout
       operationId: deleteExercise
       tags: [Exercises]
       parameters:
-        - $ref: '#/components/parameters/ExerciseIdPath'
+        - $ref: './components/parameters/common.yaml#/ExerciseIdPath'
       responses:
         '204':
-          $ref: '#/components/responses/NoContent'
+          $ref: './components/responses/errors.yaml#/components/responses/NoContent'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
   # Conversation endpoints
   /users/{userId}/conversations:
@@ -372,46 +316,42 @@ paths:
       operationId: listConversations
       tags: [Conversations]
       parameters:
-        - $ref: '#/components/parameters/UserIdPath'
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
       responses:
         '200':
           description: List of conversations retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Conversation'
+                $ref: './components/schemas/conversation.yaml#/components/schemas/ListConversationsResponse'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     post:
       summary: Create a new conversation
       description: Start a new conversation with the AI assistant
       operationId: createConversation
       tags: [Conversations]
       parameters:
-        - $ref: '#/components/parameters/UserIdPath'
+        - $ref: './components/parameters/common.yaml#/UserIdPath'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateConversationRequest'
+              $ref: './components/schemas/conversation.yaml#/components/schemas/CreateConversationRequest'
       responses:
         '201':
           description: Conversation created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateConversationResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: './components/schemas/conversation.yaml#/components/schemas/CreateConversationResponse'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
   /conversations/{conversationId}:
     get:
@@ -420,32 +360,68 @@ paths:
       operationId: getConversationById
       tags: [Conversations]
       parameters:
-        - $ref: '#/components/parameters/ConversationIdPath'
+        - $ref: './components/parameters/common.yaml#/ConversationIdPath'
       responses:
         '200':
           description: Conversation details retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Conversation'
+                $ref: './components/schemas/conversation.yaml#/components/schemas/Conversation'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
+    put:
+      summary: Update conversation
+      description: Update an existing conversation
+      operationId: updateConversation
+      tags: [Conversations]
+      parameters:
+        - $ref: './components/parameters/common.yaml#/ConversationIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/conversation.yaml#/components/schemas/UpdateConversationRequest'
+      responses:
+        '200':
+          description: Conversation updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/conversation.yaml#/components/schemas/Conversation'
+        '400':
+          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
+        '404':
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
+        '500':
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     delete:
       summary: Delete conversation
       description: Delete a conversation and all associated messages
       operationId: deleteConversation
       tags: [Conversations]
       parameters:
-        - $ref: '#/components/parameters/ConversationIdPath'
+        - $ref: './components/parameters/common.yaml#/ConversationIdPath'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/conversation.yaml#/components/schemas/DeleteConversationRequest'
       responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
+        '200':
+          description: Conversation deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/conversation.yaml#/components/schemas/DeleteConversationResponse'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
   # Message endpoints
   /conversations/{conversationId}/messages:
@@ -455,46 +431,57 @@ paths:
       operationId: listMessages
       tags: [Messages]
       parameters:
-        - $ref: '#/components/parameters/ConversationIdPath'
+        - $ref: './components/parameters/common.yaml#/ConversationIdPath'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
       responses:
         '200':
           description: List of messages retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Message'
+                $ref: './components/schemas/message.yaml#/components/schemas/ListMessagesResponse'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     post:
       summary: Create a new message
       description: Send a new message in a conversation
       operationId: createMessage
       tags: [Messages]
       parameters:
-        - $ref: '#/components/parameters/ConversationIdPath'
+        - $ref: './components/parameters/common.yaml#/ConversationIdPath'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateMessageRequest'
+              $ref: './components/schemas/message.yaml#/components/schemas/CreateMessageRequest'
       responses:
         '201':
           description: Message created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateMessageResponse'
+                $ref: './components/schemas/message.yaml#/components/schemas/Message'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
   /messages/{messageId}:
     get:
@@ -503,90 +490,100 @@ paths:
       operationId: getMessageById
       tags: [Messages]
       parameters:
-        - $ref: '#/components/parameters/MessageIdPath'
+        - $ref: './components/parameters/common.yaml#/MessageIdPath'
       responses:
         '200':
           description: Message details retrieved successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: './components/schemas/message.yaml#/components/schemas/Message'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     delete:
       summary: Delete message
       description: Delete a message from a conversation
       operationId: deleteMessage
       tags: [Messages]
       parameters:
-        - $ref: '#/components/parameters/MessageIdPath'
+        - $ref: './components/parameters/common.yaml#/MessageIdPath'
       responses:
         '204':
-          $ref: '#/components/responses/NoContent'
+          $ref: './components/responses/errors.yaml#/components/responses/NoContent'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
-          $ref: '#/components/responses/InternalServerError'
+          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
 components:
   schemas:
     # Import all schema components
     User:
-      $ref: './components/schemas/user.yaml#/schemas/User'
+      $ref: './components/schemas/user.yaml#/components/schemas/User'
     CreateUserRequest:
-      $ref: './components/schemas/user.yaml#/schemas/CreateUserRequest'
+      $ref: './components/schemas/user.yaml#/components/schemas/CreateUserRequest'
     CreateUserResponse:
-      $ref: './components/schemas/user.yaml#/schemas/CreateUserResponse'
+      $ref: './components/schemas/user.yaml#/components/schemas/CreateUserResponse'
 
     Workout:
-      $ref: './components/schemas/workout.yaml#/schemas/Workout'
+      $ref: './components/schemas/workout.yaml#/components/schemas/Workout'
     WorkoutListParams:
-      $ref: './components/schemas/workout.yaml#/schemas/WorkoutListParams'
+      $ref: './components/schemas/workout.yaml#/components/schemas/WorkoutListParams'
     CreateWorkoutRequest:
-      $ref: './components/schemas/workout.yaml#/schemas/CreateWorkoutRequest'
+      $ref: './components/schemas/workout.yaml#/components/schemas/CreateWorkoutRequest'
     UpdateWorkoutRequest:
-      $ref: './components/schemas/workout.yaml#/schemas/UpdateWorkoutRequest'
+      $ref: './components/schemas/workout.yaml#/components/schemas/UpdateWorkoutRequest'
     CreateWorkoutResponse:
-      $ref: './components/schemas/workout.yaml#/schemas/CreateWorkoutResponse'
+      $ref: './components/schemas/workout.yaml#/components/schemas/CreateWorkoutResponse'
+    ListWorkoutsResponse:
+      $ref: './components/schemas/workout.yaml#/components/schemas/ListWorkoutsResponse'
 
     ExerciseType:
-      $ref: './components/schemas/exercise.yaml#/schemas/ExerciseType'
+      $ref: './components/schemas/exercise.yaml#/components/schemas/ExerciseType'
     BaseExercise:
-      $ref: './components/schemas/exercise.yaml#/schemas/BaseExercise'
+      $ref: './components/schemas/exercise.yaml#/components/schemas/BaseExercise'
     CardioExercise:
-      $ref: './components/schemas/exercise.yaml#/schemas/CardioExercise'
+      $ref: './components/schemas/exercise.yaml#/components/schemas/CardioExercise'
     WeightExercise:
-      $ref: './components/schemas/exercise.yaml#/schemas/WeightExercise'
+      $ref: './components/schemas/exercise.yaml#/components/schemas/WeightExercise'
     Exercise:
-      $ref: './components/schemas/exercise.yaml#/schemas/Exercise'
+      $ref: './components/schemas/exercise.yaml#/components/schemas/Exercise'
     CreateCardioExerciseRequest:
-      $ref: './components/schemas/exercise.yaml#/schemas/CreateCardioExerciseRequest'
+      $ref: './components/schemas/exercise.yaml#/components/schemas/CreateCardioExerciseRequest'
     CreateWeightExerciseRequest:
-      $ref: './components/schemas/exercise.yaml#/schemas/CreateWeightExerciseRequest'
+      $ref: './components/schemas/exercise.yaml#/components/schemas/CreateWeightExerciseRequest'
     CreateExerciseRequest:
-      $ref: './components/schemas/exercise.yaml#/schemas/CreateExerciseRequest'
-    UpdateExerciseRequest:
-      $ref: './components/schemas/exercise.yaml#/schemas/UpdateExerciseRequest'
-    CreateExerciseResponse:
-      $ref: './components/schemas/exercise.yaml#/schemas/CreateExerciseResponse'
+      $ref: './components/schemas/exercise.yaml#/components/schemas/CreateExerciseRequest'
+    ListExercisesResponse:
+      $ref: './components/schemas/exercise.yaml#/components/schemas/ListExercisesResponse'
 
     Conversation:
-      $ref: './components/schemas/conversation.yaml#/schemas/Conversation'
+      $ref: './components/schemas/conversation.yaml#/components/schemas/Conversation'
     CreateConversationRequest:
-      $ref: './components/schemas/conversation.yaml#/schemas/CreateConversationRequest'
+      $ref: './components/schemas/conversation.yaml#/components/schemas/CreateConversationRequest'
     CreateConversationResponse:
-      $ref: './components/schemas/conversation.yaml#/schemas/CreateConversationResponse'
+      $ref: './components/schemas/conversation.yaml#/components/schemas/CreateConversationResponse'
+    UpdateConversationRequest:
+      $ref: './components/schemas/conversation.yaml#/components/schemas/UpdateConversationRequest'
+    ListConversationsResponse:
+      $ref: './components/schemas/conversation.yaml#/components/schemas/ListConversationsResponse'
+    DeleteConversationRequest:
+      $ref: './components/schemas/conversation.yaml#/components/schemas/DeleteConversationRequest'
+    DeleteConversationResponse:
+      $ref: './components/schemas/conversation.yaml#/components/schemas/DeleteConversationResponse'
 
     MessageType:
-      $ref: './components/schemas/message.yaml#/schemas/MessageType'
+      $ref: './components/schemas/message.yaml#/components/schemas/MessageType'
     Message:
-      $ref: './components/schemas/message.yaml#/schemas/Message'
+      $ref: './components/schemas/message.yaml#/components/schemas/Message'
     CreateMessageRequest:
-      $ref: './components/schemas/message.yaml#/schemas/CreateMessageRequest'
-    CreateMessageResponse:
-      $ref: './components/schemas/message.yaml#/schemas/CreateMessageResponse'
+      $ref: './components/schemas/message.yaml#/components/schemas/CreateMessageRequest'
+    ListMessagesRequest:
+      $ref: './components/schemas/message.yaml#/components/schemas/ListMessagesRequest'
+    ListMessagesResponse:
+      $ref: './components/schemas/message.yaml#/components/schemas/ListMessagesResponse'
 
     Error:
       $ref: './components/responses/errors.yaml#/components/schemas/Error'

@@ -17,60 +17,59 @@ import (
 	"fmt"
 )
 
-// checks if the CreateUserRequest type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &CreateUserRequest{}
+// checks if the ListExercisesResponse type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &ListExercisesResponse{}
 
-// CreateUserRequest Payload to create a new user.
-type CreateUserRequest struct {
-	// User's email address obtained from Google Auth.
-	Email string `json:"email"`
+// ListExercisesResponse A list of exercises
+type ListExercisesResponse struct {
+	Exercises []Exercise `json:"exercises"`
 }
 
-type _CreateUserRequest CreateUserRequest
+type _ListExercisesResponse ListExercisesResponse
 
-// NewCreateUserRequest instantiates a new CreateUserRequest object
+// NewListExercisesResponse instantiates a new ListExercisesResponse object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateUserRequest(email string) *CreateUserRequest {
-	this := CreateUserRequest{}
-	this.Email = email
+func NewListExercisesResponse(exercises []Exercise) *ListExercisesResponse {
+	this := ListExercisesResponse{}
+	this.Exercises = exercises
 	return &this
 }
 
-// NewCreateUserRequestWithDefaults instantiates a new CreateUserRequest object
+// NewListExercisesResponseWithDefaults instantiates a new ListExercisesResponse object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewCreateUserRequestWithDefaults() *CreateUserRequest {
-	this := CreateUserRequest{}
+func NewListExercisesResponseWithDefaults() *ListExercisesResponse {
+	this := ListExercisesResponse{}
 	return &this
 }
 
-// GetEmail returns the Email field value
-func (o *CreateUserRequest) GetEmail() string {
+// GetExercises returns the Exercises field value
+func (o *ListExercisesResponse) GetExercises() []Exercise {
 	if o == nil {
-		var ret string
+		var ret []Exercise
 		return ret
 	}
 
-	return o.Email
+	return o.Exercises
 }
 
-// GetEmailOk returns a tuple with the Email field value
+// GetExercisesOk returns a tuple with the Exercises field value
 // and a boolean to check if the value has been set.
-func (o *CreateUserRequest) GetEmailOk() (*string, bool) {
+func (o *ListExercisesResponse) GetExercisesOk() ([]Exercise, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.Email, true
+	return o.Exercises, true
 }
 
-// SetEmail sets field value
-func (o *CreateUserRequest) SetEmail(v string) {
-	o.Email = v
+// SetExercises sets field value
+func (o *ListExercisesResponse) SetExercises(v []Exercise) {
+	o.Exercises = v
 }
 
-func (o CreateUserRequest) MarshalJSON() ([]byte, error) {
+func (o ListExercisesResponse) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -78,18 +77,18 @@ func (o CreateUserRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o CreateUserRequest) ToMap() (map[string]interface{}, error) {
+func (o ListExercisesResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["email"] = o.Email
+	toSerialize["exercises"] = o.Exercises
 	return toSerialize, nil
 }
 
-func (o *CreateUserRequest) UnmarshalJSON(data []byte) (err error) {
+func (o *ListExercisesResponse) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"email",
+		"exercises",
 	}
 
 	allProperties := make(map[string]interface{})
@@ -106,53 +105,53 @@ func (o *CreateUserRequest) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	varCreateUserRequest := _CreateUserRequest{}
+	varListExercisesResponse := _ListExercisesResponse{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
 	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varCreateUserRequest)
+	err = decoder.Decode(&varListExercisesResponse)
 
 	if err != nil {
 		return err
 	}
 
-	*o = CreateUserRequest(varCreateUserRequest)
+	*o = ListExercisesResponse(varListExercisesResponse)
 
 	return err
 }
 
-type NullableCreateUserRequest struct {
-	value *CreateUserRequest
+type NullableListExercisesResponse struct {
+	value *ListExercisesResponse
 	isSet bool
 }
 
-func (v NullableCreateUserRequest) Get() *CreateUserRequest {
+func (v NullableListExercisesResponse) Get() *ListExercisesResponse {
 	return v.value
 }
 
-func (v *NullableCreateUserRequest) Set(val *CreateUserRequest) {
+func (v *NullableListExercisesResponse) Set(val *ListExercisesResponse) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableCreateUserRequest) IsSet() bool {
+func (v NullableListExercisesResponse) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableCreateUserRequest) Unset() {
+func (v *NullableListExercisesResponse) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableCreateUserRequest(val *CreateUserRequest) *NullableCreateUserRequest {
-	return &NullableCreateUserRequest{value: val, isSet: true}
+func NewNullableListExercisesResponse(val *ListExercisesResponse) *NullableListExercisesResponse {
+	return &NullableListExercisesResponse{value: val, isSet: true}
 }
 
-func (v NullableCreateUserRequest) MarshalJSON() ([]byte, error) {
+func (v NullableListExercisesResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableCreateUserRequest) UnmarshalJSON(src []byte) error {
+func (v *NullableListExercisesResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

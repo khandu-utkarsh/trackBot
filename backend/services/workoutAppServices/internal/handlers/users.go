@@ -4,15 +4,15 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	api_models "workout_app_backend/internal/generated"
 	models "workout_app_backend/internal/models"
+
+	"github.com/go-chi/chi/v5"
 )
 
-//!Functions needed
-//ListUsers
+//!Functions implemented (per OpenAPI spec)
 //CreateUser
-//GetUser
-//UpdateUser
-//DeleteUser
+//GetUserByEmail
 
 // UserHandler handles HTTP requests related to users.
 type UserHandler struct {
@@ -24,25 +24,6 @@ func GetUserHandlerInstance(userModel *models.UserModel) *UserHandler {
 	return &UserHandler{userModel: userModel}
 }
 
-// ListUsers handles GET /api/users
-func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
-	logRequest("ListUsers")
-
-	if err := validateHTTPMethod(r, http.MethodGet); err != nil {
-		handleHTTPError(w, err)
-		return
-	}
-
-	ctx := r.Context()
-	users, err := h.userModel.List(ctx)
-	if err != nil {
-		respondWithError(w, "Failed to list users", http.StatusInternalServerError)
-		return
-	}
-
-	respondWithJSON(w, http.StatusOK, users)
-}
-
 // CreateUser handles POST /api/users
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	logRequest("CreateUser")
@@ -52,55 +33,78 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	if err := decodeJSONBody(r, &user); err != nil {
+	// 1. Parse request using generated API model
+	var createUserReq api_models.CreateUserRequest
+	if err := decodeJSONBody(r, &createUserReq); err != nil {
 		handleHTTPError(w, err)
 		return
 	}
 
-	if err := validateUserInput(&user); err != nil {
+	// 2. Convert API model to internal domain model
+	user := &models.User{
+		Email: createUserReq.Email,
+	}
+
+	// 3. Validate using internal model
+	if err := validateUserInput(user); err != nil {
 		respondWithError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	// 4. Business logic using internal models
 	ctx := r.Context()
-	id, err := h.userModel.Create(ctx, &user)
+	id, err := h.userModel.Create(ctx, user)
 	if err != nil {
 		if errors.Is(err, models.ErrDuplicateEmail) {
-			respondWithError(w, "Email already exists", http.StatusConflict)
+			// Get existing user and return 200 (as per OpenAPI spec)
+			existingUser, getErr := h.userModel.GetByEmail(ctx, createUserReq.Email)
+			if getErr != nil {
+				respondWithError(w, "Failed to get existing user", http.StatusInternalServerError)
+				return
+			}
+
+			// Convert to full User schema for 200 response
+			userResponse := &api_models.User{
+				Id:    existingUser.ID,
+				Email: existingUser.Email,
+			}
+			userResponse.SetCreatedAt(existingUser.CreatedAt)
+
+			respondWithJSON(w, http.StatusOK, userResponse)
 			return
 		}
 		respondWithError(w, "Failed to create user", http.StatusInternalServerError)
 		return
 	}
 
-	// Get the created user to return complete data
-	createdUser, err := h.userModel.Get(ctx, id)
-	if err != nil {
-		respondWithError(w, "Failed to get created user", http.StatusInternalServerError)
-		return
+	// 5. Convert to API response model (201 Created)
+	response := &api_models.CreateUserResponse{
+		Id:    id,
+		Email: createUserReq.Email,
 	}
 
-	respondWithJSON(w, http.StatusCreated, createdUser)
+	// 6. Return API response
+	respondWithJSON(w, http.StatusCreated, response)
 }
 
-// GetUser handles GET /api/users/{userID}
-func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
-	logRequest("GetUser")
+func (h *UserHandler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
+	logRequest("GetUserByEmail")
 
 	if err := validateHTTPMethod(r, http.MethodGet); err != nil {
 		handleHTTPError(w, err)
 		return
 	}
 
-	userID, err := parseIDFromURL(r, "userID")
-	if err != nil {
-		handleHTTPError(w, err)
+	// Extract email from URL path parameter
+	email := chi.URLParam(r, "email")
+	if email == "" {
+		respondWithError(w, "Email parameter is required", http.StatusBadRequest)
 		return
 	}
 
+	// Get user from database
 	ctx := r.Context()
-	user, err := h.userModel.Get(ctx, userID)
+	user, err := h.userModel.GetByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, models.ErrUserNotFound) {
 			respondWithError(w, "User not found", http.StatusNotFound)
@@ -110,86 +114,14 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, user)
-}
-
-// UpdateUser handles PUT /api/users/{userID}
-func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	logRequest("UpdateUser")
-
-	if err := validateHTTPMethod(r, http.MethodPut); err != nil {
-		handleHTTPError(w, err)
-		return
+	// Convert to API response model
+	userResponse := &api_models.User{
+		Id:    user.ID,
+		Email: user.Email,
 	}
+	userResponse.SetCreatedAt(user.CreatedAt)
 
-	userID, err := parseIDFromURL(r, "userID")
-	if err != nil {
-		handleHTTPError(w, err)
-		return
-	}
-
-	var user models.User
-	if err := decodeJSONBody(r, &user); err != nil {
-		handleHTTPError(w, err)
-		return
-	}
-
-	if err := validateUserInput(&user); err != nil {
-		respondWithError(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	user.ID = userID
-	ctx := r.Context()
-	if err := h.userModel.Update(ctx, &user); err != nil {
-		if errors.Is(err, models.ErrUserNotFound) {
-			respondWithError(w, "User not found", http.StatusNotFound)
-			return
-		}
-		if errors.Is(err, models.ErrDuplicateEmail) {
-			respondWithError(w, "Email already exists", http.StatusConflict)
-			return
-		}
-		respondWithError(w, "Failed to update user", http.StatusInternalServerError)
-		return
-	}
-
-	// Get the updated user to return complete data
-	updatedUser, err := h.userModel.Get(ctx, userID)
-	if err != nil {
-		respondWithError(w, "Failed to get updated user", http.StatusInternalServerError)
-		return
-	}
-
-	respondWithJSON(w, http.StatusOK, updatedUser)
-}
-
-// DeleteUser handles DELETE /api/users/{userID}
-func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	logRequest("DeleteUser")
-
-	if err := validateHTTPMethod(r, http.MethodDelete); err != nil {
-		handleHTTPError(w, err)
-		return
-	}
-
-	userID, err := parseIDFromURL(r, "userID")
-	if err != nil {
-		handleHTTPError(w, err)
-		return
-	}
-
-	ctx := r.Context()
-	if err := h.userModel.Delete(ctx, userID); err != nil {
-		if errors.Is(err, models.ErrUserNotFound) {
-			respondWithError(w, "User not found", http.StatusNotFound)
-			return
-		}
-		respondWithError(w, "Failed to delete user", http.StatusInternalServerError)
-		return
-	}
-
-	respondWithJSON(w, http.StatusOK, map[string]int64{"deleted_id": userID})
+	respondWithJSON(w, http.StatusOK, userResponse)
 }
 
 // Helper functions

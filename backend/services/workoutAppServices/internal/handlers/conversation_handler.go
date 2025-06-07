@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	api_models "workout_app_backend/internal/generated"
 	models "workout_app_backend/internal/models"
 )
 
@@ -21,13 +23,27 @@ func NewConversationHandler(conversationModel *models.ConversationModel, userMod
 	}
 }
 
+// Domain to API model conversion functions
+func convertConversationToAPI(internal *models.Conversation) api_models.Conversation {
+	return api_models.Conversation{
+		Id:        internal.ID,
+		UserId:    internal.UserID,
+		Title:     internal.Title,
+		CreatedAt: internal.CreatedAt,
+	}
+}
+
+func convertConversationsToAPI(internals []*models.Conversation) []api_models.Conversation {
+	result := make([]api_models.Conversation, len(internals))
+	for i, internal := range internals {
+		result[i] = convertConversationToAPI(internal)
+	}
+	return result
+}
+
 // ListConversationsByUser handles GET /api/users/{userID}/conversations
 func (h *ConversationHandler) ListConversationsByUser(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("ListConversationsByUser request received") //! Logging the request.
-	if r.Method != http.MethodGet {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("ListConversationsByUser request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
@@ -55,16 +71,17 @@ func (h *ConversationHandler) ListConversationsByUser(w http.ResponseWriter, r *
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, conversations)
+	// Convert to API models and wrap in response
+	response := api_models.ListConversationsResponse{
+		Conversations: convertConversationsToAPI(conversations),
+	}
+
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // CreateConversation handles POST /api/users/{userID}/conversations
 func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("CreateConversation request received") //! Logging the request.
-	if r.Method != http.MethodPost {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("CreateConversation request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
@@ -72,17 +89,12 @@ func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var conversation models.Conversation
-	if err := json.NewDecoder(r.Body).Decode(&conversation); err != nil {
+	// Parse request body
+	var request api_models.CreateConversationRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		respondWithError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	// Set the user ID from the URL path
-	conversation.UserID = userID
-
-	// Set default values
-	conversation.IsActive = true
 
 	ctx := r.Context()
 
@@ -97,8 +109,15 @@ func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
+	// Convert API model to internal domain model
+	conversation := &models.Conversation{
+		UserID:   userID,
+		Title:    request.Title,
+		IsActive: true,
+	}
+
 	// Create the conversation
-	id, err := h.conversationModel.Create(ctx, &conversation)
+	id, err := h.conversationModel.Create(ctx, conversation)
 	if err != nil {
 		respondWithError(w, "Failed to create conversation", http.StatusInternalServerError)
 		return
@@ -111,16 +130,20 @@ func (h *ConversationHandler) CreateConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, createdConversation)
+	// Convert to API response model
+	response := api_models.CreateConversationResponse{
+		Id:        createdConversation.ID,
+		Title:     createdConversation.Title,
+		UserId:    createdConversation.UserID,
+		CreatedAt: createdConversation.CreatedAt,
+	}
+
+	respondWithJSON(w, http.StatusCreated, response)
 }
 
 // GetConversation handles GET /api/users/{userID}/conversations/{conversationID}
 func (h *ConversationHandler) GetConversation(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("GetConversation request received") //! Logging the request.
-	if r.Method != http.MethodGet {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("GetConversation request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
@@ -153,16 +176,14 @@ func (h *ConversationHandler) GetConversation(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, conversation)
+	// Convert to API model
+	response := convertConversationToAPI(conversation)
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // UpdateConversation handles PUT /api/users/{userID}/conversations/{conversationID}
 func (h *ConversationHandler) UpdateConversation(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("UpdateConversation request received") //! Logging the request.
-	if r.Method != http.MethodPut {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("UpdateConversation request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
@@ -176,15 +197,12 @@ func (h *ConversationHandler) UpdateConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var conversation models.Conversation
-	if err := json.NewDecoder(r.Body).Decode(&conversation); err != nil {
+	// Parse request body
+	var request api_models.UpdateConversationRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		respondWithError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	// Set the IDs from the URL path
-	conversation.ID = conversationID
-	conversation.UserID = userID
 
 	ctx := r.Context()
 
@@ -204,8 +222,21 @@ func (h *ConversationHandler) UpdateConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
+	// Convert API model to internal domain model
+	title := existingConversation.Title // Keep existing title if not provided
+	if request.Title != nil {
+		title = *request.Title
+	}
+
+	conversation := &models.Conversation{
+		ID:       conversationID,
+		UserID:   userID,
+		Title:    title,
+		IsActive: existingConversation.IsActive, // Keep existing IsActive status
+	}
+
 	// Update the conversation
-	if err := h.conversationModel.Update(ctx, &conversation); err != nil {
+	if err := h.conversationModel.Update(ctx, conversation); err != nil {
 		if errors.Is(err, models.ErrConversationNotFound) {
 			respondWithError(w, "Conversation not found", http.StatusNotFound)
 			return
@@ -221,16 +252,14 @@ func (h *ConversationHandler) UpdateConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, updatedConversation)
+	// Convert to API model
+	response := convertConversationToAPI(updatedConversation)
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // DeleteConversation handles DELETE /api/users/{userID}/conversations/{conversationID}
 func (h *ConversationHandler) DeleteConversation(w http.ResponseWriter, r *http.Request) {
-	handlerLogger.Println("DeleteConversation request received") //! Logging the request.
-	if r.Method != http.MethodDelete {
-		respondWithError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	handlerLogger.Println("DeleteConversation request received")
 
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
@@ -242,6 +271,12 @@ func (h *ConversationHandler) DeleteConversation(w http.ResponseWriter, r *http.
 	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
+	}
+
+	// Parse optional request body for confirmation
+	var request api_models.DeleteConversationRequest
+	if r.Body != nil {
+		json.NewDecoder(r.Body).Decode(&request) // Ignore errors for optional body
 	}
 
 	ctx := r.Context()
@@ -272,5 +307,13 @@ func (h *ConversationHandler) DeleteConversation(w http.ResponseWriter, r *http.
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, map[string]int64{"deleted_id": conversationID})
+	// Return proper delete response
+	response := api_models.DeleteConversationResponse{
+		Id:                   conversation.ID,
+		Title:                conversation.Title,
+		DeletedAt:            conversation.CreatedAt, // Using CreatedAt as placeholder - should be actual deletion time
+		MessagesDeletedCount: 0,                      // Would need to count messages or get from delete result
+	}
+
+	respondWithJSON(w, http.StatusOK, response)
 }

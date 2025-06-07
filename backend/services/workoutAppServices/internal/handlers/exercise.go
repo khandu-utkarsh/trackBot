@@ -5,18 +5,12 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+
+	api_models "workout_app_backend/internal/generated"
 	models "workout_app_backend/internal/models"
 
 	"github.com/go-chi/chi/v5"
-	// Needed for URL params
 )
-
-//!Functions needed
-//CreateExercise
-//GetExercise
-//ListExercisesByWorkout
-//UpdateExercise
-//DeleteExercise
 
 type ExerciseHandler struct {
 	exerciseModel *models.ExerciseModel
@@ -25,6 +19,62 @@ type ExerciseHandler struct {
 
 func GetExerciseHandlerInstance(exerciseModel *models.ExerciseModel, workoutModel *models.WorkoutModel) *ExerciseHandler {
 	return &ExerciseHandler{exerciseModel: exerciseModel, workoutModel: workoutModel}
+}
+
+// Domain to API model conversion functions
+func convertCardioExerciseToAPI(internal *models.CardioExercise) api_models.CardioExercise {
+	apiExercise := api_models.CardioExercise{
+		Id:        internal.ID,
+		WorkoutId: internal.WorkoutID,
+		Name:      internal.Name,
+		Type:      string(internal.Type),
+		CreatedAt: internal.CreatedAt,
+		Distance:  float32(internal.Distance),
+		Duration:  int32(internal.Duration),
+	}
+	if internal.Notes != "" {
+		apiExercise.Notes = &internal.Notes
+	}
+	return apiExercise
+}
+
+func convertWeightExerciseToAPI(internal *models.WeightExercise) api_models.WeightExercise {
+	apiExercise := api_models.WeightExercise{
+		Id:        internal.ID,
+		WorkoutId: internal.WorkoutID,
+		Name:      internal.Name,
+		Type:      string(internal.Type),
+		CreatedAt: internal.CreatedAt,
+		Sets:      int32(internal.Sets),
+		Reps:      int32(internal.Reps),
+		Weight:    float32(internal.Weight),
+	}
+	if internal.Notes != "" {
+		apiExercise.Notes = &internal.Notes
+	}
+	return apiExercise
+}
+
+func convertExerciseToAPI(internal interface{}) api_models.Exercise {
+	switch exercise := internal.(type) {
+	case *models.CardioExercise:
+		cardioAPI := convertCardioExerciseToAPI(exercise)
+		return api_models.CardioExerciseAsExercise(&cardioAPI)
+	case *models.WeightExercise:
+		weightAPI := convertWeightExerciseToAPI(exercise)
+		return api_models.WeightExerciseAsExercise(&weightAPI)
+	default:
+		// Return empty exercise - should not happen in practice
+		return api_models.Exercise{}
+	}
+}
+
+func convertExercisesToAPI(internals []interface{}) []api_models.Exercise {
+	result := make([]api_models.Exercise, len(internals))
+	for i, internal := range internals {
+		result[i] = convertExerciseToAPI(internal)
+	}
+	return result
 }
 
 // CreateExercise handles POST /api/users/{userID}/workouts/{workoutID}/exercises
@@ -83,38 +133,73 @@ func (h *ExerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request)
 	var id int64
 	switch exerciseType {
 	case "cardio":
-		handlerLogger.Println("Creating Cardio Exercise") //! Logging the request.
-		var cardioExercise models.CardioExercise
-		// Convert the map back to JSON and then decode into CardioExercise
+		handlerLogger.Println("Creating Cardio Exercise")
+		var request api_models.CreateCardioExerciseRequest
 		jsonData, err := json.Marshal(exerciseData)
 		if err != nil {
 			respondWithError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
-		if err := json.Unmarshal(jsonData, &cardioExercise); err != nil {
+		if err := json.Unmarshal(jsonData, &request); err != nil {
 			respondWithError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
-		cardioExercise.WorkoutID = workoutID
-		id, _ = h.exerciseModel.CreateCardio(ctx, &cardioExercise)
+
+		// Convert to internal domain model
+		cardioExercise := &models.CardioExercise{
+			BaseExercise: models.BaseExercise{
+				WorkoutID: workoutID,
+				Name:      request.Name,
+				Type:      models.ExerciseTypeCardio,
+			},
+			Distance: float64(request.Distance),
+			Duration: int(request.Duration),
+		}
+		if request.Notes != nil {
+			cardioExercise.Notes = *request.Notes
+		}
+
+		id, err = h.exerciseModel.CreateCardio(ctx, cardioExercise)
+		if err != nil {
+			respondWithError(w, "Failed to create cardio exercise", http.StatusInternalServerError)
+			return
+		}
 	case "weights":
-		handlerLogger.Println("Creating Weight Exercise") //! Logging the request.
-		var weightExercise models.WeightExercise
-		// Convert the map back to JSON and then decode into WeightExercise
+		handlerLogger.Println("Creating Weight Exercise")
+		var request api_models.CreateWeightExerciseRequest
 		jsonData, err := json.Marshal(exerciseData)
 		if err != nil {
 			respondWithError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
-		if err := json.Unmarshal(jsonData, &weightExercise); err != nil {
+		if err := json.Unmarshal(jsonData, &request); err != nil {
 			respondWithError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
-		weightExercise.WorkoutID = workoutID
-		id, _ = h.exerciseModel.CreateWeights(ctx, &weightExercise)
+
+		// Convert to internal domain model
+		weightExercise := &models.WeightExercise{
+			BaseExercise: models.BaseExercise{
+				WorkoutID: workoutID,
+				Name:      request.Name,
+				Type:      models.ExerciseTypeWeights,
+			},
+			Sets:   int(request.Sets),
+			Reps:   int(request.Reps),
+			Weight: float64(request.Weight),
+		}
+		if request.Notes != nil {
+			weightExercise.Notes = *request.Notes
+		}
+
+		id, err = h.exerciseModel.CreateWeights(ctx, weightExercise)
+		if err != nil {
+			respondWithError(w, "Failed to create weight exercise", http.StatusInternalServerError)
+			return
+		}
 
 	default:
-		handlerLogger.Println("Invalid exercise type: ", exerciseType) //! Logging the request.
+		handlerLogger.Println("Invalid exercise type: ", exerciseType)
 		respondWithError(w, "Invalid exercise type", http.StatusBadRequest)
 		return
 	}
@@ -126,7 +211,9 @@ func (h *ExerciseHandler) CreateExercise(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, createdExercise)
+	// Convert to API model
+	response := convertExerciseToAPI(createdExercise)
+	respondWithJSON(w, http.StatusCreated, response)
 }
 
 // GetExercise handles GET /api/users/{userID}/workouts/{workoutID}/exercises/{exerciseID}
@@ -185,7 +272,9 @@ func (h *ExerciseHandler) GetExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, exercise)
+	// Convert to API model
+	response := convertExerciseToAPI(exercise)
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // ListExercisesByWorkout handles GET /api/users/{userID}/workouts/{workoutID}/exercises
@@ -233,7 +322,12 @@ func (h *ExerciseHandler) ListExercisesByWorkout(w http.ResponseWriter, r *http.
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, exercises)
+	// Convert to API models and wrap in response
+	response := api_models.ListExercisesResponse{
+		Exercises: convertExercisesToAPI(exercises),
+	}
+
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // UpdateExercise handles PUT /api/users/{userID}/workouts/{workoutID}/exercises/{exerciseID}
@@ -296,31 +390,60 @@ func (h *ExerciseHandler) UpdateExercise(w http.ResponseWriter, r *http.Request)
 	// Update based on exercise type
 	switch existingExercise.(type) {
 	case *models.CardioExercise:
-		var cardioExercise models.CardioExercise
-		decoder := json.NewDecoder(r.Body)
-		decoder.DisallowUnknownFields()
-		if err := decoder.Decode(&cardioExercise); err != nil {
+		var request api_models.CardioExercise
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 			respondWithError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
-		cardioExercise.ID = exerciseID
-		cardioExercise.WorkoutID = workoutID
-		if err := h.exerciseModel.UpdateCardio(ctx, &cardioExercise); err != nil {
+
+		// Convert to internal domain model
+		cardioExercise := &models.CardioExercise{
+			BaseExercise: models.BaseExercise{
+				ID:        exerciseID,
+				WorkoutID: workoutID,
+				Name:      request.Name,
+				Type:      models.ExerciseTypeCardio,
+			},
+			Distance: float64(request.Distance),
+			Duration: int(request.Duration),
+		}
+		if request.Notes != nil {
+			cardioExercise.Notes = *request.Notes
+		}
+
+		if err := h.exerciseModel.UpdateCardio(ctx, cardioExercise); err != nil {
 			respondWithError(w, "Failed to update exercise", http.StatusInternalServerError)
 			return
 		}
+
 	case *models.WeightExercise:
-		var weightExercise models.WeightExercise
-		if err := json.NewDecoder(r.Body).Decode(&weightExercise); err != nil {
+		var request api_models.WeightExercise
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 			respondWithError(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
-		weightExercise.ID = exerciseID
-		weightExercise.WorkoutID = workoutID
-		if err := h.exerciseModel.UpdateWeights(ctx, &weightExercise); err != nil {
+
+		// Convert to internal domain model
+		weightExercise := &models.WeightExercise{
+			BaseExercise: models.BaseExercise{
+				ID:        exerciseID,
+				WorkoutID: workoutID,
+				Name:      request.Name,
+				Type:      models.ExerciseTypeWeights,
+			},
+			Sets:   int(request.Sets),
+			Reps:   int(request.Reps),
+			Weight: float64(request.Weight),
+		}
+		if request.Notes != nil {
+			weightExercise.Notes = *request.Notes
+		}
+
+		if err := h.exerciseModel.UpdateWeights(ctx, weightExercise); err != nil {
 			respondWithError(w, "Failed to update exercise", http.StatusInternalServerError)
 			return
 		}
+
 	default:
 		respondWithError(w, "Invalid exercise type", http.StatusBadRequest)
 		return
@@ -333,7 +456,9 @@ func (h *ExerciseHandler) UpdateExercise(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, updatedExercise)
+	// Convert to API model
+	response := convertExerciseToAPI(updatedExercise)
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // DeleteExercise handles DELETE /api/users/{userID}/workouts/{workoutID}/exercises/{exerciseID}

@@ -1,203 +1,201 @@
-schemas:
-  ExerciseType:
-    type: string
-    enum:
-      - cardio
-      - weights
-    description: Type of exercise
+components:
+  schemas:
+    ExerciseType:
+      type: string
+      enum:
+        - cardio
+        - weights
+      description: Type of exercise
 
-  BaseExercise:
-    type: object
-    required:
-      - id
-      - workout_id
-      - name
-      - type
-      - created_at
-    properties:
-      id:
-        type: integer
-        format: int64
-        description: Unique identifier for the exercise. Created by the database.
-        example: 1
-      workout_id:
-        type: integer
-        format: int64
-        description: ID of the workout this exercise belongs to. Obtained from the workout table.
-        example: 1
-      name:
-        type: string
-        description: Name of the exercise
-        example: "Push-ups"
-      type:
-        $ref: '#/schemas/ExerciseType'
-      notes:
-        type: string
-        description: Additional notes about the exercise
-        example: "Focus on form"
-      created_at:
-        type: string
-        format: date-time
-        description: Timestamp when the exercise was created. Created by the database.
-        example: "2024-01-15T10:30:00Z"
+    BaseExercise:
+      type: object
+      required:
+        - id
+        - workout_id
+        - name
+        - type
+        - created_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the exercise.
+          example: 1
+          readOnly: true
+        workout_id:
+          type: integer
+          format: int64
+          description: ID of the workout this exercise belongs to.
+          example: 1
+          readOnly: true
+        name:
+          type: string
+          description: Name of the exercise
+          example: "Push-ups"
+        type:
+          $ref: '#/components/schemas/ExerciseType'
+        notes:
+          type: string
+          description: Additional notes
+          example: "Focus on form"
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the exercise was created.
+          example: "2024-01-15T10:30:00Z"
+          readOnly: true
+      additionalProperties: false
 
-  CardioExercise:
-    allOf:
-      - $ref: '#/schemas/BaseExercise'
-      - type: object
-        required:
-          - distance
-          - duration
-        properties:
-          type:
-            type: string
-            enum: [cardio]
-          distance:
-            type: number
-            format: float
-            minimum: 0
-            description: Distance covered in meters
-            example: 5000.0
-          duration:
-            type: integer
-            minimum: 1
-            description: Duration in seconds
-            example: 1800
+    CardioExercise:
+      allOf:
+        - $ref: '#/components/schemas/BaseExercise'
+        - type: object
+          required:
+            - distance
+            - duration
+          properties:
+            type:
+              type: string
+              enum: [cardio]
+            distance:
+              type: number
+              format: float
+              minimum: 0
+              description: Distance in meters
+              example: 5000.0
+            duration:
+              type: integer
+              minimum: 1
+              description: Duration in seconds
+              example: 1800
 
-  WeightExercise:
-    allOf:
-      - $ref: '#/schemas/BaseExercise'
-      - type: object
-        required:
-          - sets
-          - reps
-          - weight
-        properties:
-          type:
-            type: string
-            enum: [weights]
-          sets:
-            type: integer
-            minimum: 1
-            description: Number of sets
-            example: 3
-          reps:
-            type: integer
-            minimum: 1
-            description: Number of repetitions per set
-            example: 12
-          weight:
-            type: number
-            format: float
-            minimum: 0
-            description: Weight in kilograms
-            example: 25.5
+    WeightExercise:
+      allOf:
+        - $ref: '#/components/schemas/BaseExercise'
+        - type: object
+          required:
+            - sets
+            - reps
+            - weight
+          properties:
+            type:
+              type: string
+              enum: [weights]
+            sets:
+              type: integer
+              minimum: 1
+              description: Number of sets
+              example: 3
+            reps:
+              type: integer
+              minimum: 1
+              description: Repetitions per set
+              example: 12
+            weight:
+              type: number
+              format: float
+              minimum: 0
+              description: Weight in kilograms
+              example: 25.5
 
-  Exercise:
-    oneOf:
-      - $ref: '#/schemas/CardioExercise'
-      - $ref: '#/schemas/WeightExercise'
-    discriminator:
-      propertyName: type
-      mapping:
-        cardio: '#/schemas/CardioExercise'
-        weights: '#/schemas/WeightExercise'
+    Exercise:
+      oneOf:
+        - $ref: '#/components/schemas/CardioExercise'
+        - $ref: '#/components/schemas/WeightExercise'
+      discriminator:
+        propertyName: type
+        mapping:
+          cardio: '#/components/schemas/CardioExercise'
+          weights: '#/components/schemas/WeightExercise'
 
-  CreateCardioExerciseRequest:
-    type: object
-    required:
-      - name
-      - type
-      - distance
-      - duration
-    properties:
-      name:
-        type: string
-        description: Name of the exercise
-        example: "Running"
-      type:
-        type: string
-        enum: [cardio]
-      notes:
-        type: string
-        description: Additional notes
-        example: "Morning run in the park"
-      distance:
-        type: number
-        format: float
-        minimum: 0
-        description: Distance in meters
-        example: 5000.0
-      duration:
-        type: integer
-        minimum: 1
-        description: Duration in seconds
-        example: 1800
+    CreateCardioExerciseRequest:
+      type: object
+      required:
+        - name
+        - type
+        - distance
+        - duration
+      properties:
+        name:
+          type: string
+          description: Name of the exercise
+          example: "Running"
+        type:
+          type: string
+          enum: [cardio]
+        notes:
+          type: string
+          description: Additional notes
+          example: "Morning run in the park"
+        distance:
+          type: number
+          format: float
+          minimum: 0
+          description: Distance in meters
+          example: 5000.0
+        duration:
+          type: integer
+          minimum: 1
+          description: Duration in seconds
+          example: 1800
+      additionalProperties: false
 
-  CreateWeightExerciseRequest:
-    type: object
-    required:
-      - name
-      - type
-      - sets
-      - reps
-      - weight
-    properties:
-      name:
-        type: string
-        description: Name of the exercise
-        example: "Bench Press"
-      type:
-        type: string
-        enum: [weights]
-      notes:
-        type: string
-        description: Additional notes
-        example: "Focus on controlled movement"
-      sets:
-        type: integer
-        minimum: 1
-        description: Number of sets
-        example: 3
-      reps:
-        type: integer
-        minimum: 1
-        description: Number of repetitions per set
-        example: 12
-      weight:
-        type: number
-        format: float
-        minimum: 0
-        description: Weight in kilograms
-        example: 80.0
+    CreateWeightExerciseRequest:
+      type: object
+      required:
+        - name
+        - type
+        - sets
+        - reps
+        - weight
+      properties:
+        name:
+          type: string
+          description: Name of the exercise
+          example: "Bench Press"
+        type:
+          type: string
+          enum: [weights]
+        notes:
+          type: string
+          description: Additional notes
+          example: "Focus on controlled movement"
+        sets:
+          type: integer
+          minimum: 1
+          description: Number of sets
+          example: 3
+        reps:
+          type: integer
+          minimum: 1
+          description: Reps per set
+          example: 12
+        weight:
+          type: number
+          format: float
+          minimum: 0
+          description: Weight in kg
+          example: 80.0
+      additionalProperties: false
 
-  CreateExerciseRequest:
-    oneOf:
-      - $ref: '#/schemas/CreateCardioExerciseRequest'
-      - $ref: '#/schemas/CreateWeightExerciseRequest'
-    discriminator:
-      propertyName: type
-      mapping:
-        cardio: '#/schemas/CreateCardioExerciseRequest'
-        weights: '#/schemas/CreateWeightExerciseRequest'
+    CreateExerciseRequest:
+      oneOf:
+        - $ref: '#/components/schemas/CreateCardioExerciseRequest'
+        - $ref: '#/components/schemas/CreateWeightExerciseRequest'
+      discriminator:
+        propertyName: type
+        mapping:
+          cardio: '#/components/schemas/CreateCardioExerciseRequest'
+          weights: '#/components/schemas/CreateWeightExerciseRequest'
 
-  UpdateExerciseRequest:
-    oneOf:
-      - $ref: '#/schemas/CreateCardioExerciseRequest'
-      - $ref: '#/schemas/CreateWeightExerciseRequest'
-    discriminator:
-      propertyName: type
-      mapping:
-        cardio: '#/schemas/CreateCardioExerciseRequest'
-        weights: '#/schemas/CreateWeightExerciseRequest'
-
-  CreateExerciseResponse:
-    type: object
-    required:
-      - id
-    properties:
-      id:
-        type: integer
-        format: int64
-        description: ID of the created exercise
-        example: 1 
+    ListExercisesResponse:
+      type: object
+      description: A list of exercises
+      required:
+        - exercises
+      properties:
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exercise'
+      additionalProperties: false

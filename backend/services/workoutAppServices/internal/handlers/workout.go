@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	api_models "workout_app_backend/internal/generated"
 	models "workout_app_backend/internal/models"
 )
 
@@ -37,7 +38,7 @@ func (h *WorkoutHandler) ListWorkouts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//!These are optional params
+	// Extract optional query parameters
 	yearStr := r.URL.Query().Get("year")
 	monthStr := r.URL.Query().Get("month")
 	dayStr := r.URL.Query().Get("day")
@@ -54,7 +55,22 @@ func (h *WorkoutHandler) ListWorkouts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, workouts)
+	// Convert to API response model
+	apiWorkouts := make([]api_models.Workout, len(workouts))
+	for i, workout := range workouts {
+		apiWorkouts[i] = api_models.Workout{
+			Id:     workout.ID,
+			UserId: workout.UserID,
+		}
+		apiWorkouts[i].SetCreatedAt(workout.CreatedAt)
+		apiWorkouts[i].SetUpdatedAt(workout.UpdatedAt)
+	}
+
+	response := &api_models.ListWorkoutsResponse{
+		Workouts: apiWorkouts,
+	}
+
+	respondWithJSON(w, http.StatusOK, response)
 }
 
 // CreateWorkout handles POST /api/users/{userID}/workouts
@@ -72,19 +88,21 @@ func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var workout models.Workout
-	if err := decodeJSONBody(r, &workout); err != nil {
+	// 1. Parse request using generated API model
+	var createWorkoutReq api_models.CreateWorkoutRequest
+	if err := decodeJSONBody(r, &createWorkoutReq); err != nil {
 		handleHTTPError(w, err)
 		return
 	}
 
-	// Set the user ID from the URL path
-	workout.UserID = userID
+	// 2. Convert API model to internal domain model
+	workout := &models.Workout{
+		UserID: userID, // Set from URL path
+	}
 
-	// Verify user exists before creating workout
+	// 3. Verify user exists before creating workout
 	ctx := r.Context()
-	uout, err := h.userModel.Get(ctx, userID)
-	handlerLogger.Println("user obtained from context: ", uout) //! Logging the user.
+	_, err = h.userModel.Get(ctx, userID)
 	if err != nil {
 		if errors.Is(err, models.ErrUserNotFound) {
 			respondWithError(w, "User not found", http.StatusNotFound)
@@ -94,20 +112,20 @@ func (h *WorkoutHandler) CreateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.workoutModel.Create(ctx, &workout)
+	// 4. Business logic using internal models
+	id, err := h.workoutModel.Create(ctx, workout)
 	if err != nil {
 		respondWithError(w, "Failed to create workout", http.StatusInternalServerError)
 		return
 	}
 
-	// Get the created workout to return complete data
-	createdWorkout, err := h.workoutModel.Get(ctx, id)
-	if err != nil {
-		respondWithError(w, "Failed to get created workout", http.StatusInternalServerError)
-		return
+	// 5. Convert to API response model
+	response := &api_models.CreateWorkoutResponse{
+		Id: id,
 	}
 
-	respondWithJSON(w, http.StatusCreated, createdWorkout)
+	// 6. Return API response
+	respondWithJSON(w, http.StatusCreated, response)
 }
 
 // GetWorkout handles GET /api/users/{userID}/workouts/{workoutID}
@@ -119,13 +137,25 @@ func (h *WorkoutHandler) GetWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	workoutID, err := parseIDFromURL(r, "workoutID")
+	userID, workoutID, err := parseUserAndWorkoutIDs(r)
 	if err != nil {
 		handleHTTPError(w, err)
 		return
 	}
 
 	ctx := r.Context()
+
+	// Verify user exists
+	_, err = h.userModel.Get(ctx, userID)
+	if err != nil {
+		if errors.Is(err, models.ErrUserNotFound) {
+			respondWithError(w, "User not found", http.StatusNotFound)
+			return
+		}
+		respondWithError(w, "Failed to verify user", http.StatusInternalServerError)
+		return
+	}
+
 	workout, err := h.workoutModel.Get(ctx, workoutID)
 	if err != nil {
 		if errors.Is(err, models.ErrWorkoutNotFound) {
@@ -136,7 +166,21 @@ func (h *WorkoutHandler) GetWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, workout)
+	// Verify workout belongs to user
+	if workout.UserID != userID {
+		respondWithError(w, "Workout not found", http.StatusNotFound)
+		return
+	}
+
+	// Convert to API response model
+	workoutResponse := &api_models.Workout{
+		Id:     workout.ID,
+		UserId: workout.UserID,
+	}
+	workoutResponse.SetCreatedAt(workout.CreatedAt)
+	workoutResponse.SetUpdatedAt(workout.UpdatedAt)
+
+	respondWithJSON(w, http.StatusOK, workoutResponse)
 }
 
 // UpdateWorkout handles PUT /api/users/{userID}/workouts/{workoutID}
@@ -154,17 +198,14 @@ func (h *WorkoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var workout models.Workout
-	if err := decodeJSONBody(r, &workout); err != nil {
+	// 1. Parse request using generated API model
+	var updateWorkoutReq api_models.UpdateWorkoutRequest
+	if err := decodeJSONBody(r, &updateWorkoutReq); err != nil {
 		handleHTTPError(w, err)
 		return
 	}
 
-	// Set the IDs from the URL path
-	workout.ID = workoutID
-	workout.UserID = userID
-
-	// Verify user exists before updating workout
+	// 2. Verify user exists
 	ctx := r.Context()
 	_, err = h.userModel.Get(ctx, userID)
 	if err != nil {
@@ -176,7 +217,32 @@ func (h *WorkoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.workoutModel.Update(ctx, &workout); err != nil {
+	// 3. Convert API model to internal domain model
+	workout := &models.Workout{
+		ID:     workoutID, // Set from URL path
+		UserID: userID,    // Set from URL path
+	}
+
+	// Override UserID if provided in request
+	if updateWorkoutReq.UserId != nil {
+		workout.UserID = *updateWorkoutReq.UserId
+
+		// Verify new user exists if different
+		if *updateWorkoutReq.UserId != userID {
+			_, err = h.userModel.Get(ctx, *updateWorkoutReq.UserId)
+			if err != nil {
+				if errors.Is(err, models.ErrUserNotFound) {
+					respondWithError(w, "Target user not found", http.StatusNotFound)
+					return
+				}
+				respondWithError(w, "Failed to verify target user", http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+
+	// 4. Business logic using internal models
+	if err := h.workoutModel.Update(ctx, workout); err != nil {
 		if errors.Is(err, models.ErrWorkoutNotFound) {
 			respondWithError(w, "Workout not found", http.StatusNotFound)
 			return
@@ -185,14 +251,21 @@ func (h *WorkoutHandler) UpdateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the updated workout to return complete data
+	// 5. Get updated workout and convert to API response model
 	updatedWorkout, err := h.workoutModel.Get(ctx, workoutID)
 	if err != nil {
 		respondWithError(w, "Failed to get updated workout", http.StatusInternalServerError)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, updatedWorkout)
+	workoutResponse := &api_models.Workout{
+		Id:     updatedWorkout.ID,
+		UserId: updatedWorkout.UserID,
+	}
+	workoutResponse.SetCreatedAt(updatedWorkout.CreatedAt)
+	workoutResponse.SetUpdatedAt(updatedWorkout.UpdatedAt)
+
+	respondWithJSON(w, http.StatusOK, workoutResponse)
 }
 
 // DeleteWorkout handles DELETE /api/users/{userID}/workouts/{workoutID}
@@ -210,8 +283,9 @@ func (h *WorkoutHandler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verify user exists before deleting workout
 	ctx := r.Context()
+
+	// Verify user exists
 	_, err = h.userModel.Get(ctx, userID)
 	if err != nil {
 		if errors.Is(err, models.ErrUserNotFound) {
@@ -222,14 +296,27 @@ func (h *WorkoutHandler) DeleteWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.workoutModel.Delete(ctx, workoutID); err != nil {
+	// Verify workout exists and belongs to user
+	workout, err := h.workoutModel.Get(ctx, workoutID)
+	if err != nil {
 		if errors.Is(err, models.ErrWorkoutNotFound) {
 			respondWithError(w, "Workout not found", http.StatusNotFound)
 			return
 		}
+		respondWithError(w, "Failed to get workout", http.StatusInternalServerError)
+		return
+	}
+
+	if workout.UserID != userID {
+		respondWithError(w, "Workout not found", http.StatusNotFound)
+		return
+	}
+
+	if err := h.workoutModel.Delete(ctx, workoutID); err != nil {
 		respondWithError(w, "Failed to delete workout", http.StatusInternalServerError)
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, map[string]int64{"deleted_id": workoutID})
+	// Return 204 No Content as per OpenAPI spec
+	w.WriteHeader(http.StatusNoContent)
 }
