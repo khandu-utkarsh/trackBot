@@ -3,9 +3,9 @@
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------
 from fastapi import FastAPI
-from app.config.settings import get_settings
-from app.api.v1.api import api_router
-from app.middleware import ErrorHandlerMiddleware
+from config.settings import get_settings
+from api.v1.api import api_router
+from middleware import ErrorHandlerMiddleware
 import logging
 
 # Configure logging

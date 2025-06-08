@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from internal.generated.trackbot_client.models import LLMServiceMessageRequest, LLMServiceMessageResponse, Message
+from trackbot_client.models import LLMServiceMessageRequest, LLMServiceMessageResponse, Message
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, BaseMessage
 
-from app.services.agent_service import AgentService
+from services.agent_service import AgentService
 import logging
 
 router = APIRouter()

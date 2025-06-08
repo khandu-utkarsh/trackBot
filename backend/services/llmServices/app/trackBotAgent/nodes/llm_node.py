@@ -1,10 +1,10 @@
 from typing import Dict, Any
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from app.trackBotAgent.state import AgentState
+from trackBotAgent.state import AgentState
 import logging
 from langchain.chat_models import init_chat_model
-from app.config.settings import get_settings
-from app.trackBotAgent.tools.custom_tools import get_available_tools
+from config.settings import get_settings
+from trackBotAgent.tools.custom_tools import get_available_tools
 from langchain_core.prompts import ChatPromptTemplate
 
 logger = logging.getLogger(__name__)

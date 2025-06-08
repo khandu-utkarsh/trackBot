@@ -32,7 +32,7 @@ RUN chmod +x /app/start-dev.sh
 EXPOSE 8081 5678
 
 # Set environment variables for development
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app:/app/app
 ENV PYTHON_ENV=development
 ENV PYTHONUNBUFFERED=1
 

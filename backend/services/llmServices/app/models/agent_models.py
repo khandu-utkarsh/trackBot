@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
-from app.models.message_models import Message
+from models.message_models import Message
 
 class ProcessMessagesRequest(BaseModel):
     """Request model for processing messages through the agent."""

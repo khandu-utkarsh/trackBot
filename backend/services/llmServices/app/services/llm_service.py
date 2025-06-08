@@ -3,7 +3,7 @@ from langchain.chat_models import init_chat_model
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, BaseMessage
 
-from app.config.settings import get_settings
+from config.settings import get_settings
 import logging
 
 

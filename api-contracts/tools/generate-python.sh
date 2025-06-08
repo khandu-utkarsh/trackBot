@@ -19,11 +19,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_CONTRACTS_DIR="$(dirname "$SCRIPT_DIR")"
 OPENAPI_FILE="$API_CONTRACTS_DIR/openapi.yaml"
 OUTPUT_DIR="$API_CONTRACTS_DIR/generated/python"
+CLIENT_PACKAGE_NAME="trackbot_client"
+
+TARGET_DIR="$API_CONTRACTS_DIR/../backend/services/llmServices/app/$CLIENT_PACKAGE_NAME"
+
 
 echo "SCRIPT_DIR: $SCRIPT_DIR"
 echo "API_CONTRACTS_DIR: $API_CONTRACTS_DIR"
 echo "OPENAPI_FILE: $OPENAPI_FILE"
 echo "OUTPUT_DIR: $OUTPUT_DIR"
+echo "TARGET_DIR: $TARGET_DIR"
 
 # Check if Docker is available
 if ! command -v docker &> /dev/null; then
@@ -54,26 +59,24 @@ docker run --rm \
   --ignore-file-override=/local/.openapi-generator-ignore
 
 
+UNNEEDED_FILES=(
+  .travis.yml .gitignore .openapi-generator-ignore README.md git_push.sh
+  .gitlab-ci.yml requirements.txt pyproject.toml tox.ini setup.py setup.cfg
+  .github test-requirements.txt
+)
 
-echo -e "${YELLOW} Cleaning up generated files...${NC}"
-for file in .travis.yml .gitignore .openapi-generator-ignore README.md git_push.sh .gitlab-ci.yml requirements.txt README.md pyproject.toml tox.ini setup.py setup.cfg .github test-requirements.txt; do
+for file in "${UNNEEDED_FILES[@]}"; do
   rm -rf "$OUTPUT_DIR/client/$file"
 done
+
 
 # Copy models to potential Python services
 echo -e "${YELLOW} Setting up Python service directories...${NC}"
 
-# Create Python service directories (if they don't exist)
-PYTHON_SERVICES_DIR="$API_CONTRACTS_DIR/../backend/services/llmServices/internal/generated/"
-echo "PYTHON_SERVICES_DIR: $PYTHON_SERVICES_DIR"
-rm -rf "$PYTHON_SERVICES_DIR"
-mkdir -p "$PYTHON_SERVICES_DIR"
 
-# Copy generated client and models to Python services directory
-if [ -d "$OUTPUT_DIR/client/trackbot_client" ]; then
-    echo "Copying client library..."
-    cp -r "$OUTPUT_DIR/client/trackbot_client" "$PYTHON_SERVICES_DIR"
-fi
+rm -rf "$TARGET_DIR"
+mkdir -p "$(dirname "$TARGET_DIR")"
+cp -r "$OUTPUT_DIR/client/$CLIENT_PACKAGE_NAME" "$TARGET_DIR"
 
 echo -e "${GREEN}Python code generation completed successfully!${NC}"
 echo -e "${BLUE} Generated files are in: $OUTPUT_DIR${NC}"

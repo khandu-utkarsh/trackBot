@@ -1,11 +1,11 @@
 from typing import Dict, Any, Optional
 from langchain_core.tools import tool
 import logging
-from internal.generated.trackbot_client.api_client import ApiClient
-from internal.generated.trackbot_client.api.workouts_api import WorkoutsApi
-from internal.generated.trackbot_client.api.exercises_api import ExercisesApi
-from internal.generated.trackbot_client.models.create_workout_request import CreateWorkoutRequest
-from internal.generated.trackbot_client.models.create_exercise_request import CreateExerciseRequest
+from trackbot_client.api_client import ApiClient
+from trackbot_client.api.workouts_api import WorkoutsApi
+from trackbot_client.api.exercises_api import ExercisesApi
+from trackbot_client.models.create_workout_request import CreateWorkoutRequest
+from trackbot_client.models.create_exercise_request import CreateExerciseRequest
 logger = logging.getLogger(__name__)
 
 # Initialize API client and APIs
