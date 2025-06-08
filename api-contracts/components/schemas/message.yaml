@@ -166,7 +166,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Message'
+
+        user_id:
+          type: integer
+          format: int64
+          description: ID of the user making the request.
+          example: 123
+
+        conversation_id:
+          type: integer
+          format: int64
+          description: ID of the conversation to which these messages belong.
+          example: 456
+
       additionalProperties: false
+
 
     LLMServiceMessageResponse:
       type: object
@@ -176,4 +190,16 @@ components:
       properties:
         message:
           $ref: '#/components/schemas/Message'
+
+        response_time_ms:
+          type: integer
+          format: int64
+          description: Time taken to generate the response in milliseconds.
+          example: 120
+
+        model_name:
+          type: string
+          description: Identifier of the model used to generate the response.
+          example: "gpt-4"
+
       additionalProperties: false

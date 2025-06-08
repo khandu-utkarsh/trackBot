@@ -50,6 +50,8 @@ __all__ = [
     "Exercise",
     "ExerciseType",
     "GoogleLoginRequest",
+    "LLMServiceMessageRequest",
+    "LLMServiceMessageResponse",
     "ListConversationsResponse",
     "ListExercisesResponse",
     "ListMessagesRequest",
@@ -101,6 +103,8 @@ from trackbot_client.models.error import Error as Error
 from trackbot_client.models.exercise import Exercise as Exercise
 from trackbot_client.models.exercise_type import ExerciseType as ExerciseType
 from trackbot_client.models.google_login_request import GoogleLoginRequest as GoogleLoginRequest
+from trackbot_client.models.llm_service_message_request import LLMServiceMessageRequest as LLMServiceMessageRequest
+from trackbot_client.models.llm_service_message_response import LLMServiceMessageResponse as LLMServiceMessageResponse
 from trackbot_client.models.list_conversations_response import ListConversationsResponse as ListConversationsResponse
 from trackbot_client.models.list_exercises_response import ListExercisesResponse as ListExercisesResponse
 from trackbot_client.models.list_messages_request import ListMessagesRequest as ListMessagesRequest

@@ -8,42 +8,13 @@ import (
 	"io"
 	"net/http"
 	"time"
-	models "workout_app_backend/internal/models"
+	api_models "workout_app_backend/internal/generated"
 )
 
 // LLMClient handles communication with the LLM service
 type LLMClient struct {
 	baseURL    string
 	httpClient *http.Client
-}
-
-// ChatMessage represents a message in the conversation
-type ChatMessage struct {
-	Role    string `json:"role"` // "user", "assistant", "system"
-	Content string `json:"content"`
-}
-
-// ChatRequest represents the request to the LLM service
-type ChatRequest struct {
-	Messages       []ChatMessage          `json:"messages"`
-	UserID         string                 `json:"user_id"`
-	ConversationID string                 `json:"conversation_id"`
-	Context        map[string]interface{} `json:"context,omitempty"`
-}
-
-// ChatResponse represents the response from the LLM service
-type ChatResponse struct {
-	Message MessageContent `json:"message"`
-}
-
-// MessageContent represents the content of the message from the LLM service
-type MessageContent struct {
-	Content          string                 `json:"content"`
-	AdditionalKwargs map[string]interface{} `json:"additional_kwargs"`
-	ResponseMetadata map[string]interface{} `json:"response_metadata"`
-	Type             string                 `json:"type"`
-	Name             *string                `json:"name"`
-	ID               string                 `json:"id"`
 }
 
 // NewLLMClient creates a new LLM client
@@ -57,22 +28,13 @@ func NewLLMClient(baseURL string) *LLMClient {
 }
 
 // ProcessChatMessage sends a chat message to the LLM service and returns the response
-func (c *LLMClient) ProcessChatMessage(ctx context.Context, messages []models.Message, userID, conversationID int64, context map[string]interface{}) (*ChatResponse, error) {
-	// Convert messages to the format expected by the LLM service
-	chatMessages := make([]ChatMessage, len(messages))
-	for i, msg := range messages {
-		chatMessages[i] = ChatMessage{
-			Role:    string(msg.MessageType),
-			Content: msg.Content,
-		}
-	}
+func (c *LLMClient) ProcessChatMessage(ctx context.Context, messages []api_models.Message, userID, conversationID int64, context map[string]interface{}) (*api_models.LLMServiceMessageResponse, error) {
 
 	// Create the request
-	request := ChatRequest{
-		Messages:       chatMessages,
-		UserID:         fmt.Sprintf("%d", userID),
-		ConversationID: fmt.Sprintf("%d", conversationID),
-		Context:        context,
+	request := api_models.LLMServiceMessageRequest{
+		Messages:       messages,
+		UserId:         userID,
+		ConversationId: conversationID,
 	}
 
 	// Marshal the request
@@ -82,7 +44,7 @@ func (c *LLMClient) ProcessChatMessage(ctx context.Context, messages []models.Me
 	}
 
 	// Create HTTP request
-	url := fmt.Sprintf("%s/api/v1/process_messages", c.baseURL)
+	url := fmt.Sprintf("%s/api/v1/process_conversation", c.baseURL)
 	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
@@ -113,32 +75,11 @@ func (c *LLMClient) ProcessChatMessage(ctx context.Context, messages []models.Me
 	fmt.Println("Response body:", string(bodyBytes))
 
 	// Parse the response
-	var chatResponse ChatResponse
+	var chatResponse api_models.LLMServiceMessageResponse
 	if err := json.Unmarshal(bodyBytes, &chatResponse); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	fmt.Println("Chat response:", chatResponse)
 	return &chatResponse, nil
-}
-
-// HealthCheck checks if the LLM service is healthy
-func (c *LLMClient) HealthCheck(ctx context.Context) error {
-	url := fmt.Sprintf("%s/api/v1/chat/health", c.baseURL)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return fmt.Errorf("failed to create health check request: %w", err)
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("failed to send health check request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("LLM service health check failed with status %d", resp.StatusCode)
-	}
-
-	return nil
 }

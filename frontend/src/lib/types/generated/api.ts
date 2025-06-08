@@ -430,6 +430,56 @@ export interface GoogleLoginRequest {
     'googleToken': string;
 }
 /**
+ * Request to the LLM service to process a conversation.
+ * @export
+ * @interface LLMServiceMessageRequest
+ */
+export interface LLMServiceMessageRequest {
+    /**
+     * 
+     * @type {Array<Message>}
+     * @memberof LLMServiceMessageRequest
+     */
+    'messages': Array<Message>;
+    /**
+     * ID of the user making the request.
+     * @type {number}
+     * @memberof LLMServiceMessageRequest
+     */
+    'user_id': number;
+    /**
+     * ID of the conversation to which these messages belong.
+     * @type {number}
+     * @memberof LLMServiceMessageRequest
+     */
+    'conversation_id': number;
+}
+/**
+ * Response from the LLM service to process a conversation.
+ * @export
+ * @interface LLMServiceMessageResponse
+ */
+export interface LLMServiceMessageResponse {
+    /**
+     * 
+     * @type {Message}
+     * @memberof LLMServiceMessageResponse
+     */
+    'message': Message;
+    /**
+     * Time taken to generate the response in milliseconds.
+     * @type {number}
+     * @memberof LLMServiceMessageResponse
+     */
+    'response_time_ms'?: number;
+    /**
+     * Identifier of the model used to generate the response.
+     * @type {string}
+     * @memberof LLMServiceMessageResponse
+     */
+    'model_name'?: string;
+}
+/**
  * Response containing a list of conversations.
  * @export
  * @interface ListConversationsResponse

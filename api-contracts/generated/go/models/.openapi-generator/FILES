@@ -30,6 +30,8 @@ model_list_exercises_response.go
 model_list_messages_request.go
 model_list_messages_response.go
 model_list_workouts_response.go
+model_llm_service_message_request.go
+model_llm_service_message_response.go
 model_message.go
 model_message_type.go
 model_update_conversation_request.go

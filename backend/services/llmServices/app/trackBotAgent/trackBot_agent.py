@@ -88,7 +88,7 @@ class TrackBotAgent:
         else:
             return END
     
-    async def run(self, initial_state: AgentState) -> Dict[str, Any]:
+    async def run(self, initial_state: AgentState) -> AgentState:
         """
         Run the agent workflow.
         
@@ -112,7 +112,7 @@ class TrackBotAgent:
             logger.error(f"Error in agent execution: {e}")
             raise
     
-    async def continue_from_interruption(self, state: AgentState, user_response: str) -> Dict[str, Any]:
+    async def continue_from_interruption(self, state: AgentState, user_response: str) -> AgentState:
         """
         Continue execution after user input interruption.
         

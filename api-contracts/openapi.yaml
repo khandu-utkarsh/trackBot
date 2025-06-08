@@ -608,6 +608,10 @@ components:
       $ref: './components/schemas/message.yaml#/components/schemas/ListMessagesRequest'
     ListMessagesResponse:
       $ref: './components/schemas/message.yaml#/components/schemas/ListMessagesResponse'
+    LLMServiceMessageRequest:
+      $ref: './components/schemas/message.yaml#/components/schemas/LLMServiceMessageRequest'
+    LLMServiceMessageResponse:
+      $ref: './components/schemas/message.yaml#/components/schemas/LLMServiceMessageResponse'
 
     Error:
       $ref: './components/responses/errors.yaml#/components/schemas/Error'

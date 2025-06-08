@@ -35,7 +35,7 @@ func convertMessageToAPI(internal *models.Message) api_models.Message {
 		UserId:         internal.UserID,
 		Content:        internal.Content,
 		MessageType:    api_models.MessageType(internal.MessageType),
-		CreatedAt:      internal.CreatedAt,
+		CreatedAt:      &internal.CreatedAt,
 	}
 }
 

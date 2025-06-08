@@ -32,6 +32,8 @@ from trackbot_client.models.error import Error
 from trackbot_client.models.exercise import Exercise
 from trackbot_client.models.exercise_type import ExerciseType
 from trackbot_client.models.google_login_request import GoogleLoginRequest
+from trackbot_client.models.llm_service_message_request import LLMServiceMessageRequest
+from trackbot_client.models.llm_service_message_response import LLMServiceMessageResponse
 from trackbot_client.models.list_conversations_response import ListConversationsResponse
 from trackbot_client.models.list_exercises_response import ListExercisesResponse
 from trackbot_client.models.list_messages_request import ListMessagesRequest

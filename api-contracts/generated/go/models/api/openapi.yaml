@@ -1650,6 +1650,47 @@ components:
       required:
       - messages
       type: object
+    LLMServiceMessageRequest:
+      additionalProperties: false
+      description: Request to the LLM service to process a conversation.
+      properties:
+        messages:
+          items:
+            $ref: "#/components/schemas/Message"
+          type: array
+        user_id:
+          description: ID of the user making the request.
+          example: 123
+          format: int64
+          type: integer
+        conversation_id:
+          description: ID of the conversation to which these messages belong.
+          example: 456
+          format: int64
+          type: integer
+      required:
+      - conversation_id
+      - messages
+      - user_id
+      type: object
+    LLMServiceMessageResponse:
+      additionalProperties: false
+      description: Response from the LLM service to process a conversation.
+      properties:
+        message:
+          $ref: "#/components/schemas/Message"
+        response_time_ms:
+          description: Time taken to generate the response in milliseconds.
+          example: 120
+          format: int64
+          type: integer
+        model_name:
+          description: Identifier of the model used to generate the response.
+          example: gpt-4
+          type: string
+      required:
+      - message
+      type: object
     Error:
       properties:
         code:

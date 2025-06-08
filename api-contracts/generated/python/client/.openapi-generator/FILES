@@ -45,6 +45,8 @@ trackbot_client/models/list_exercises_response.py
 trackbot_client/models/list_messages_request.py
 trackbot_client/models/list_messages_response.py
 trackbot_client/models/list_workouts_response.py
+trackbot_client/models/llm_service_message_request.py
+trackbot_client/models/llm_service_message_response.py
 trackbot_client/models/message.py
 trackbot_client/models/message_type.py
 trackbot_client/models/update_conversation_request.py

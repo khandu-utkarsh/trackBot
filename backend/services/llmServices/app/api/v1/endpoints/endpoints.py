@@ -1,76 +1,77 @@
 from fastapi import APIRouter, HTTPException
-from internal.generated.trackbot_client.api import MessagesApi, ConversationsApi, ExercisesApi, WorkoutsApi, UsersApi
-from internal.generated.trackbot_client.models import CreateMessageRequest, CreateConversationRequest, CreateExerciseRequest, CreateWorkoutRequest, CreateUserRequest
-from internal.generated.trackbot_client.models import ListMessagesRequest, ListConversationsRequest, ListExercisesRequest, ListWorkoutsRequest, ListUsersRequest
-from internal.generated.trackbot_client.models import ListMessagesResponse, ListConversationsResponse, ListExercisesResponse, ListWorkoutsResponse, ListUsersResponse
-from internal.generated.trackbot_client.models import Message, Conversation, Exercise, Workout, User
-from internal.generated.trackbot_client.models import UpdateMessageRequest, UpdateConversationRequest, UpdateExerciseRequest, UpdateWorkoutRequest, UpdateUserRequest
-from internal.generated.trackbot_client.models import DeleteMessageRequest, DeleteConversationRequest, DeleteExerciseRequest, DeleteWorkoutRequest, DeleteUserRequest
-from internal.generated.trackbot_client.models import DeleteMessageResponse, DeleteConversationResponse, DeleteExerciseResponse, DeleteWorkoutResponse, DeleteUserResponse
-from models import ChatRequest, ChatResponse, AIServiceMessageRequest, AIServiceMessageResponse
+from internal.generated.trackbot_client.models import LLMServiceMessageRequest, LLMServiceMessageResponse, Message
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, BaseMessage
 
 from app.services.agent_service import AgentService
 import logging
 
 router = APIRouter()
-agent_service = AgentService()
 logger = logging.getLogger(__name__)
 
 
+def convert_message_to_langchain(message: Message) -> BaseMessage:
+    if message.type == "assistant":
+        return AIMessage(content=message.content, additional_kwargs=message.additional_kwargs, response_metadata=message.response_metadata, name=message.name, id=message.llm_id, tool_calls=message.tool_calls, invalid_tool_calls=message.invalid_tool_calls, usage_metadata=message.usage_metadata, example=message.example)
+    elif message.type == "user":
+        return HumanMessage(content=message.content)
+    elif message.type == "system":
+        return SystemMessage(content=message.content)
+    else:
+        raise ValueError(f"Unknown message type: {message.type}")
 
-@router.post("/process_conversation", response_model=AIServiceMessageResponse)
-async def process_messages_handler(request: ChatRequest):
+def convert_message_to_trackbot(message: BaseMessage) -> Message:
+    if isinstance(message, AIMessage):
+        return Message(type="assistant", content=message.content, additional_kwargs=message.additional_kwargs, response_metadata=message.response_metadata, name=message.name, llm_id=message.id, tool_calls=message.tool_calls, invalid_tool_calls=message.invalid_tool_calls, usage_metadata=message.usage_metadata, example=message.example)
+    elif isinstance(message, HumanMessage):
+        return Message(type="user", content=message.content)
+    elif isinstance(message, SystemMessage):
+        return Message(type="system", content=message.content)
+    else:
+        raise ValueError(f"Unknown message type: {type(message)}")
+
+
+@router.post("/process_conversation", response_model=LLMServiceMessageResponse)
+async def process_messages_handler(request: LLMServiceMessageRequest):
     """Process messages through the LangGraph agent workflow."""
     logger.info(f"Received request for user {request.user_id}")
     
     try:
         # Convert request messages to LangChain format
-        langchain_messages = [m.to_langchain() for m in request.messages]
+        langchain_messages = [convert_message_to_langchain(m) for m in request.messages]
         
+        agent_service = AgentService(messages=langchain_messages, user_id=request.user_id)
+
         # Process through agent service
-        result = await agent_service.process_messages(
-            messages=langchain_messages,
-            user_id=request.user_id,
-            session_id=request.session_id
-        )
+        result : AIMessage = await agent_service.process_messages()
         
         # Convert response message back to our format
-        response_message = Message.from_langchain(result["messages"][-1])
+        response_message : Message = convert_message_to_trackbot(result)
         
-        return ProcessMessagesResponse(
-            message=response_message,
-            session_id=result["session_id"],
-            tools_called=result["tools_called"],
-            needs_user_input=result["needs_user_input"],
-            pending_input_prompt=result["pending_input_prompt"],
-            status=result["status"]
-        )
+        return LLMServiceMessageResponse( message=response_message, response_time_ms=None, model_name=None)
         
     except Exception as e:
         logger.error(f"Error processing request: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/continue_conversation", response_model=ProcessMessagesResponse)
-async def continue_session_handler(request: ContinueSessionRequest):
+@router.post("/continue_conversation", response_model=LLMServiceMessageResponse)
+async def continue_session_handler(request: LLMServiceMessageRequest):
     """Continue a session after user input."""
-    logger.info(f"Continuing session {request.session_id}")
+    logger.info(f"Continuing session {request.user_id}")
     
     try:
-        result = await agent_service.continue_session(
-            session_id=request.session_id,
-            user_response=request.user_response
-        )
+        # Convert request messages to LangChain format
+        langchain_messages = [convert_message_to_langchain(m) for m in request.messages]
+        
+        agent_service = AgentService(messages=langchain_messages, user_id=request.user_id)
+        result : AIMessage = await agent_service.continue_from_interruption(request.messages[-1])
         
         # Convert response message back to our format
-        response_message = Message.from_langchain(result["messages"][-1])
+        response_message : Message = convert_message_to_trackbot(result)
         
-        return ProcessMessagesResponse(
+        return LLMServiceMessageResponse(
             message=response_message,
-            session_id=result["session_id"],
-            tools_called=result["tools_called"],
-            needs_user_input=result["needs_user_input"],
-            pending_input_prompt=result["pending_input_prompt"],
-            status=result["status"]
+            response_time_ms=None,
+            model_name=None
         )
         
     except ValueError as e:
