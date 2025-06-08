@@ -1553,10 +1553,57 @@ components:
           format: date-time
           readOnly: true
           type: string
+        additional_kwargs:
+          description: Additional metadata passed with the message.
+          type: object
+        response_metadata:
+          description: Metadata returned by the model provider.
+          example:
+            model: gpt-4
+            finish_reason: stop
+            token_usage:
+              prompt_tokens: 20
+              completion_tokens: 50
+              total_tokens: 70
+          type: object
+        type:
+          description: Type of message.
+          enum:
+          - ai
+          - human
+          type: string
+        name:
+          description: Optional name of the message sender/tool.
+          nullable: true
+          type: string
+        llm_id:
+          description: Unique message ID from the model provider.
+          example: msg-abcdef
+          type: string
+        tool_calls:
+          description: Tool calls made by the model in this message.
+          items:
+            type: object
+          type: array
+        invalid_tool_calls:
+          description: Tool calls that failed to parse or execute.
+          items:
+            type: object
+          type: array
+        usage_metadata:
+          description: Token usage metadata.
+          example:
+            input_tokens: 24
+            output_tokens: 60
+            total_tokens: 84
+          type: object
+        example:
+          default: false
+          description: Whether this message was part of an example conversation.
+          type: boolean
       required:
       - content
       - conversation_id
-      - created_at
       - id
       - message_type
       - user_id

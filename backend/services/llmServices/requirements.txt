@@ -6,3 +6,8 @@ python-dotenv
 pydantic
 httpx 
 pydantic-settings
+langgraph
+langgraph-core
+langgraph-checkpoint-memory
+langgraph-checkpoint
+langgraph-graph

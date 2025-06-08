@@ -1,0 +1,142 @@
+components:
+  schemas:
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: ["user", "assistant", "system"]
+          description: "Role of the message sender"
+        content:
+          type: string
+          description: "Text content of the message"
+        tool_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCall'
+          description: "Tool calls made by the assistant (if any)"
+        tool_call_id:
+          type: string
+          description: "ID of the tool call this message is responding to"
+      required: ["role", "content"]
+
+    ToolCall:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Unique identifier for the tool call"
+        name:
+          type: string
+          description: "Name of the tool being called"
+        args:
+          type: object
+          description: "Arguments passed to the tool"
+      required: ["id", "name", "args"]
+
+    ChatRequest:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+          description: "Array of messages in the conversation"
+        user_id:
+          type: integer
+          description: "Unique identifier for the user"
+        session_id:
+          type: string
+          description: "Optional session ID for conversation continuity"
+      required: ["messages", "user_id"]
+
+    ChatResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+          description: "Array of response messages"
+        session_id:
+          type: string
+          description: "Session ID for this conversation"
+        tools_called:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolExecution'
+          description: "Tools that were executed during processing"
+        needs_user_input:
+          type: boolean
+          description: "Whether the agent is waiting for user input"
+        pending_input_prompt:
+          type: string
+          nullable: true
+          description: "Prompt for required user input (if any)"
+        status:
+          type: string
+          enum: ["completed", "awaiting_input", "error"]
+          description: "Status of the conversation"
+      required: ["messages", "session_id", "tools_called", "needs_user_input", "status"]
+
+    ToolExecution:
+      type: object
+      properties:
+        tool_name:
+          type: string
+          description: "Name of the executed tool"
+        arguments:
+          type: object
+          description: "Arguments passed to the tool"
+        result:
+          type: string
+          description: "Result returned by the tool"
+        timestamp:
+          type: string
+          format: date-time
+          description: "When the tool was executed"
+      required: ["tool_name", "arguments", "result"]
+
+    SessionContinuationRequest:
+      type: object
+      properties:
+        session_id:
+          type: string
+          description: "Session ID to continue"
+        user_response:
+          type: string
+          description: "User's response to continue the conversation"
+      required: ["session_id", "user_response"]
+
+    SessionContinuationResponse:
+      allOf:
+        - $ref: '#/components/schemas/ChatResponse'
+        - type: object
+          description: "Response after continuing a session"
+
+    # Legacy support - keeping for backward compatibility
+    MessageContent:
+      type: object
+      properties:
+        content:
+          type: string
+        additional_kwargs:
+          type: object
+        response_metadata:
+          type: object
+        type:
+          type: string
+        name:
+          type: string
+        id:
+          type: string
+      additionalProperties: false
+      deprecated: true
+      description: "Deprecated - use ChatMessage instead"
+
+
+
+
+
+
+

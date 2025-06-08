@@ -33,7 +33,25 @@ type Message struct {
 	Content string `json:"content"`
 	MessageType MessageType `json:"message_type"`
 	// Creation timestamp.
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	// Additional metadata passed with the message.
+	AdditionalKwargs map[string]interface{} `json:"additional_kwargs,omitempty"`
+	// Metadata returned by the model provider.
+	ResponseMetadata map[string]interface{} `json:"response_metadata,omitempty"`
+	// Type of message.
+	Type *string `json:"type,omitempty"`
+	// Optional name of the message sender/tool.
+	Name NullableString `json:"name,omitempty"`
+	// Unique message ID from the model provider.
+	LlmId *string `json:"llm_id,omitempty"`
+	// Tool calls made by the model in this message.
+	ToolCalls []map[string]interface{} `json:"tool_calls,omitempty"`
+	// Tool calls that failed to parse or execute.
+	InvalidToolCalls []map[string]interface{} `json:"invalid_tool_calls,omitempty"`
+	// Token usage metadata.
+	UsageMetadata map[string]interface{} `json:"usage_metadata,omitempty"`
+	// Whether this message was part of an example conversation.
+	Example *bool `json:"example,omitempty"`
 }
 
 type _Message Message
@@ -42,14 +60,15 @@ type _Message Message
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewMessage(id int64, conversationId int64, userId int64, content string, messageType MessageType, createdAt time.Time) *Message {
+func NewMessage(id int64, conversationId int64, userId int64, content string, messageType MessageType) *Message {
 	this := Message{}
 	this.Id = id
 	this.ConversationId = conversationId
 	this.UserId = userId
 	this.Content = content
 	this.MessageType = messageType
-	this.CreatedAt = createdAt
+	var example bool = false
+	this.Example = &example
 	return &this
 }
 
@@ -58,6 +77,8 @@ func NewMessage(id int64, conversationId int64, userId int64, content string, me
 // but it doesn't guarantee that properties required by API are set
 func NewMessageWithDefaults() *Message {
 	this := Message{}
+	var example bool = false
+	this.Example = &example
 	return &this
 }
 
@@ -181,28 +202,334 @@ func (o *Message) SetMessageType(v MessageType) {
 	o.MessageType = v
 }
 
-// GetCreatedAt returns the CreatedAt field value
+// GetCreatedAt returns the CreatedAt field value if set, zero value otherwise.
 func (o *Message) GetCreatedAt() time.Time {
-	if o == nil {
+	if o == nil || IsNil(o.CreatedAt) {
 		var ret time.Time
 		return ret
 	}
-
-	return o.CreatedAt
+	return *o.CreatedAt
 }
 
-// GetCreatedAtOk returns a tuple with the CreatedAt field value
+// GetCreatedAtOk returns a tuple with the CreatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Message) GetCreatedAtOk() (*time.Time, bool) {
+	if o == nil || IsNil(o.CreatedAt) {
+		return nil, false
+	}
+	return o.CreatedAt, true
+}
+
+// HasCreatedAt returns a boolean if a field has been set.
+func (o *Message) HasCreatedAt() bool {
+	if o != nil && !IsNil(o.CreatedAt) {
+		return true
+	}
+
+	return false
+}
+
+// SetCreatedAt gets a reference to the given time.Time and assigns it to the CreatedAt field.
+func (o *Message) SetCreatedAt(v time.Time) {
+	o.CreatedAt = &v
+}
+
+// GetAdditionalKwargs returns the AdditionalKwargs field value if set, zero value otherwise.
+func (o *Message) GetAdditionalKwargs() map[string]interface{} {
+	if o == nil || IsNil(o.AdditionalKwargs) {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.AdditionalKwargs
+}
+
+// GetAdditionalKwargsOk returns a tuple with the AdditionalKwargs field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Message) GetAdditionalKwargsOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.AdditionalKwargs) {
+		return map[string]interface{}{}, false
+	}
+	return o.AdditionalKwargs, true
+}
+
+// HasAdditionalKwargs returns a boolean if a field has been set.
+func (o *Message) HasAdditionalKwargs() bool {
+	if o != nil && !IsNil(o.AdditionalKwargs) {
+		return true
+	}
+
+	return false
+}
+
+// SetAdditionalKwargs gets a reference to the given map[string]interface{} and assigns it to the AdditionalKwargs field.
+func (o *Message) SetAdditionalKwargs(v map[string]interface{}) {
+	o.AdditionalKwargs = v
+}
+
+// GetResponseMetadata returns the ResponseMetadata field value if set, zero value otherwise.
+func (o *Message) GetResponseMetadata() map[string]interface{} {
+	if o == nil || IsNil(o.ResponseMetadata) {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.ResponseMetadata
+}
+
+// GetResponseMetadataOk returns a tuple with the ResponseMetadata field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Message) GetResponseMetadataOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.ResponseMetadata) {
+		return map[string]interface{}{}, false
+	}
+	return o.ResponseMetadata, true
+}
+
+// HasResponseMetadata returns a boolean if a field has been set.
+func (o *Message) HasResponseMetadata() bool {
+	if o != nil && !IsNil(o.ResponseMetadata) {
+		return true
+	}
+
+	return false
+}
+
+// SetResponseMetadata gets a reference to the given map[string]interface{} and assigns it to the ResponseMetadata field.
+func (o *Message) SetResponseMetadata(v map[string]interface{}) {
+	o.ResponseMetadata = v
+}
+
+// GetType returns the Type field value if set, zero value otherwise.
+func (o *Message) GetType() string {
+	if o == nil || IsNil(o.Type) {
+		var ret string
+		return ret
+	}
+	return *o.Type
+}
+
+// GetTypeOk returns a tuple with the Type field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Message) GetTypeOk() (*string, bool) {
+	if o == nil || IsNil(o.Type) {
+		return nil, false
+	}
+	return o.Type, true
+}
+
+// HasType returns a boolean if a field has been set.
+func (o *Message) HasType() bool {
+	if o != nil && !IsNil(o.Type) {
+		return true
+	}
+
+	return false
+}
+
+// SetType gets a reference to the given string and assigns it to the Type field.
+func (o *Message) SetType(v string) {
+	o.Type = &v
+}
+
+// GetName returns the Name field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *Message) GetName() string {
+	if o == nil || IsNil(o.Name.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.Name.Get()
+}
+
+// GetNameOk returns a tuple with the Name field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *Message) GetNameOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.CreatedAt, true
+	return o.Name.Get(), o.Name.IsSet()
 }
 
-// SetCreatedAt sets field value
-func (o *Message) SetCreatedAt(v time.Time) {
-	o.CreatedAt = v
+// HasName returns a boolean if a field has been set.
+func (o *Message) HasName() bool {
+	if o != nil && o.Name.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetName gets a reference to the given NullableString and assigns it to the Name field.
+func (o *Message) SetName(v string) {
+	o.Name.Set(&v)
+}
+// SetNameNil sets the value for Name to be an explicit nil
+func (o *Message) SetNameNil() {
+	o.Name.Set(nil)
+}
+
+// UnsetName ensures that no value is present for Name, not even an explicit nil
+func (o *Message) UnsetName() {
+	o.Name.Unset()
+}
+
+// GetLlmId returns the LlmId field value if set, zero value otherwise.
+func (o *Message) GetLlmId() string {
+	if o == nil || IsNil(o.LlmId) {
+		var ret string
+		return ret
+	}
+	return *o.LlmId
+}
+
+// GetLlmIdOk returns a tuple with the LlmId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Message) GetLlmIdOk() (*string, bool) {
+	if o == nil || IsNil(o.LlmId) {
+		return nil, false
+	}
+	return o.LlmId, true
+}
+
+// HasLlmId returns a boolean if a field has been set.
+func (o *Message) HasLlmId() bool {
+	if o != nil && !IsNil(o.LlmId) {
+		return true
+	}
+
+	return false
+}
+
+// SetLlmId gets a reference to the given string and assigns it to the LlmId field.
+func (o *Message) SetLlmId(v string) {
+	o.LlmId = &v
+}
+
+// GetToolCalls returns the ToolCalls field value if set, zero value otherwise.
+func (o *Message) GetToolCalls() []map[string]interface{} {
+	if o == nil || IsNil(o.ToolCalls) {
+		var ret []map[string]interface{}
+		return ret
+	}
+	return o.ToolCalls
+}
+
+// GetToolCallsOk returns a tuple with the ToolCalls field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Message) GetToolCallsOk() ([]map[string]interface{}, bool) {
+	if o == nil || IsNil(o.ToolCalls) {
+		return nil, false
+	}
+	return o.ToolCalls, true
+}
+
+// HasToolCalls returns a boolean if a field has been set.
+func (o *Message) HasToolCalls() bool {
+	if o != nil && !IsNil(o.ToolCalls) {
+		return true
+	}
+
+	return false
+}
+
+// SetToolCalls gets a reference to the given []map[string]interface{} and assigns it to the ToolCalls field.
+func (o *Message) SetToolCalls(v []map[string]interface{}) {
+	o.ToolCalls = v
+}
+
+// GetInvalidToolCalls returns the InvalidToolCalls field value if set, zero value otherwise.
+func (o *Message) GetInvalidToolCalls() []map[string]interface{} {
+	if o == nil || IsNil(o.InvalidToolCalls) {
+		var ret []map[string]interface{}
+		return ret
+	}
+	return o.InvalidToolCalls
+}
+
+// GetInvalidToolCallsOk returns a tuple with the InvalidToolCalls field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Message) GetInvalidToolCallsOk() ([]map[string]interface{}, bool) {
+	if o == nil || IsNil(o.InvalidToolCalls) {
+		return nil, false
+	}
+	return o.InvalidToolCalls, true
+}
+
+// HasInvalidToolCalls returns a boolean if a field has been set.
+func (o *Message) HasInvalidToolCalls() bool {
+	if o != nil && !IsNil(o.InvalidToolCalls) {
+		return true
+	}
+
+	return false
+}
+
+// SetInvalidToolCalls gets a reference to the given []map[string]interface{} and assigns it to the InvalidToolCalls field.
+func (o *Message) SetInvalidToolCalls(v []map[string]interface{}) {
+	o.InvalidToolCalls = v
+}
+
+// GetUsageMetadata returns the UsageMetadata field value if set, zero value otherwise.
+func (o *Message) GetUsageMetadata() map[string]interface{} {
+	if o == nil || IsNil(o.UsageMetadata) {
+		var ret map[string]interface{}
+		return ret
+	}
+	return o.UsageMetadata
+}
+
+// GetUsageMetadataOk returns a tuple with the UsageMetadata field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Message) GetUsageMetadataOk() (map[string]interface{}, bool) {
+	if o == nil || IsNil(o.UsageMetadata) {
+		return map[string]interface{}{}, false
+	}
+	return o.UsageMetadata, true
+}
+
+// HasUsageMetadata returns a boolean if a field has been set.
+func (o *Message) HasUsageMetadata() bool {
+	if o != nil && !IsNil(o.UsageMetadata) {
+		return true
+	}
+
+	return false
+}
+
+// SetUsageMetadata gets a reference to the given map[string]interface{} and assigns it to the UsageMetadata field.
+func (o *Message) SetUsageMetadata(v map[string]interface{}) {
+	o.UsageMetadata = v
+}
+
+// GetExample returns the Example field value if set, zero value otherwise.
+func (o *Message) GetExample() bool {
+	if o == nil || IsNil(o.Example) {
+		var ret bool
+		return ret
+	}
+	return *o.Example
+}
+
+// GetExampleOk returns a tuple with the Example field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Message) GetExampleOk() (*bool, bool) {
+	if o == nil || IsNil(o.Example) {
+		return nil, false
+	}
+	return o.Example, true
+}
+
+// HasExample returns a boolean if a field has been set.
+func (o *Message) HasExample() bool {
+	if o != nil && !IsNil(o.Example) {
+		return true
+	}
+
+	return false
+}
+
+// SetExample gets a reference to the given bool and assigns it to the Example field.
+func (o *Message) SetExample(v bool) {
+	o.Example = &v
 }
 
 func (o Message) MarshalJSON() ([]byte, error) {
@@ -220,7 +547,36 @@ func (o Message) ToMap() (map[string]interface{}, error) {
 	toSerialize["user_id"] = o.UserId
 	toSerialize["content"] = o.Content
 	toSerialize["message_type"] = o.MessageType
-	toSerialize["created_at"] = o.CreatedAt
+	if !IsNil(o.CreatedAt) {
+		toSerialize["created_at"] = o.CreatedAt
+	}
+	if !IsNil(o.AdditionalKwargs) {
+		toSerialize["additional_kwargs"] = o.AdditionalKwargs
+	}
+	if !IsNil(o.ResponseMetadata) {
+		toSerialize["response_metadata"] = o.ResponseMetadata
+	}
+	if !IsNil(o.Type) {
+		toSerialize["type"] = o.Type
+	}
+	if o.Name.IsSet() {
+		toSerialize["name"] = o.Name.Get()
+	}
+	if !IsNil(o.LlmId) {
+		toSerialize["llm_id"] = o.LlmId
+	}
+	if !IsNil(o.ToolCalls) {
+		toSerialize["tool_calls"] = o.ToolCalls
+	}
+	if !IsNil(o.InvalidToolCalls) {
+		toSerialize["invalid_tool_calls"] = o.InvalidToolCalls
+	}
+	if !IsNil(o.UsageMetadata) {
+		toSerialize["usage_metadata"] = o.UsageMetadata
+	}
+	if !IsNil(o.Example) {
+		toSerialize["example"] = o.Example
+	}
 	return toSerialize, nil
 }
 
@@ -234,7 +590,6 @@ func (o *Message) UnmarshalJSON(data []byte) (err error) {
 		"user_id",
 		"content",
 		"message_type",
-		"created_at",
 	}
 
 	allProperties := make(map[string]interface{})

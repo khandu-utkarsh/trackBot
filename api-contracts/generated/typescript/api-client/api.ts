@@ -553,9 +553,69 @@ export interface Message {
      * @type {string}
      * @memberof Message
      */
-    'created_at': string;
+    'created_at'?: string;
+    /**
+     * Additional metadata passed with the message.
+     * @type {object}
+     * @memberof Message
+     */
+    'additional_kwargs'?: object;
+    /**
+     * Metadata returned by the model provider.
+     * @type {object}
+     * @memberof Message
+     */
+    'response_metadata'?: object;
+    /**
+     * Type of message.
+     * @type {string}
+     * @memberof Message
+     */
+    'type'?: MessageTypeEnum;
+    /**
+     * Optional name of the message sender/tool.
+     * @type {string}
+     * @memberof Message
+     */
+    'name'?: string | null;
+    /**
+     * Unique message ID from the model provider.
+     * @type {string}
+     * @memberof Message
+     */
+    'llm_id'?: string;
+    /**
+     * Tool calls made by the model in this message.
+     * @type {Array<object>}
+     * @memberof Message
+     */
+    'tool_calls'?: Array<object>;
+    /**
+     * Tool calls that failed to parse or execute.
+     * @type {Array<object>}
+     * @memberof Message
+     */
+    'invalid_tool_calls'?: Array<object>;
+    /**
+     * Token usage metadata.
+     * @type {object}
+     * @memberof Message
+     */
+    'usage_metadata'?: object;
+    /**
+     * Whether this message was part of an example conversation.
+     * @type {boolean}
+     * @memberof Message
+     */
+    'example'?: boolean;
 }
 
+export const MessageTypeEnum = {
+    Ai: 'ai',
+    Human: 'human'
+} as const;
+
+export type MessageTypeEnum = typeof MessageTypeEnum[keyof typeof MessageTypeEnum];
 
 /**
  * Type of message sender

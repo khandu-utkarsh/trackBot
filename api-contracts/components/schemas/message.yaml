@@ -17,7 +17,6 @@ components:
         - user_id
         - content
         - message_type
-        - created_at
       properties:
         id:
           type: integer
@@ -25,28 +24,89 @@ components:
           description: Unique identifier for the message.
           example: 1
           readOnly: true
+
         conversation_id:
           type: integer
           format: int64
           description: Conversation ID this message belongs to.
           example: 1
+
         user_id:
           type: integer
           format: int64
           description: User ID who sent the message.
           example: 1
+
         content:
           type: string
           description: Content of the message.
           example: "I want to start a new workout plan"
+
         message_type:
           $ref: '#/components/schemas/MessageType'
+
         created_at:
           type: string
           format: date-time
           description: Creation timestamp.
           example: "2024-01-15T10:30:00Z"
           readOnly: true
+
+        additional_kwargs:
+          type: object
+          description: Additional metadata passed with the message.
+
+        response_metadata:
+          type: object
+          description: Metadata returned by the model provider.
+          example:
+            model: gpt-4
+            finish_reason: stop
+            token_usage:
+              prompt_tokens: 20
+              completion_tokens: 50
+              total_tokens: 70
+
+        type:
+          type: string
+          enum: ["ai", "human"]
+          description: Type of message.
+
+        name:
+          type: string
+          nullable: true
+          description: Optional name of the message sender/tool.
+
+        llm_id:
+          type: string
+          description: Unique message ID from the model provider.
+          example: "msg-abcdef"
+
+        tool_calls:
+          type: array
+          items:
+            type: object
+          description: Tool calls made by the model in this message.
+
+        invalid_tool_calls:
+          type: array
+          items:
+            type: object
+          description: Tool calls that failed to parse or execute.
+
+        usage_metadata:
+          type: object
+          description: Token usage metadata.
+          example:
+            input_tokens: 24
+            output_tokens: 60
+            total_tokens: 84
+
+        example:
+          type: boolean
+          description: Whether this message was part of an example conversation.
+          default: false
+
       additionalProperties: false
 
     CreateMessageRequest:
@@ -63,17 +123,6 @@ components:
         message_type:
           $ref: '#/components/schemas/MessageType'
       additionalProperties: false
-
-# Commenting out update message request for now, since we don't support changing the created message.
-#    UpdateMessageRequest:
-#      type: object
-#      description: Payload to update a message.
-#      properties:
-#        content:
-#          type: string
-#          description: Updated content of the message.
-#          example: "Updated plan suggestion"
-#      additionalProperties: false
 
     ListMessagesRequest:
       type: object
@@ -103,4 +152,28 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Message'
+      additionalProperties: false
+
+    LLMServiceMessageRequest:
+      type: object
+      description: Request to the LLM service to process a conversation.
+      required:
+        - messages
+        - user_id
+        - conversation_id
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+      additionalProperties: false
+
+    LLMServiceMessageResponse:
+      type: object
+      description: Response from the LLM service to process a conversation.
+      required:
+        - message
+      properties:
+        message:
+          $ref: '#/components/schemas/Message'
       additionalProperties: false

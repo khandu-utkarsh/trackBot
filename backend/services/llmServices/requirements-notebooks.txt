@@ -1,0 +1,21 @@
+# Notebook experiment dependencies
+jupyter
+jupyterlab
+ipywidgets
+nest-asyncio
+matplotlib
+plotly
+pandas
+seaborn
+
+# For enhanced notebook display
+rich
+tabulate
+
+# For experiment data analysis
+numpy
+scipy
+
+# For visualization
+graphviz
+pydot 

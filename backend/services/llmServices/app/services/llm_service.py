@@ -170,6 +170,22 @@ class LLMService:
             model=settings.MODEL_NAME,
             api_key=settings.OPENAI_API_KEY
         )
+        self.tools_bound = False
+
+    def bind_tools(self, tools: List[Any]) -> None:
+        """
+        Bind tools to the LLM for tool calling.
+        
+        Args:
+            tools: List of tools to bind
+        """
+        if tools:
+            self.llm = self.llm.bind_tools(tools)
+            self.tools_bound = True
+            logger.info(f"Bound {len(tools)} tools to LLM")
+
+
+
                  
     async def process_chat_message(
         self, 
@@ -193,8 +209,3 @@ class LLMService:
         except Exception as e:
             logger.error(f"Error processing chat message: {e}")
             return AIMessage(content="I'm sorry, I encountered an error processing your message. Please try again.")
-
-
-    async def process_request(self, messages: List[BaseMessage], user_id: int) -> AIMessage:
-        result = await self.process_chat_message(messages, user_id)
-        return result

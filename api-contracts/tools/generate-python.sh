@@ -41,58 +41,38 @@ mkdir -p "$OUTPUT_DIR"
 ## TODO: Uncomment this when we have a use case for it
 
 # Generate Python HTTP client
-#echo -e "${BLUE} Generating Python HTTP client...${NC}"
-#docker run --rm \
-#  -v "$API_CONTRACTS_DIR:/local" \
-#  openapitools/openapi-generator-cli generate \
-#  -i /local/openapi.yaml \
-#  -g python \
-#  -o /local/generated/python/client \
-#  --package-name trackbot_client \
-#  --additional-properties=packageName=trackbot_client,packageVersion=1.0.0,library=urllib3 \
-#  --global-property=apiTests=false,modelTests=false,apiDocs=false,modelDocs=false \
-#  --ignore-file-override=/local/.openapi-generator-ignore
-
-# Generate advanced Pydantic v2 models using Docker
-echo -e "${BLUE} Generating Pydantic v2 models with datamodel-codegen...${NC}"
-mkdir -p "$OUTPUT_DIR/pydantic-v2"
-
+echo -e "${BLUE} Generating Python HTTP client...${NC}"
 docker run --rm \
-  -v "$API_CONTRACTS_DIR:/workspace" \
-  -w /workspace \
-  python:3.11-slim \
-  sh -c "
-    pip install 'datamodel-code-generator[http]' && \
-    datamodel-codegen \
-        --input /workspace/openapi.yaml \
-        --input-file-type openapi \
-        --output /workspace/generated/python/pydantic-v2/models.py \
-        --output-model-type pydantic_v2.BaseModel \
-        --field-constraints \
-        --use-annotated \
-        --use-generic-container-types \
-        --use-schema-description \
-        --use-field-description \
-        --use-default-kwarg \
-        --snake-case-field \
-        --strict-nullable \
-        --target-python-version 3.11
-  "
+  -v "$API_CONTRACTS_DIR:/local" \
+  openapitools/openapi-generator-cli generate \
+  -i /local/openapi.yaml \
+  -g python \
+  -o /local/generated/python/client \
+  --package-name trackbot_client \
+  --additional-properties=packageName=trackbot_client,packageVersion=1.0.0,library=urllib3 \
+  --global-property=apiTests=false,modelTests=false,apiDocs=false,modelDocs=false \
+  --ignore-file-override=/local/.openapi-generator-ignore
 
-echo -e "${GREEN} Pydantic v2 models generated with datamodel-codegen${NC}"
 
+
+echo -e "${YELLOW} Cleaning up generated files...${NC}"
+for file in .travis.yml .gitignore .openapi-generator-ignore README.md git_push.sh .gitlab-ci.yml requirements.txt README.md pyproject.toml tox.ini setup.py setup.cfg .github test-requirements.txt; do
+  rm -rf "$OUTPUT_DIR/client/$file"
+done
 
 # Copy models to potential Python services
 echo -e "${YELLOW} Setting up Python service directories...${NC}"
 
 # Create Python service directories (if they don't exist)
-PYTHON_SERVICES_DIR="$API_CONTRACTS_DIR/../backend/services/llmServices/internal/generated/models"
+PYTHON_SERVICES_DIR="$API_CONTRACTS_DIR/../backend/services/llmServices/internal/generated/"
 echo "PYTHON_SERVICES_DIR: $PYTHON_SERVICES_DIR"
+rm -rf "$PYTHON_SERVICES_DIR"
 mkdir -p "$PYTHON_SERVICES_DIR"
 
-# Copy Pydantic models
-if [ -d "$OUTPUT_DIR/pydantic-v2" ]; then
-    cp -r "$OUTPUT_DIR/pydantic-v2/"* "$PYTHON_SERVICES_DIR"
+# Copy generated client and models to Python services directory
+if [ -d "$OUTPUT_DIR/client/trackbot_client" ]; then
+    echo "Copying client library..."
+    cp -r "$OUTPUT_DIR/client/trackbot_client" "$PYTHON_SERVICES_DIR"
 fi
 
 echo -e "${GREEN}Python code generation completed successfully!${NC}"
