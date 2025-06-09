@@ -13,8 +13,8 @@ api_client = ApiClient()
 workouts_api = WorkoutsApi(api_client)
 exercises_api = ExercisesApi(api_client)
 
-@tool
-async def create_workout(CreateWorkoutRequest: CreateWorkoutRequest) -> str:
+@tool("create_workout", description="Create a new workout", args_schema=CreateWorkoutRequest)
+async def create_workout(input: dict) -> str:
     """
     Create a new workout.
     
@@ -24,6 +24,10 @@ async def create_workout(CreateWorkoutRequest: CreateWorkoutRequest) -> str:
     Returns:
         Workout creation status and information
     """
+
+    print(f"Input: {input}")
+
+    CreateWorkoutRequest = CreateWorkoutRequest.model_validate_json(input)
     logger.info(f"Creating workout: {CreateWorkoutRequest.name}")
     try:
         workout = workouts_api.create_workout(CreateWorkoutRequest)
@@ -88,8 +92,8 @@ async def delete_workout(workout_id: str) -> str:
     except Exception as e:
         return f"Error deleting workout: {str(e)}"
 
-@tool
-async def create_exercise(createExerciseRequest: CreateExerciseRequest) -> str:
+@tool("create_exercise", description="Create a new exercise", args_schema=CreateExerciseRequest)
+async def create_exercise(input: dict) -> str:
     """
     Create a new exercise.
     
@@ -99,9 +103,11 @@ async def create_exercise(createExerciseRequest: CreateExerciseRequest) -> str:
     Returns:
         Exercise creation status and information
     """
-    logger.info(f"Creating exercise: {createExerciseRequest.name}")
+    print(f"Input: {input}")
+    CreateExerciseRequest = CreateExerciseRequest.model_validate_json(input)
+    logger.info(f"Creating exercise: {CreateExerciseRequest.name}")
     try:
-        exercise = exercises_api.create_exercise(createExerciseRequest)
+        exercise = exercises_api.create_exercise(CreateExerciseRequest)
         return f"Successfully created exercise: {exercise.name} (ID: {exercise.id})"
     except Exception as e:
         return f"Error creating exercise: {str(e)}"

@@ -22,7 +22,12 @@ func NewLLMClient(baseURL string) *LLMClient {
 	return &LLMClient{
 		baseURL: baseURL,
 		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
+			Timeout: 120 * time.Second,
+			Transport: &http.Transport{
+				MaxIdleConns:        100,
+				MaxIdleConnsPerHost: 100,
+				IdleConnTimeout:     90 * time.Second,
+			},
 		},
 	}
 }
@@ -52,10 +57,16 @@ func (c *LLMClient) ProcessChatMessage(ctx context.Context, messages []api_model
 
 	req.Header.Set("Content-Type", "application/json")
 
+	fmt.Printf("Sending request to LLM service at %s\n", url)
+	fmt.Printf("Request body: %s\n", string(requestBody))
+
 	// Send the request
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		if err.Error() == "context deadline exceeded" {
+			return nil, fmt.Errorf("request to LLM service timed out after 120 seconds. Please check if the service is running and accessible at %s", url)
+		}
+		return nil, fmt.Errorf("failed to send request to LLM service: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -71,8 +82,7 @@ func (c *LLMClient) ProcessChatMessage(ctx context.Context, messages []api_model
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	// Print response for debugging
-	fmt.Println("Response body:", string(bodyBytes))
+	fmt.Printf("Received response from LLM service: %s\n", string(bodyBytes))
 
 	// Parse the response
 	var chatResponse api_models.LLMServiceMessageResponse
@@ -80,6 +90,5 @@ func (c *LLMClient) ProcessChatMessage(ctx context.Context, messages []api_model
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	fmt.Println("Chat response:", chatResponse)
 	return &chatResponse, nil
 }

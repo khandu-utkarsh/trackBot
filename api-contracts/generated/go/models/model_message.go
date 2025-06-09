@@ -24,11 +24,11 @@ var _ MappedNullable = &Message{}
 // Message Represents a message in a conversation.
 type Message struct {
 	// Unique identifier for the message.
-	Id int64 `json:"id"`
+	Id *int64 `json:"id,omitempty"`
 	// Conversation ID this message belongs to.
-	ConversationId int64 `json:"conversation_id"`
+	ConversationId *int64 `json:"conversation_id,omitempty"`
 	// User ID who sent the message.
-	UserId int64 `json:"user_id"`
+	UserId *int64 `json:"user_id,omitempty"`
 	// Content of the message.
 	Content string `json:"content"`
 	MessageType MessageType `json:"message_type"`
@@ -60,11 +60,8 @@ type _Message Message
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewMessage(id int64, conversationId int64, userId int64, content string, messageType MessageType) *Message {
+func NewMessage(content string, messageType MessageType) *Message {
 	this := Message{}
-	this.Id = id
-	this.ConversationId = conversationId
-	this.UserId = userId
 	this.Content = content
 	this.MessageType = messageType
 	var example bool = false
@@ -82,76 +79,100 @@ func NewMessageWithDefaults() *Message {
 	return &this
 }
 
-// GetId returns the Id field value
+// GetId returns the Id field value if set, zero value otherwise.
 func (o *Message) GetId() int64 {
-	if o == nil {
+	if o == nil || IsNil(o.Id) {
 		var ret int64
 		return ret
 	}
-
-	return o.Id
+	return *o.Id
 }
 
-// GetIdOk returns a tuple with the Id field value
+// GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Message) GetIdOk() (*int64, bool) {
-	if o == nil {
+	if o == nil || IsNil(o.Id) {
 		return nil, false
 	}
-	return &o.Id, true
+	return o.Id, true
 }
 
-// SetId sets field value
+// HasId returns a boolean if a field has been set.
+func (o *Message) HasId() bool {
+	if o != nil && !IsNil(o.Id) {
+		return true
+	}
+
+	return false
+}
+
+// SetId gets a reference to the given int64 and assigns it to the Id field.
 func (o *Message) SetId(v int64) {
-	o.Id = v
+	o.Id = &v
 }
 
-// GetConversationId returns the ConversationId field value
+// GetConversationId returns the ConversationId field value if set, zero value otherwise.
 func (o *Message) GetConversationId() int64 {
-	if o == nil {
+	if o == nil || IsNil(o.ConversationId) {
 		var ret int64
 		return ret
 	}
-
-	return o.ConversationId
+	return *o.ConversationId
 }
 
-// GetConversationIdOk returns a tuple with the ConversationId field value
+// GetConversationIdOk returns a tuple with the ConversationId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Message) GetConversationIdOk() (*int64, bool) {
-	if o == nil {
+	if o == nil || IsNil(o.ConversationId) {
 		return nil, false
 	}
-	return &o.ConversationId, true
+	return o.ConversationId, true
 }
 
-// SetConversationId sets field value
+// HasConversationId returns a boolean if a field has been set.
+func (o *Message) HasConversationId() bool {
+	if o != nil && !IsNil(o.ConversationId) {
+		return true
+	}
+
+	return false
+}
+
+// SetConversationId gets a reference to the given int64 and assigns it to the ConversationId field.
 func (o *Message) SetConversationId(v int64) {
-	o.ConversationId = v
+	o.ConversationId = &v
 }
 
-// GetUserId returns the UserId field value
+// GetUserId returns the UserId field value if set, zero value otherwise.
 func (o *Message) GetUserId() int64 {
-	if o == nil {
+	if o == nil || IsNil(o.UserId) {
 		var ret int64
 		return ret
 	}
-
-	return o.UserId
+	return *o.UserId
 }
 
-// GetUserIdOk returns a tuple with the UserId field value
+// GetUserIdOk returns a tuple with the UserId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Message) GetUserIdOk() (*int64, bool) {
-	if o == nil {
+	if o == nil || IsNil(o.UserId) {
 		return nil, false
 	}
-	return &o.UserId, true
+	return o.UserId, true
 }
 
-// SetUserId sets field value
+// HasUserId returns a boolean if a field has been set.
+func (o *Message) HasUserId() bool {
+	if o != nil && !IsNil(o.UserId) {
+		return true
+	}
+
+	return false
+}
+
+// SetUserId gets a reference to the given int64 and assigns it to the UserId field.
 func (o *Message) SetUserId(v int64) {
-	o.UserId = v
+	o.UserId = &v
 }
 
 // GetContent returns the Content field value
@@ -542,9 +563,15 @@ func (o Message) MarshalJSON() ([]byte, error) {
 
 func (o Message) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["id"] = o.Id
-	toSerialize["conversation_id"] = o.ConversationId
-	toSerialize["user_id"] = o.UserId
+	if !IsNil(o.Id) {
+		toSerialize["id"] = o.Id
+	}
+	if !IsNil(o.ConversationId) {
+		toSerialize["conversation_id"] = o.ConversationId
+	}
+	if !IsNil(o.UserId) {
+		toSerialize["user_id"] = o.UserId
+	}
 	toSerialize["content"] = o.Content
 	toSerialize["message_type"] = o.MessageType
 	if !IsNil(o.CreatedAt) {
@@ -585,9 +612,6 @@ func (o *Message) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"id",
-		"conversation_id",
-		"user_id",
 		"content",
 		"message_type",
 	}

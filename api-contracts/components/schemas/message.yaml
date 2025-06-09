@@ -12,9 +12,6 @@ components:
       type: object
       description: Represents a message in a conversation.
       required:
-        - id
-        - conversation_id
-        - user_id
         - content
         - message_type
       properties:

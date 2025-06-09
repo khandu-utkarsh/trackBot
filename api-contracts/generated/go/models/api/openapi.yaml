@@ -1603,10 +1603,7 @@ components:
           type: boolean
       required:
       - content
-      - conversation_id
-      - id
       - message_type
-      - user_id
       type: object
     CreateMessageRequest:
       additionalProperties: false

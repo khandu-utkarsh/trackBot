@@ -24,69 +24,6 @@ func GetUserHandlerInstance(userModel *models.UserModel) *UserHandler {
 	return &UserHandler{userModel: userModel}
 }
 
-// CreateUser handles POST /api/users
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	logRequest("CreateUser")
-
-	if err := validateHTTPMethod(r, http.MethodPost); err != nil {
-		handleHTTPError(w, err)
-		return
-	}
-
-	// 1. Parse request using generated API model
-	var createUserReq api_models.CreateUserRequest
-	if err := decodeJSONBody(r, &createUserReq); err != nil {
-		handleHTTPError(w, err)
-		return
-	}
-
-	// 2. Convert API model to internal domain model
-	user := &models.User{
-		Email: createUserReq.Email,
-	}
-
-	// 3. Validate using internal model
-	if err := validateUserInput(user); err != nil {
-		respondWithError(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// 4. Business logic using internal models
-	ctx := r.Context()
-	id, err := h.userModel.Create(ctx, user)
-	if err != nil {
-		if errors.Is(err, models.ErrDuplicateEmail) {
-			// Get existing user and return 200 (as per OpenAPI spec)
-			existingUser, getErr := h.userModel.GetByEmail(ctx, createUserReq.Email)
-			if getErr != nil {
-				respondWithError(w, "Failed to get existing user", http.StatusInternalServerError)
-				return
-			}
-
-			// Convert to full User schema for 200 response
-			userResponse := &api_models.User{
-				Id:    existingUser.ID,
-				Email: existingUser.Email,
-			}
-			userResponse.SetCreatedAt(existingUser.CreatedAt)
-
-			respondWithJSON(w, http.StatusOK, userResponse)
-			return
-		}
-		respondWithError(w, "Failed to create user", http.StatusInternalServerError)
-		return
-	}
-
-	// 5. Convert to API response model (201 Created)
-	response := &api_models.CreateUserResponse{
-		Id:    id,
-		Email: createUserReq.Email,
-	}
-
-	// 6. Return API response
-	respondWithJSON(w, http.StatusCreated, response)
-}
-
 func (h *UserHandler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
 	logRequest("GetUserByEmail")
 

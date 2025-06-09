@@ -29,9 +29,9 @@ class Message(BaseModel):
     """
     Represents a message in a conversation.
     """ # noqa: E501
-    id: StrictInt = Field(description="Unique identifier for the message.")
-    conversation_id: StrictInt = Field(description="Conversation ID this message belongs to.")
-    user_id: StrictInt = Field(description="User ID who sent the message.")
+    id: Optional[StrictInt] = Field(default=None, description="Unique identifier for the message.")
+    conversation_id: Optional[StrictInt] = Field(default=None, description="Conversation ID this message belongs to.")
+    user_id: Optional[StrictInt] = Field(default=None, description="User ID who sent the message.")
     content: StrictStr = Field(description="Content of the message.")
     message_type: MessageType
     created_at: Optional[datetime] = Field(default=None, description="Creation timestamp.")

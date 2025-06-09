@@ -74,6 +74,8 @@ services:
       - "5678:5678" # Python debugger port
     env_file:
       - backend/services/llmServices/.env.llmApp.docker
+    environment:
+      - ENABLE_DEBUGGER=true
     volumes:
       - ./backend/services/llmServices:/app
       - python_packages:/usr/local/lib/python3.11/site-packages

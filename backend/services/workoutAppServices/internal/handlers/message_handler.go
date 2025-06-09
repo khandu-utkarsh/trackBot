@@ -30,9 +30,9 @@ func NewMessageHandler(messageModel *models.MessageModel, conversationModel *mod
 // Domain to API model conversion functions
 func convertMessageToAPI(internal *models.Message) api_models.Message {
 	return api_models.Message{
-		Id:             internal.ID,
-		ConversationId: internal.ConversationID,
-		UserId:         internal.UserID,
+		Id:             &internal.ID,
+		ConversationId: &internal.ConversationID,
+		UserId:         &internal.UserID,
 		Content:        internal.Content,
 		MessageType:    api_models.MessageType(internal.MessageType),
 		CreatedAt:      &internal.CreatedAt,
@@ -112,26 +112,22 @@ func (h *MessageHandler) ListMessagesByConversation(w http.ResponseWriter, r *ht
 // CreateMessage handles POST /api/users/{userID}/conversations/{conversationID}/messages
 func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 	handlerLogger.Println("CreateMessage request received")
-
 	userID, err := parseIDFromURL(r, "userID")
 	if err != nil {
 		respondWithError(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
-
 	conversationID, err := parseIDFromURL(r, "conversationID")
 	if err != nil {
 		respondWithError(w, "Invalid conversation ID", http.StatusBadRequest)
 		return
 	}
-
-	// Parse request body
 	var request api_models.CreateMessageRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		respondWithError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
+	handlerLogger.Println("📝 CHECKPOINT 6: Create Message request received:", request)
 	ctx := r.Context()
 
 	// Verify the conversation exists and belongs to the user
@@ -205,12 +201,14 @@ func (h *MessageHandler) processAIResponse(ctx context.Context, userID, conversa
 	}
 
 	// Call LLM service
-	llmResponse, err := h.llmClient.ProcessChatMessage(ctx, messages, userID, conversationID, nil)
+	llmResponse, err := h.llmClient.ProcessChatMessage(ctx, convertMessagesToAPI(messagePointers), userID, conversationID, nil)
 	if err != nil {
 		handlerLogger.Println("Error processing AI response", err)
 		// Log error but don't fail the original request
 		return
 	}
+
+	handlerLogger.Println("LLM response: ", llmResponse)
 
 	// Create assistant message with the AI response
 	assistantMessage := &models.Message{

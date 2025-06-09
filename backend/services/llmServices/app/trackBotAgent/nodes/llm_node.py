@@ -51,7 +51,8 @@ async def llm_node(state: AgentState) -> AgentState:
         )
 
         tools = get_available_tools()
-        llm_with_tools = llm.bind_tools(tools)
+        availableToolsArray = list(tools.values())
+        llm_with_tools = llm.bind_tools(availableToolsArray)
 
         # Build complete message sequence with system prompt
         messages = [SystemMessage(content=systemMessage)] + state["messages"]

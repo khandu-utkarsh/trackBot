@@ -49,7 +49,7 @@ class AgentService:
             
 
             #We will be only returning the last message from the agent
-            last_message = self.state.messages[-1]            
+            last_message = self.state["messages"][-1]            
             logger.info(f"Processing completed for user {self.user_id}")
             return last_message
             

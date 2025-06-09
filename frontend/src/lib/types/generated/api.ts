@@ -573,19 +573,19 @@ export interface Message {
      * @type {number}
      * @memberof Message
      */
-    'id': number;
+    'id'?: number;
     /**
      * Conversation ID this message belongs to.
      * @type {number}
      * @memberof Message
      */
-    'conversation_id': number;
+    'conversation_id'?: number;
     /**
      * User ID who sent the message.
      * @type {number}
      * @memberof Message
      */
-    'user_id': number;
+    'user_id'?: number;
     /**
      * Content of the message.
      * @type {string}

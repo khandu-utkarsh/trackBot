@@ -27,7 +27,7 @@ async def tool_node(state: AgentState) -> AgentState:
         # Get available tools
         available_tools = get_available_tools()
         tool_results = []
-        updated_tools_called = list(state["tools_called"])
+        updated_tools_called = list(state["tools_called"] or [])
         
         # Execute each tool call
         for tool_call in last_message.tool_calls:
