@@ -22,8 +22,6 @@ var _ MappedNullable = &CreateCardioExerciseRequest{}
 
 // CreateCardioExerciseRequest struct for CreateCardioExerciseRequest
 type CreateCardioExerciseRequest struct {
-	// Type of exercise
-	Type string `json:"type"`
 	// ID of the user creating the exercise
 	UserId int64 `json:"user_id"`
 	// ID of the workout this exercise belongs to
@@ -44,9 +42,8 @@ type _CreateCardioExerciseRequest CreateCardioExerciseRequest
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateCardioExerciseRequest(type_ string, userId int64, workoutId int64, name string, distance float32, duration int32) *CreateCardioExerciseRequest {
+func NewCreateCardioExerciseRequest(userId int64, workoutId int64, name string, distance float32, duration int32) *CreateCardioExerciseRequest {
 	this := CreateCardioExerciseRequest{}
-	this.Type = type_
 	this.UserId = userId
 	this.WorkoutId = workoutId
 	this.Name = name
@@ -61,30 +58,6 @@ func NewCreateCardioExerciseRequest(type_ string, userId int64, workoutId int64,
 func NewCreateCardioExerciseRequestWithDefaults() *CreateCardioExerciseRequest {
 	this := CreateCardioExerciseRequest{}
 	return &this
-}
-
-// GetType returns the Type field value
-func (o *CreateCardioExerciseRequest) GetType() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Type
-}
-
-// GetTypeOk returns a tuple with the Type field value
-// and a boolean to check if the value has been set.
-func (o *CreateCardioExerciseRequest) GetTypeOk() (*string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return &o.Type, true
-}
-
-// SetType sets field value
-func (o *CreateCardioExerciseRequest) SetType(v string) {
-	o.Type = v
 }
 
 // GetUserId returns the UserId field value
@@ -249,7 +222,6 @@ func (o CreateCardioExerciseRequest) MarshalJSON() ([]byte, error) {
 
 func (o CreateCardioExerciseRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["type"] = o.Type
 	toSerialize["user_id"] = o.UserId
 	toSerialize["workout_id"] = o.WorkoutId
 	toSerialize["name"] = o.Name
@@ -266,7 +238,6 @@ func (o *CreateCardioExerciseRequest) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"type",
 		"user_id",
 		"workout_id",
 		"name",

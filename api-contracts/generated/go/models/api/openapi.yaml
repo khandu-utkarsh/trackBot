@@ -268,10 +268,10 @@ paths:
       summary: Update workout
       tags:
       - Workouts
-  /users/{userId}/workouts/{workoutId}/exercises:
+  /users/{userId}/workouts/{workoutId}/cardioExercises:
     post:
-      description: Add a new exercise to a workout (cardio or strength training)
-      operationId: createExercise
+      description: Add a new cardio exercise to a workout
+      operationId: createCardioExercise
       parameters:
       - description: User ID
         example: 1
@@ -291,37 +291,71 @@ paths:
           format: int64
           minimum: 1
           type: integer
-      - description: Type of exercise to create (cardio or strength)
-        explode: true
-        in: query
-        name: type
-        required: true
-        schema:
-          enum:
-          - cardio
-          - strength
-          type: string
-        style: form
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/createExercise_request"
+              $ref: "#/components/schemas/CreateCardioExerciseRequest"
         required: true
       responses:
         "201":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/createExercise_201_response"
-          description: Exercise created successfully
+                $ref: "#/components/schemas/CardioExerciseResponse"
+          description: Cardio exercise created successfully
         "400":
           $ref: "#/components/responses/BadRequest"
         "404":
           $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalServerError"
-      summary: Create a new exercise
+      summary: Create a new cardio exercise
+      tags:
+      - Exercises
+  /users/{userId}/workouts/{workoutId}/strengthExercises:
+    post:
+      description: Add a new strength exercise to a workout
+      operationId: createStrengthExercise
+      parameters:
+      - description: User ID
+        example: 1
+        in: path
+        name: userId
+        required: true
+        schema:
+          format: int64
+          minimum: 1
+          type: integer
+      - description: Workout ID
+        example: 1
+        in: path
+        name: workoutId
+        required: true
+        schema:
+          format: int64
+          minimum: 1
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStrengthExerciseRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StrengthExerciseResponse"
+          description: Strength exercise created successfully
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+      summary: Create a new strength exercise
       tags:
       - Exercises
   /users/{userId}/conversations:
@@ -1033,12 +1067,6 @@ components:
       type: object
     CreateCardioExerciseRequest:
       properties:
-        type:
-          description: Type of exercise
-          enum:
-          - cardio
-          example: cardio
-          type: string
         user_id:
           description: ID of the user creating the exercise
           example: 1
@@ -1072,18 +1100,11 @@ components:
       - distance
       - duration
       - name
-      - type
       - user_id
       - workout_id
       type: object
-    CreateWeightExerciseRequest:
+    CreateStrengthExerciseRequest:
       properties:
-        type:
-          description: Type of exercise
-          enum:
-          - strength
-          example: strength
-          type: string
         user_id:
           description: ID of the user creating the exercise
           example: 1
@@ -1116,7 +1137,6 @@ components:
       required:
       - name
       - reps
-      - type
       - user_id
       - weight
       - workout_id
@@ -1175,7 +1195,7 @@ components:
       - user_id
       - workout_id
       type: object
-    WeightExerciseResponse:
+    StrengthExerciseResponse:
       properties:
         id:
           description: Unique identifier for the exercise
@@ -1546,16 +1566,3 @@ components:
       - code
       - message
       type: object
-    createExercise_request:
-      discriminator:
-        mapping:
-          cardio: "#/components/schemas/CreateCardioExerciseRequest"
-          strength: "#/components/schemas/CreateWeightExerciseRequest"
-        propertyName: type
-      oneOf:
-      - $ref: "#/components/schemas/CreateCardioExerciseRequest"
-      - $ref: "#/components/schemas/CreateWeightExerciseRequest"
-    createExercise_201_response:
-      oneOf:
-      - $ref: "#/components/schemas/CardioExerciseResponse"
-      - $ref: "#/components/schemas/WeightExerciseResponse"

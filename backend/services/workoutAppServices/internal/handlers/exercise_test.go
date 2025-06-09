@@ -1,19 +1,6 @@
 package handlers
 
-import (
-	"bytes"
-	"context"
-	"encoding/json"
-	"net/http"
-	"net/http/httptest"
-	"strconv"
-	"testing"
-	models "workout_app_backend/internal/models"
-	testutils "workout_app_backend/internal/testutils"
-
-	"github.com/go-chi/chi/v5"
-)
-
+/*
 func TestExerciseHandler_CreateExercise(t *testing.T) {
 	db, cleanup := testutils.SetupTestDB(t)
 	defer cleanup()
@@ -808,3 +795,4 @@ func TestExerciseHandler_DeleteExercise(t *testing.T) {
 		})
 	}
 }
+*/

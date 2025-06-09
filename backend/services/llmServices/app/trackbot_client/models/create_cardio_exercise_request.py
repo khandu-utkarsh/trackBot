@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -28,21 +28,13 @@ class CreateCardioExerciseRequest(BaseModel):
     """
     CreateCardioExerciseRequest
     """ # noqa: E501
-    type: StrictStr = Field(description="Type of exercise")
     user_id: StrictInt = Field(description="ID of the user creating the exercise")
     workout_id: StrictInt = Field(description="ID of the workout this exercise belongs to")
     name: StrictStr = Field(description="Name of the exercise")
     notes: Optional[StrictStr] = Field(default=None, description="Additional notes")
     distance: Union[Annotated[float, Field(strict=True, ge=0)], Annotated[int, Field(strict=True, ge=0)]] = Field(description="Distance in meters")
     duration: Annotated[int, Field(strict=True, ge=1)] = Field(description="Duration in seconds")
-    __properties: ClassVar[List[str]] = ["type", "user_id", "workout_id", "name", "notes", "distance", "duration"]
-
-    @field_validator('type')
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['cardio']):
-            raise ValueError("must be one of enum values ('cardio')")
-        return value
+    __properties: ClassVar[List[str]] = ["user_id", "workout_id", "name", "notes", "distance", "duration"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -95,7 +87,6 @@ class CreateCardioExerciseRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "type": obj.get("type"),
             "user_id": obj.get("user_id"),
             "workout_id": obj.get("workout_id"),
             "name": obj.get("name"),

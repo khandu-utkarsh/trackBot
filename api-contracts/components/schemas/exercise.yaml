@@ -8,13 +8,7 @@ components:
         - name
         - distance
         - duration
-        - type
       properties:
-        type:
-          type: string
-          enum: [cardio]
-          description: Type of exercise
-          example: "cardio"
         user_id:
           type: integer
           format: int64
@@ -45,7 +39,7 @@ components:
           description: Duration in seconds
           example: 1800
 
-    CreateWeightExerciseRequest:
+    CreateStrengthExerciseRequest:
       type: object
       required:
         - user_id
@@ -53,13 +47,7 @@ components:
         - name
         - reps
         - weight
-        - type
       properties:
-        type:
-          type: string
-          enum: [strength]
-          description: Type of exercise
-          example: "strength"
         user_id:
           type: integer
           format: int64
@@ -145,7 +133,7 @@ components:
           example: "2024-01-15T10:30:00Z"
           readOnly: true
 
-    WeightExerciseResponse:
+    StrengthExerciseResponse:
       type: object
       required:
         - id

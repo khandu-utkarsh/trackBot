@@ -8,18 +8,33 @@ import (
 
 // RegisterExerciseRoutes registers exercise routes under a given workout ID.
 func RegisterExerciseRoutes(r chi.Router, exerciseHandler *handlers.ExerciseHandler) {
-	r.Route("/workouts/{workoutID}/exercises", func(r chi.Router) {
+	r.Route("/workouts/{workoutID}/cardioExercises", func(r chi.Router) {
 		// List all exercises under a workout
-		r.Get("/", exerciseHandler.ListExercisesByWorkout)
+		//r.Get("/", exerciseHandler.ListExercisesByWorkout)
 
 		// Create a new exercise under a workout
-		r.Post("/", exerciseHandler.CreateExercise)
+		r.Post("/", exerciseHandler.CreateCardioExercises)
 
 		// Actions on a specific exercise under a workout
-		r.Route("/{exerciseID}", func(r chi.Router) {
-			r.Get("/", exerciseHandler.GetExercise)
-			r.Put("/", exerciseHandler.UpdateExercise)
-			r.Delete("/", exerciseHandler.DeleteExercise)
-		})
+		//r.Route("/{exerciseID}", func(r chi.Router) {
+		//	r.Get("/", exerciseHandler.GetExercise)
+		//	r.Put("/", exerciseHandler.UpdateExercise)
+		//	r.Delete("/", exerciseHandler.DeleteExercise)
+		//})
+	})
+
+	r.Route("/workouts/{workoutID}/strengthExercises", func(r chi.Router) {
+		// List all exercises under a workout
+		//r.Get("/", exerciseHandler.ListExercisesByWorkout)
+
+		// Create a new exercise under a workout
+		r.Post("/", exerciseHandler.CreateStrengthExercises)
+
+		// Actions on a specific exercise under a workout
+		//r.Route("/{exerciseID}", func(r chi.Router) {
+		//	r.Get("/", exerciseHandler.GetExercise)
+		//	r.Put("/", exerciseHandler.UpdateExercise)
+		//	r.Delete("/", exerciseHandler.DeleteExercise)
+		//})
 	})
 }

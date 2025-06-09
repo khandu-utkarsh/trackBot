@@ -13,10 +13,8 @@ model_conversation.go
 model_create_cardio_exercise_request.go
 model_create_conversation_request.go
 model_create_conversation_response.go
-model_create_exercise_201_response.go
-model_create_exercise_request.go
 model_create_message_request.go
-model_create_weight_exercise_request.go
+model_create_strength_exercise_request.go
 model_create_workout_request.go
 model_create_workout_response.go
 model_delete_conversation_request.go
@@ -31,10 +29,10 @@ model_llm_service_message_request.go
 model_llm_service_message_response.go
 model_message.go
 model_message_type.go
+model_strength_exercise_response.go
 model_update_conversation_request.go
 model_update_workout_request.go
 model_user.go
-model_weight_exercise_response.go
 model_workout.go
 model_workout_list_params.go
 response.go

@@ -28,10 +28,8 @@ trackbot_client/models/conversation.py
 trackbot_client/models/create_cardio_exercise_request.py
 trackbot_client/models/create_conversation_request.py
 trackbot_client/models/create_conversation_response.py
-trackbot_client/models/create_exercise201_response.py
-trackbot_client/models/create_exercise_request.py
 trackbot_client/models/create_message_request.py
-trackbot_client/models/create_weight_exercise_request.py
+trackbot_client/models/create_strength_exercise_request.py
 trackbot_client/models/create_workout_request.py
 trackbot_client/models/create_workout_response.py
 trackbot_client/models/delete_conversation_request.py
@@ -46,10 +44,10 @@ trackbot_client/models/llm_service_message_request.py
 trackbot_client/models/llm_service_message_response.py
 trackbot_client/models/message.py
 trackbot_client/models/message_type.py
+trackbot_client/models/strength_exercise_response.py
 trackbot_client/models/update_conversation_request.py
 trackbot_client/models/update_workout_request.py
 trackbot_client/models/user.py
-trackbot_client/models/weight_exercise_response.py
 trackbot_client/models/workout.py
 trackbot_client/models/workout_list_params.py
 trackbot_client/py.typed

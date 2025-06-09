@@ -18,26 +18,23 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class WeightExerciseResponse(BaseModel):
+class CreateStrengthExerciseRequest(BaseModel):
     """
-    WeightExerciseResponse
+    CreateStrengthExerciseRequest
     """ # noqa: E501
-    id: StrictInt = Field(description="Unique identifier for the exercise")
-    user_id: StrictInt = Field(description="ID of the user who created the exercise")
+    user_id: StrictInt = Field(description="ID of the user creating the exercise")
     workout_id: StrictInt = Field(description="ID of the workout this exercise belongs to")
     name: StrictStr = Field(description="Name of the exercise")
     notes: Optional[StrictStr] = Field(default=None, description="Additional notes")
     reps: Annotated[int, Field(strict=True, ge=1)] = Field(description="Repetitions per set")
     weight: Union[Annotated[float, Field(strict=True, ge=0)], Annotated[int, Field(strict=True, ge=0)]] = Field(description="Weight in kilograms")
-    created_at: datetime = Field(description="Timestamp when the exercise was created")
-    __properties: ClassVar[List[str]] = ["id", "user_id", "workout_id", "name", "notes", "reps", "weight", "created_at"]
+    __properties: ClassVar[List[str]] = ["user_id", "workout_id", "name", "notes", "reps", "weight"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -57,7 +54,7 @@ class WeightExerciseResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of WeightExerciseResponse from a JSON string"""
+        """Create an instance of CreateStrengthExerciseRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,16 +66,8 @@ class WeightExerciseResponse(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
-        * OpenAPI `readOnly` fields are excluded.
-        * OpenAPI `readOnly` fields are excluded.
-        * OpenAPI `readOnly` fields are excluded.
-        * OpenAPI `readOnly` fields are excluded.
         """
         excluded_fields: Set[str] = set([
-            "id",
-            "user_id",
-            "workout_id",
-            "created_at",
         ])
 
         _dict = self.model_dump(
@@ -90,7 +79,7 @@ class WeightExerciseResponse(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of WeightExerciseResponse from a dict"""
+        """Create an instance of CreateStrengthExerciseRequest from a dict"""
         if obj is None:
             return None
 
@@ -98,14 +87,12 @@ class WeightExerciseResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
             "user_id": obj.get("user_id"),
             "workout_id": obj.get("workout_id"),
             "name": obj.get("name"),
             "notes": obj.get("notes"),
             "reps": obj.get("reps"),
-            "weight": obj.get("weight"),
-            "created_at": obj.get("created_at")
+            "weight": obj.get("weight")
         })
         return _obj
 

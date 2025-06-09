@@ -17,13 +17,11 @@ import (
 	"fmt"
 )
 
-// checks if the CreateWeightExerciseRequest type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &CreateWeightExerciseRequest{}
+// checks if the CreateStrengthExerciseRequest type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &CreateStrengthExerciseRequest{}
 
-// CreateWeightExerciseRequest struct for CreateWeightExerciseRequest
-type CreateWeightExerciseRequest struct {
-	// Type of exercise
-	Type string `json:"type"`
+// CreateStrengthExerciseRequest struct for CreateStrengthExerciseRequest
+type CreateStrengthExerciseRequest struct {
 	// ID of the user creating the exercise
 	UserId int64 `json:"user_id"`
 	// ID of the workout this exercise belongs to
@@ -38,15 +36,14 @@ type CreateWeightExerciseRequest struct {
 	Weight float32 `json:"weight"`
 }
 
-type _CreateWeightExerciseRequest CreateWeightExerciseRequest
+type _CreateStrengthExerciseRequest CreateStrengthExerciseRequest
 
-// NewCreateWeightExerciseRequest instantiates a new CreateWeightExerciseRequest object
+// NewCreateStrengthExerciseRequest instantiates a new CreateStrengthExerciseRequest object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateWeightExerciseRequest(type_ string, userId int64, workoutId int64, name string, reps int32, weight float32) *CreateWeightExerciseRequest {
-	this := CreateWeightExerciseRequest{}
-	this.Type = type_
+func NewCreateStrengthExerciseRequest(userId int64, workoutId int64, name string, reps int32, weight float32) *CreateStrengthExerciseRequest {
+	this := CreateStrengthExerciseRequest{}
 	this.UserId = userId
 	this.WorkoutId = workoutId
 	this.Name = name
@@ -55,40 +52,16 @@ func NewCreateWeightExerciseRequest(type_ string, userId int64, workoutId int64,
 	return &this
 }
 
-// NewCreateWeightExerciseRequestWithDefaults instantiates a new CreateWeightExerciseRequest object
+// NewCreateStrengthExerciseRequestWithDefaults instantiates a new CreateStrengthExerciseRequest object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewCreateWeightExerciseRequestWithDefaults() *CreateWeightExerciseRequest {
-	this := CreateWeightExerciseRequest{}
+func NewCreateStrengthExerciseRequestWithDefaults() *CreateStrengthExerciseRequest {
+	this := CreateStrengthExerciseRequest{}
 	return &this
 }
 
-// GetType returns the Type field value
-func (o *CreateWeightExerciseRequest) GetType() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Type
-}
-
-// GetTypeOk returns a tuple with the Type field value
-// and a boolean to check if the value has been set.
-func (o *CreateWeightExerciseRequest) GetTypeOk() (*string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return &o.Type, true
-}
-
-// SetType sets field value
-func (o *CreateWeightExerciseRequest) SetType(v string) {
-	o.Type = v
-}
-
 // GetUserId returns the UserId field value
-func (o *CreateWeightExerciseRequest) GetUserId() int64 {
+func (o *CreateStrengthExerciseRequest) GetUserId() int64 {
 	if o == nil {
 		var ret int64
 		return ret
@@ -99,7 +72,7 @@ func (o *CreateWeightExerciseRequest) GetUserId() int64 {
 
 // GetUserIdOk returns a tuple with the UserId field value
 // and a boolean to check if the value has been set.
-func (o *CreateWeightExerciseRequest) GetUserIdOk() (*int64, bool) {
+func (o *CreateStrengthExerciseRequest) GetUserIdOk() (*int64, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -107,12 +80,12 @@ func (o *CreateWeightExerciseRequest) GetUserIdOk() (*int64, bool) {
 }
 
 // SetUserId sets field value
-func (o *CreateWeightExerciseRequest) SetUserId(v int64) {
+func (o *CreateStrengthExerciseRequest) SetUserId(v int64) {
 	o.UserId = v
 }
 
 // GetWorkoutId returns the WorkoutId field value
-func (o *CreateWeightExerciseRequest) GetWorkoutId() int64 {
+func (o *CreateStrengthExerciseRequest) GetWorkoutId() int64 {
 	if o == nil {
 		var ret int64
 		return ret
@@ -123,7 +96,7 @@ func (o *CreateWeightExerciseRequest) GetWorkoutId() int64 {
 
 // GetWorkoutIdOk returns a tuple with the WorkoutId field value
 // and a boolean to check if the value has been set.
-func (o *CreateWeightExerciseRequest) GetWorkoutIdOk() (*int64, bool) {
+func (o *CreateStrengthExerciseRequest) GetWorkoutIdOk() (*int64, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -131,12 +104,12 @@ func (o *CreateWeightExerciseRequest) GetWorkoutIdOk() (*int64, bool) {
 }
 
 // SetWorkoutId sets field value
-func (o *CreateWeightExerciseRequest) SetWorkoutId(v int64) {
+func (o *CreateStrengthExerciseRequest) SetWorkoutId(v int64) {
 	o.WorkoutId = v
 }
 
 // GetName returns the Name field value
-func (o *CreateWeightExerciseRequest) GetName() string {
+func (o *CreateStrengthExerciseRequest) GetName() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -147,7 +120,7 @@ func (o *CreateWeightExerciseRequest) GetName() string {
 
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
-func (o *CreateWeightExerciseRequest) GetNameOk() (*string, bool) {
+func (o *CreateStrengthExerciseRequest) GetNameOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -155,12 +128,12 @@ func (o *CreateWeightExerciseRequest) GetNameOk() (*string, bool) {
 }
 
 // SetName sets field value
-func (o *CreateWeightExerciseRequest) SetName(v string) {
+func (o *CreateStrengthExerciseRequest) SetName(v string) {
 	o.Name = v
 }
 
 // GetNotes returns the Notes field value if set, zero value otherwise.
-func (o *CreateWeightExerciseRequest) GetNotes() string {
+func (o *CreateStrengthExerciseRequest) GetNotes() string {
 	if o == nil || IsNil(o.Notes) {
 		var ret string
 		return ret
@@ -170,7 +143,7 @@ func (o *CreateWeightExerciseRequest) GetNotes() string {
 
 // GetNotesOk returns a tuple with the Notes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *CreateWeightExerciseRequest) GetNotesOk() (*string, bool) {
+func (o *CreateStrengthExerciseRequest) GetNotesOk() (*string, bool) {
 	if o == nil || IsNil(o.Notes) {
 		return nil, false
 	}
@@ -178,7 +151,7 @@ func (o *CreateWeightExerciseRequest) GetNotesOk() (*string, bool) {
 }
 
 // HasNotes returns a boolean if a field has been set.
-func (o *CreateWeightExerciseRequest) HasNotes() bool {
+func (o *CreateStrengthExerciseRequest) HasNotes() bool {
 	if o != nil && !IsNil(o.Notes) {
 		return true
 	}
@@ -187,12 +160,12 @@ func (o *CreateWeightExerciseRequest) HasNotes() bool {
 }
 
 // SetNotes gets a reference to the given string and assigns it to the Notes field.
-func (o *CreateWeightExerciseRequest) SetNotes(v string) {
+func (o *CreateStrengthExerciseRequest) SetNotes(v string) {
 	o.Notes = &v
 }
 
 // GetReps returns the Reps field value
-func (o *CreateWeightExerciseRequest) GetReps() int32 {
+func (o *CreateStrengthExerciseRequest) GetReps() int32 {
 	if o == nil {
 		var ret int32
 		return ret
@@ -203,7 +176,7 @@ func (o *CreateWeightExerciseRequest) GetReps() int32 {
 
 // GetRepsOk returns a tuple with the Reps field value
 // and a boolean to check if the value has been set.
-func (o *CreateWeightExerciseRequest) GetRepsOk() (*int32, bool) {
+func (o *CreateStrengthExerciseRequest) GetRepsOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -211,12 +184,12 @@ func (o *CreateWeightExerciseRequest) GetRepsOk() (*int32, bool) {
 }
 
 // SetReps sets field value
-func (o *CreateWeightExerciseRequest) SetReps(v int32) {
+func (o *CreateStrengthExerciseRequest) SetReps(v int32) {
 	o.Reps = v
 }
 
 // GetWeight returns the Weight field value
-func (o *CreateWeightExerciseRequest) GetWeight() float32 {
+func (o *CreateStrengthExerciseRequest) GetWeight() float32 {
 	if o == nil {
 		var ret float32
 		return ret
@@ -227,7 +200,7 @@ func (o *CreateWeightExerciseRequest) GetWeight() float32 {
 
 // GetWeightOk returns a tuple with the Weight field value
 // and a boolean to check if the value has been set.
-func (o *CreateWeightExerciseRequest) GetWeightOk() (*float32, bool) {
+func (o *CreateStrengthExerciseRequest) GetWeightOk() (*float32, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -235,11 +208,11 @@ func (o *CreateWeightExerciseRequest) GetWeightOk() (*float32, bool) {
 }
 
 // SetWeight sets field value
-func (o *CreateWeightExerciseRequest) SetWeight(v float32) {
+func (o *CreateStrengthExerciseRequest) SetWeight(v float32) {
 	o.Weight = v
 }
 
-func (o CreateWeightExerciseRequest) MarshalJSON() ([]byte, error) {
+func (o CreateStrengthExerciseRequest) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -247,9 +220,8 @@ func (o CreateWeightExerciseRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o CreateWeightExerciseRequest) ToMap() (map[string]interface{}, error) {
+func (o CreateStrengthExerciseRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["type"] = o.Type
 	toSerialize["user_id"] = o.UserId
 	toSerialize["workout_id"] = o.WorkoutId
 	toSerialize["name"] = o.Name
@@ -261,12 +233,11 @@ func (o CreateWeightExerciseRequest) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *CreateWeightExerciseRequest) UnmarshalJSON(data []byte) (err error) {
+func (o *CreateStrengthExerciseRequest) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"type",
 		"user_id",
 		"workout_id",
 		"name",
@@ -288,53 +259,53 @@ func (o *CreateWeightExerciseRequest) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	varCreateWeightExerciseRequest := _CreateWeightExerciseRequest{}
+	varCreateStrengthExerciseRequest := _CreateStrengthExerciseRequest{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
 	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varCreateWeightExerciseRequest)
+	err = decoder.Decode(&varCreateStrengthExerciseRequest)
 
 	if err != nil {
 		return err
 	}
 
-	*o = CreateWeightExerciseRequest(varCreateWeightExerciseRequest)
+	*o = CreateStrengthExerciseRequest(varCreateStrengthExerciseRequest)
 
 	return err
 }
 
-type NullableCreateWeightExerciseRequest struct {
-	value *CreateWeightExerciseRequest
+type NullableCreateStrengthExerciseRequest struct {
+	value *CreateStrengthExerciseRequest
 	isSet bool
 }
 
-func (v NullableCreateWeightExerciseRequest) Get() *CreateWeightExerciseRequest {
+func (v NullableCreateStrengthExerciseRequest) Get() *CreateStrengthExerciseRequest {
 	return v.value
 }
 
-func (v *NullableCreateWeightExerciseRequest) Set(val *CreateWeightExerciseRequest) {
+func (v *NullableCreateStrengthExerciseRequest) Set(val *CreateStrengthExerciseRequest) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableCreateWeightExerciseRequest) IsSet() bool {
+func (v NullableCreateStrengthExerciseRequest) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableCreateWeightExerciseRequest) Unset() {
+func (v *NullableCreateStrengthExerciseRequest) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableCreateWeightExerciseRequest(val *CreateWeightExerciseRequest) *NullableCreateWeightExerciseRequest {
-	return &NullableCreateWeightExerciseRequest{value: val, isSet: true}
+func NewNullableCreateStrengthExerciseRequest(val *CreateStrengthExerciseRequest) *NullableCreateStrengthExerciseRequest {
+	return &NullableCreateStrengthExerciseRequest{value: val, isSet: true}
 }
 
-func (v NullableCreateWeightExerciseRequest) MarshalJSON() ([]byte, error) {
+func (v NullableCreateStrengthExerciseRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableCreateWeightExerciseRequest) UnmarshalJSON(src []byte) error {
+func (v *NullableCreateStrengthExerciseRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
