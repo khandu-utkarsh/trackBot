@@ -4,7 +4,7 @@ components:
       type: string
       enum:
         - cardio
-        - weights
+        - strength
       description: Type of exercise
 
     BaseExercise:

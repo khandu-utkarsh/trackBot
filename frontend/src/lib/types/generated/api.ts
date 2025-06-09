@@ -410,7 +410,7 @@ export type Exercise = { type: 'cardio' } & CardioExercise | { type: 'weights' }
 
 export const ExerciseType = {
     Cardio: 'cardio',
-    Weights: 'weights'
+    Strength: 'strength'
 } as const;
 
 export type ExerciseType = typeof ExerciseType[keyof typeof ExerciseType];

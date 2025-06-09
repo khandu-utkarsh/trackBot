@@ -22,13 +22,13 @@ type ExerciseType string
 // List of ExerciseType
 const (
 	CARDIO ExerciseType = "cardio"
-	WEIGHTS ExerciseType = "weights"
+	STRENGTH ExerciseType = "strength"
 )
 
 // All allowed values of ExerciseType enum
 var AllowedExerciseTypeEnumValues = []ExerciseType{
 	"cardio",
-	"weights",
+	"strength",
 }
 
 func (v *ExerciseType) UnmarshalJSON(src []byte) error {

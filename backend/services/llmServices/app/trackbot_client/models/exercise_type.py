@@ -28,7 +28,7 @@ class ExerciseType(str, Enum):
     allowed enum values
     """
     CARDIO = 'cardio'
-    WEIGHTS = 'weights'
+    STRENGTH = 'strength'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
