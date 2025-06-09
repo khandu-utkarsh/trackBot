@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -28,19 +28,20 @@ class CreateWeightExerciseRequest(BaseModel):
     """
     CreateWeightExerciseRequest
     """ # noqa: E501
+    type: StrictStr = Field(description="Type of exercise")
+    user_id: StrictInt = Field(description="ID of the user creating the exercise")
+    workout_id: StrictInt = Field(description="ID of the workout this exercise belongs to")
     name: StrictStr = Field(description="Name of the exercise")
-    type: StrictStr
     notes: Optional[StrictStr] = Field(default=None, description="Additional notes")
-    sets: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of sets")
-    reps: Annotated[int, Field(strict=True, ge=1)] = Field(description="Reps per set")
-    weight: Union[Annotated[float, Field(strict=True, ge=0)], Annotated[int, Field(strict=True, ge=0)]] = Field(description="Weight in kg")
-    __properties: ClassVar[List[str]] = ["name", "type", "notes", "sets", "reps", "weight"]
+    reps: Annotated[int, Field(strict=True, ge=1)] = Field(description="Repetitions per set")
+    weight: Union[Annotated[float, Field(strict=True, ge=0)], Annotated[int, Field(strict=True, ge=0)]] = Field(description="Weight in kilograms")
+    __properties: ClassVar[List[str]] = ["type", "user_id", "workout_id", "name", "notes", "reps", "weight"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['weights']):
-            raise ValueError("must be one of enum values ('weights')")
+        if value not in set(['strength']):
+            raise ValueError("must be one of enum values ('strength')")
         return value
 
     model_config = ConfigDict(
@@ -94,10 +95,11 @@ class CreateWeightExerciseRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
             "type": obj.get("type"),
+            "user_id": obj.get("user_id"),
+            "workout_id": obj.get("workout_id"),
+            "name": obj.get("name"),
             "notes": obj.get("notes"),
-            "sets": obj.get("sets"),
             "reps": obj.get("reps"),
             "weight": obj.get("weight")
         })

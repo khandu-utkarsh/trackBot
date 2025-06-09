@@ -18,33 +18,30 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from trackbot_client.models.cardio_exercise import CardioExercise
-from trackbot_client.models.weight_exercise import WeightExercise
+from trackbot_client.models.cardio_exercise_response import CardioExerciseResponse
+from trackbot_client.models.weight_exercise_response import WeightExerciseResponse
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-EXERCISE_ONE_OF_SCHEMAS = ["CardioExercise", "WeightExercise"]
+CREATEEXERCISE201RESPONSE_ONE_OF_SCHEMAS = ["CardioExerciseResponse", "WeightExerciseResponse"]
 
-class Exercise(BaseModel):
+class CreateExercise201Response(BaseModel):
     """
-    Exercise
+    CreateExercise201Response
     """
-    # data type: CardioExercise
-    oneof_schema_1_validator: Optional[CardioExercise] = None
-    # data type: WeightExercise
-    oneof_schema_2_validator: Optional[WeightExercise] = None
-    actual_instance: Optional[Union[CardioExercise, WeightExercise]] = None
-    one_of_schemas: Set[str] = { "CardioExercise", "WeightExercise" }
+    # data type: CardioExerciseResponse
+    oneof_schema_1_validator: Optional[CardioExerciseResponse] = None
+    # data type: WeightExerciseResponse
+    oneof_schema_2_validator: Optional[WeightExerciseResponse] = None
+    actual_instance: Optional[Union[CardioExerciseResponse, WeightExerciseResponse]] = None
+    one_of_schemas: Set[str] = { "CardioExerciseResponse", "WeightExerciseResponse" }
 
     model_config = ConfigDict(
         validate_assignment=True,
         protected_namespaces=(),
     )
 
-
-    discriminator_value_class_map: Dict[str, str] = {
-    }
 
     def __init__(self, *args, **kwargs) -> None:
         if args:
@@ -58,25 +55,25 @@ class Exercise(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = Exercise.model_construct()
+        instance = CreateExercise201Response.model_construct()
         error_messages = []
         match = 0
-        # validate data type: CardioExercise
-        if not isinstance(v, CardioExercise):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `CardioExercise`")
+        # validate data type: CardioExerciseResponse
+        if not isinstance(v, CardioExerciseResponse):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `CardioExerciseResponse`")
         else:
             match += 1
-        # validate data type: WeightExercise
-        if not isinstance(v, WeightExercise):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `WeightExercise`")
+        # validate data type: WeightExerciseResponse
+        if not isinstance(v, WeightExerciseResponse):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `WeightExerciseResponse`")
         else:
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in Exercise with oneOf schemas: CardioExercise, WeightExercise. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in CreateExercise201Response with oneOf schemas: CardioExerciseResponse, WeightExerciseResponse. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in Exercise with oneOf schemas: CardioExercise, WeightExercise. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in CreateExercise201Response with oneOf schemas: CardioExerciseResponse, WeightExerciseResponse. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -91,25 +88,25 @@ class Exercise(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into CardioExercise
+        # deserialize data into CardioExerciseResponse
         try:
-            instance.actual_instance = CardioExercise.from_json(json_str)
+            instance.actual_instance = CardioExerciseResponse.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into WeightExercise
+        # deserialize data into WeightExerciseResponse
         try:
-            instance.actual_instance = WeightExercise.from_json(json_str)
+            instance.actual_instance = WeightExerciseResponse.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into Exercise with oneOf schemas: CardioExercise, WeightExercise. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into CreateExercise201Response with oneOf schemas: CardioExerciseResponse, WeightExerciseResponse. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into Exercise with oneOf schemas: CardioExercise, WeightExercise. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into CreateExercise201Response with oneOf schemas: CardioExerciseResponse, WeightExerciseResponse. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -123,7 +120,7 @@ class Exercise(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], CardioExercise, WeightExercise]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], CardioExerciseResponse, WeightExerciseResponse]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

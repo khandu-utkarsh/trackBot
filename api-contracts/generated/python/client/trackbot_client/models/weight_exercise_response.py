@@ -19,33 +19,25 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class WeightExercise(BaseModel):
+class WeightExerciseResponse(BaseModel):
     """
-    WeightExercise
+    WeightExerciseResponse
     """ # noqa: E501
-    id: StrictInt = Field(description="Unique identifier for the exercise.")
-    workout_id: StrictInt = Field(description="ID of the workout this exercise belongs to.")
+    id: StrictInt = Field(description="Unique identifier for the exercise")
+    user_id: StrictInt = Field(description="ID of the user who created the exercise")
+    workout_id: StrictInt = Field(description="ID of the workout this exercise belongs to")
     name: StrictStr = Field(description="Name of the exercise")
-    type: StrictStr
     notes: Optional[StrictStr] = Field(default=None, description="Additional notes")
-    created_at: datetime = Field(description="Timestamp when the exercise was created.")
-    sets: Annotated[int, Field(strict=True, ge=1)] = Field(description="Number of sets")
     reps: Annotated[int, Field(strict=True, ge=1)] = Field(description="Repetitions per set")
     weight: Union[Annotated[float, Field(strict=True, ge=0)], Annotated[int, Field(strict=True, ge=0)]] = Field(description="Weight in kilograms")
-    __properties: ClassVar[List[str]] = ["id", "workout_id", "name", "type", "notes", "created_at", "sets", "reps", "weight"]
-
-    @field_validator('type')
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['weights']):
-            raise ValueError("must be one of enum values ('weights')")
-        return value
+    created_at: datetime = Field(description="Timestamp when the exercise was created")
+    __properties: ClassVar[List[str]] = ["id", "user_id", "workout_id", "name", "notes", "reps", "weight", "created_at"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -65,7 +57,7 @@ class WeightExercise(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of WeightExercise from a JSON string"""
+        """Create an instance of WeightExerciseResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,9 +72,11 @@ class WeightExercise(BaseModel):
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
         * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
         """
         excluded_fields: Set[str] = set([
             "id",
+            "user_id",
             "workout_id",
             "created_at",
         ])
@@ -96,7 +90,7 @@ class WeightExercise(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of WeightExercise from a dict"""
+        """Create an instance of WeightExerciseResponse from a dict"""
         if obj is None:
             return None
 
@@ -105,14 +99,13 @@ class WeightExercise(BaseModel):
 
         _obj = cls.model_validate({
             "id": obj.get("id"),
+            "user_id": obj.get("user_id"),
             "workout_id": obj.get("workout_id"),
             "name": obj.get("name"),
-            "type": obj.get("type"),
             "notes": obj.get("notes"),
-            "created_at": obj.get("created_at"),
-            "sets": obj.get("sets"),
             "reps": obj.get("reps"),
-            "weight": obj.get("weight")
+            "weight": obj.get("weight"),
+            "created_at": obj.get("created_at")
         })
         return _obj
 

@@ -214,112 +214,45 @@ paths:
 
   # Exercise endpoints (nested under users and workouts)
   /users/{userId}/workouts/{workoutId}/exercises:
-    get:
-      summary: List exercises for a workout
-      description: Retrieve all exercises for a specific workout
-      operationId: listExercises
-      tags: [Exercises]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/UserIdPath'
-        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
-      responses:
-        '200':
-          description: List of exercises retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/exercise.yaml#/components/schemas/ListExercisesResponse'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
     post:
       summary: Create a new exercise
-      description: Add a new exercise to a workout (cardio or weight training)
+      description: Add a new exercise to a workout (cardio or strength training)
       operationId: createExercise
       tags: [Exercises]
       parameters:
         - $ref: './components/parameters/common.yaml#/UserIdPath'
         - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [cardio, strength]
+          description: Type of exercise to create (cardio or strength)
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: './components/schemas/exercise.yaml#/components/schemas/CreateExerciseRequest'
+              oneOf:
+                - $ref: './components/schemas/exercise.yaml#/components/schemas/CreateCardioExerciseRequest'
+                - $ref: './components/schemas/exercise.yaml#/components/schemas/CreateWeightExerciseRequest'
+              discriminator:
+                propertyName: type
+                mapping:
+                  cardio: '#/components/schemas/CreateCardioExerciseRequest'
+                  strength: '#/components/schemas/CreateWeightExerciseRequest'
       responses:
         '201':
           description: Exercise created successfully
           content:
             application/json:
               schema:
-                $ref: './components/schemas/exercise.yaml#/components/schemas/Exercise'
+                oneOf:
+                  - $ref: './components/schemas/exercise.yaml#/components/schemas/CardioExerciseResponse'
+                  - $ref: './components/schemas/exercise.yaml#/components/schemas/WeightExerciseResponse'
         '400':
           $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-
-  /users/{userId}/workouts/{workoutId}/exercises/{exerciseId}:
-    get:
-      summary: Get exercise by ID
-      description: Retrieve a specific exercise by its ID
-      operationId: getExerciseById
-      tags: [Exercises]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/UserIdPath'
-        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
-        - $ref: './components/parameters/common.yaml#/ExerciseIdPath'
-      responses:
-        '200':
-          description: Exercise details retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/exercise.yaml#/components/schemas/Exercise'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-    put:
-      summary: Update exercise
-      description: Update an existing exercise
-      operationId: updateExercise
-      tags: [Exercises]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/UserIdPath'
-        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
-        - $ref: './components/parameters/common.yaml#/ExerciseIdPath'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: './components/schemas/exercise.yaml#/components/schemas/CreateExerciseRequest'
-      responses:
-        '200':
-          description: Exercise updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/exercise.yaml#/components/schemas/Exercise'
-        '400':
-          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-    delete:
-      summary: Delete exercise
-      description: Delete an exercise from a workout
-      operationId: deleteExercise
-      tags: [Exercises]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/UserIdPath'
-        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
-        - $ref: './components/parameters/common.yaml#/ExerciseIdPath'
-      responses:
-        '204':
-          $ref: './components/responses/errors.yaml#/components/responses/NoContent'
         '404':
           $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
@@ -564,24 +497,15 @@ components:
     ListWorkoutsResponse:
       $ref: './components/schemas/workout.yaml#/components/schemas/ListWorkoutsResponse'
 
-    ExerciseType:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/ExerciseType'
-    BaseExercise:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/BaseExercise'
-    CardioExercise:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/CardioExercise'
-    WeightExercise:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/WeightExercise'
-    Exercise:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/Exercise'
+    # Exercise schemas
     CreateCardioExerciseRequest:
       $ref: './components/schemas/exercise.yaml#/components/schemas/CreateCardioExerciseRequest'
     CreateWeightExerciseRequest:
       $ref: './components/schemas/exercise.yaml#/components/schemas/CreateWeightExerciseRequest'
-    CreateExerciseRequest:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/CreateExerciseRequest'
-    ListExercisesResponse:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/ListExercisesResponse'
+    CardioExerciseResponse:
+      $ref: './components/schemas/exercise.yaml#/components/schemas/CardioExerciseResponse'
+    WeightExerciseResponse:
+      $ref: './components/schemas/exercise.yaml#/components/schemas/WeightExerciseResponse'
 
     Conversation:
       $ref: './components/schemas/conversation.yaml#/components/schemas/Conversation'

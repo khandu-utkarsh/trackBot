@@ -18,18 +18,26 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List
-from trackbot_client.models.exercise import Exercise
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional, Union
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ListExercisesResponse(BaseModel):
+class CardioExerciseResponse(BaseModel):
     """
-    A list of exercises
+    CardioExerciseResponse
     """ # noqa: E501
-    exercises: List[Exercise]
-    __properties: ClassVar[List[str]] = ["exercises"]
+    id: StrictInt = Field(description="Unique identifier for the exercise")
+    user_id: StrictInt = Field(description="ID of the user who created the exercise")
+    workout_id: StrictInt = Field(description="ID of the workout this exercise belongs to")
+    name: StrictStr = Field(description="Name of the exercise")
+    notes: Optional[StrictStr] = Field(default=None, description="Additional notes")
+    distance: Union[Annotated[float, Field(strict=True, ge=0)], Annotated[int, Field(strict=True, ge=0)]] = Field(description="Distance in meters")
+    duration: Annotated[int, Field(strict=True, ge=1)] = Field(description="Duration in seconds")
+    created_at: datetime = Field(description="Timestamp when the exercise was created")
+    __properties: ClassVar[List[str]] = ["id", "user_id", "workout_id", "name", "notes", "distance", "duration", "created_at"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +57,7 @@ class ListExercisesResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ListExercisesResponse from a JSON string"""
+        """Create an instance of CardioExerciseResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -61,8 +69,16 @@ class ListExercisesResponse(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
+        * OpenAPI `readOnly` fields are excluded.
         """
         excluded_fields: Set[str] = set([
+            "id",
+            "user_id",
+            "workout_id",
+            "created_at",
         ])
 
         _dict = self.model_dump(
@@ -70,18 +86,11 @@ class ListExercisesResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in exercises (list)
-        _items = []
-        if self.exercises:
-            for _item_exercises in self.exercises:
-                if _item_exercises:
-                    _items.append(_item_exercises.to_dict())
-            _dict['exercises'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ListExercisesResponse from a dict"""
+        """Create an instance of CardioExerciseResponse from a dict"""
         if obj is None:
             return None
 
@@ -89,7 +98,14 @@ class ListExercisesResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "exercises": [Exercise.from_dict(_item) for _item in obj["exercises"]] if obj.get("exercises") is not None else None
+            "id": obj.get("id"),
+            "user_id": obj.get("user_id"),
+            "workout_id": obj.get("workout_id"),
+            "name": obj.get("name"),
+            "notes": obj.get("notes"),
+            "distance": obj.get("distance"),
+            "duration": obj.get("duration"),
+            "created_at": obj.get("created_at")
         })
         return _obj
 

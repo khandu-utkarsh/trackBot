@@ -269,42 +269,8 @@ paths:
       tags:
       - Workouts
   /users/{userId}/workouts/{workoutId}/exercises:
-    get:
-      description: Retrieve all exercises for a specific workout
-      operationId: listExercises
-      parameters:
-      - description: User ID
-        example: 1
-        in: path
-        name: userId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      - description: Workout ID
-        example: 1
-        in: path
-        name: workoutId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ListExercisesResponse"
-          description: List of exercises retrieved successfully
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-      summary: List exercises for a workout
-      tags:
-      - Exercises
     post:
-      description: Add a new exercise to a workout (cardio or weight training)
+      description: Add a new exercise to a workout (cardio or strength training)
       operationId: createExercise
       parameters:
       - description: User ID
@@ -325,18 +291,29 @@ paths:
           format: int64
           minimum: 1
           type: integer
+      - description: Type of exercise to create (cardio or strength)
+        explode: true
+        in: query
+        name: type
+        required: true
+        schema:
+          enum:
+          - cardio
+          - strength
+          type: string
+        style: form
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateExerciseRequest"
+              $ref: "#/components/schemas/createExercise_request"
         required: true
       responses:
         "201":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Exercise"
+                $ref: "#/components/schemas/createExercise_201_response"
           description: Exercise created successfully
         "400":
           $ref: "#/components/responses/BadRequest"
@@ -345,146 +322,6 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
       summary: Create a new exercise
-      tags:
-      - Exercises
-  /users/{userId}/workouts/{workoutId}/exercises/{exerciseId}:
-    delete:
-      description: Delete an exercise from a workout
-      operationId: deleteExercise
-      parameters:
-      - description: User ID
-        example: 1
-        in: path
-        name: userId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      - description: Workout ID
-        example: 1
-        in: path
-        name: workoutId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      - description: Exercise ID
-        example: 1
-        in: path
-        name: exerciseId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      responses:
-        "204":
-          $ref: "#/components/responses/NoContent"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-      summary: Delete exercise
-      tags:
-      - Exercises
-    get:
-      description: Retrieve a specific exercise by its ID
-      operationId: getExerciseById
-      parameters:
-      - description: User ID
-        example: 1
-        in: path
-        name: userId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      - description: Workout ID
-        example: 1
-        in: path
-        name: workoutId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      - description: Exercise ID
-        example: 1
-        in: path
-        name: exerciseId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Exercise"
-          description: Exercise details retrieved successfully
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-      summary: Get exercise by ID
-      tags:
-      - Exercises
-    put:
-      description: Update an existing exercise
-      operationId: updateExercise
-      parameters:
-      - description: User ID
-        example: 1
-        in: path
-        name: userId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      - description: Workout ID
-        example: 1
-        in: path
-        name: workoutId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      - description: Exercise ID
-        example: 1
-        in: path
-        name: exerciseId
-        required: true
-        schema:
-          format: int64
-          minimum: 1
-          type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateExerciseRequest"
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Exercise"
-          description: Exercise updated successfully
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-      summary: Update exercise
       tags:
       - Exercises
   /users/{userId}/conversations:
@@ -1194,125 +1031,31 @@ components:
       required:
       - workouts
       type: object
-    ExerciseType:
-      description: Type of exercise
-      enum:
-      - cardio
-      - strength
-      type: string
-    BaseExercise:
-      additionalProperties: false
+    CreateCardioExerciseRequest:
       properties:
-        id:
-          description: Unique identifier for the exercise.
+        type:
+          description: Type of exercise
+          enum:
+          - cardio
+          example: cardio
+          type: string
+        user_id:
+          description: ID of the user creating the exercise
           example: 1
           format: int64
-          readOnly: true
           type: integer
         workout_id:
-          description: ID of the workout this exercise belongs to.
+          description: ID of the workout this exercise belongs to
           example: 1
           format: int64
-          readOnly: true
           type: integer
-        name:
-          description: Name of the exercise
-          example: Push-ups
-          type: string
-        type:
-          $ref: "#/components/schemas/ExerciseType"
-        notes:
-          description: Additional notes
-          example: Focus on form
-          type: string
-        created_at:
-          description: Timestamp when the exercise was created.
-          example: 2024-01-15T10:30:00Z
-          format: date-time
-          readOnly: true
-          type: string
-      required:
-      - created_at
-      - id
-      - name
-      - type
-      - workout_id
-      type: object
-    CardioExercise:
-      allOf:
-      - $ref: "#/components/schemas/BaseExercise"
-      - properties:
-          type:
-            enum:
-            - cardio
-            type: string
-          distance:
-            description: Distance in meters
-            example: 5000.0
-            format: float
-            minimum: 0
-            type: number
-          duration:
-            description: Duration in seconds
-            example: 1800
-            minimum: 1
-            type: integer
-        required:
-        - distance
-        - duration
-        type: object
-    WeightExercise:
-      allOf:
-      - $ref: "#/components/schemas/BaseExercise"
-      - properties:
-          type:
-            enum:
-            - weights
-            type: string
-          sets:
-            description: Number of sets
-            example: 3
-            minimum: 1
-            type: integer
-          reps:
-            description: Repetitions per set
-            example: 12
-            minimum: 1
-            type: integer
-          weight:
-            description: Weight in kilograms
-            example: 25.5
-            format: float
-            minimum: 0
-            type: number
-        required:
-        - reps
-        - sets
-        - weight
-        type: object
-    Exercise:
-      discriminator:
-        mapping:
-          cardio: "#/components/schemas/CardioExercise"
-          weights: "#/components/schemas/WeightExercise"
-        propertyName: type
-      oneOf:
-      - $ref: "#/components/schemas/CardioExercise"
-      - $ref: "#/components/schemas/WeightExercise"
-    CreateCardioExerciseRequest:
-      additionalProperties: false
-      properties:
         name:
           description: Name of the exercise
           example: Running
           type: string
-        type:
-          enum:
-          - cardio
-          type: string
         notes:
           description: Additional notes
-          example: Morning run in the park
+          example: Focus on form
           type: string
         distance:
           description: Distance in meters
@@ -1330,34 +1073,42 @@ components:
       - duration
       - name
       - type
+      - user_id
+      - workout_id
       type: object
     CreateWeightExerciseRequest:
-      additionalProperties: false
       properties:
+        type:
+          description: Type of exercise
+          enum:
+          - strength
+          example: strength
+          type: string
+        user_id:
+          description: ID of the user creating the exercise
+          example: 1
+          format: int64
+          type: integer
+        workout_id:
+          description: ID of the workout this exercise belongs to
+          example: 1
+          format: int64
+          type: integer
         name:
           description: Name of the exercise
           example: Bench Press
-          type: string
-        type:
-          enum:
-          - weights
           type: string
         notes:
           description: Additional notes
           example: Focus on controlled movement
           type: string
-        sets:
-          description: Number of sets
-          example: 3
-          minimum: 1
-          type: integer
         reps:
-          description: Reps per set
+          description: Repetitions per set
           example: 12
           minimum: 1
           type: integer
         weight:
-          description: Weight in kg
+          description: Weight in kilograms
           example: 80.0
           format: float
           minimum: 0
@@ -1365,29 +1116,118 @@ components:
       required:
       - name
       - reps
-      - sets
       - type
+      - user_id
       - weight
+      - workout_id
       type: object
-    CreateExerciseRequest:
-      discriminator:
-        mapping:
-          cardio: "#/components/schemas/CreateCardioExerciseRequest"
-          weights: "#/components/schemas/CreateWeightExerciseRequest"
-        propertyName: type
-      oneOf:
-      - $ref: "#/components/schemas/CreateCardioExerciseRequest"
-      - $ref: "#/components/schemas/CreateWeightExerciseRequest"
-    ListExercisesResponse:
-      additionalProperties: false
-      description: A list of exercises
+    CardioExerciseResponse:
       properties:
-        exercises:
-          items:
-            $ref: "#/components/schemas/Exercise"
-          type: array
+        id:
+          description: Unique identifier for the exercise
+          example: 1
+          format: int64
+          readOnly: true
+          type: integer
+        user_id:
+          description: ID of the user who created the exercise
+          example: 1
+          format: int64
+          readOnly: true
+          type: integer
+        workout_id:
+          description: ID of the workout this exercise belongs to
+          example: 1
+          format: int64
+          readOnly: true
+          type: integer
+        name:
+          description: Name of the exercise
+          example: Running
+          type: string
+        notes:
+          description: Additional notes
+          example: Focus on form
+          type: string
+        distance:
+          description: Distance in meters
+          example: 5000.0
+          format: float
+          minimum: 0
+          type: number
+        duration:
+          description: Duration in seconds
+          example: 1800
+          minimum: 1
+          type: integer
+        created_at:
+          description: Timestamp when the exercise was created
+          example: 2024-01-15T10:30:00Z
+          format: date-time
+          readOnly: true
+          type: string
       required:
-      - exercises
+      - created_at
+      - distance
+      - duration
+      - id
+      - name
+      - user_id
+      - workout_id
+      type: object
+    WeightExerciseResponse:
+      properties:
+        id:
+          description: Unique identifier for the exercise
+          example: 1
+          format: int64
+          readOnly: true
+          type: integer
+        user_id:
+          description: ID of the user who created the exercise
+          example: 1
+          format: int64
+          readOnly: true
+          type: integer
+        workout_id:
+          description: ID of the workout this exercise belongs to
+          example: 1
+          format: int64
+          readOnly: true
+          type: integer
+        name:
+          description: Name of the exercise
+          example: Bench Press
+          type: string
+        notes:
+          description: Additional notes
+          example: Focus on controlled movement
+          type: string
+        reps:
+          description: Repetitions per set
+          example: 12
+          minimum: 1
+          type: integer
+        weight:
+          description: Weight in kilograms
+          example: 80.0
+          format: float
+          minimum: 0
+          type: number
+        created_at:
+          description: Timestamp when the exercise was created
+          example: 2024-01-15T10:30:00Z
+          format: date-time
+          readOnly: true
+          type: string
+      required:
+      - created_at
+      - id
+      - name
+      - reps
+      - user_id
+      - weight
+      - workout_id
       type: object
     Conversation:
       additionalProperties: false
@@ -1706,3 +1546,16 @@ components:
       - code
       - message
       type: object
+    createExercise_request:
+      discriminator:
+        mapping:
+          cardio: "#/components/schemas/CreateCardioExerciseRequest"
+          strength: "#/components/schemas/CreateWeightExerciseRequest"
+        propertyName: type
+      oneOf:
+      - $ref: "#/components/schemas/CreateCardioExerciseRequest"
+      - $ref: "#/components/schemas/CreateWeightExerciseRequest"
+    createExercise_201_response:
+      oneOf:
+      - $ref: "#/components/schemas/CardioExerciseResponse"
+      - $ref: "#/components/schemas/WeightExerciseResponse"

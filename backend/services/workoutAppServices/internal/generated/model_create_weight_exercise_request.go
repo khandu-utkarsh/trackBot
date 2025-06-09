@@ -22,16 +22,19 @@ var _ MappedNullable = &CreateWeightExerciseRequest{}
 
 // CreateWeightExerciseRequest struct for CreateWeightExerciseRequest
 type CreateWeightExerciseRequest struct {
+	// Type of exercise
+	Type string `json:"type"`
+	// ID of the user creating the exercise
+	UserId int64 `json:"user_id"`
+	// ID of the workout this exercise belongs to
+	WorkoutId int64 `json:"workout_id"`
 	// Name of the exercise
 	Name string `json:"name"`
-	Type string `json:"type"`
 	// Additional notes
 	Notes *string `json:"notes,omitempty"`
-	// Number of sets
-	Sets int32 `json:"sets"`
-	// Reps per set
+	// Repetitions per set
 	Reps int32 `json:"reps"`
-	// Weight in kg
+	// Weight in kilograms
 	Weight float32 `json:"weight"`
 }
 
@@ -41,11 +44,12 @@ type _CreateWeightExerciseRequest CreateWeightExerciseRequest
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateWeightExerciseRequest(name string, type_ string, sets int32, reps int32, weight float32) *CreateWeightExerciseRequest {
+func NewCreateWeightExerciseRequest(type_ string, userId int64, workoutId int64, name string, reps int32, weight float32) *CreateWeightExerciseRequest {
 	this := CreateWeightExerciseRequest{}
-	this.Name = name
 	this.Type = type_
-	this.Sets = sets
+	this.UserId = userId
+	this.WorkoutId = workoutId
+	this.Name = name
 	this.Reps = reps
 	this.Weight = weight
 	return &this
@@ -57,30 +61,6 @@ func NewCreateWeightExerciseRequest(name string, type_ string, sets int32, reps 
 func NewCreateWeightExerciseRequestWithDefaults() *CreateWeightExerciseRequest {
 	this := CreateWeightExerciseRequest{}
 	return &this
-}
-
-// GetName returns the Name field value
-func (o *CreateWeightExerciseRequest) GetName() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Name
-}
-
-// GetNameOk returns a tuple with the Name field value
-// and a boolean to check if the value has been set.
-func (o *CreateWeightExerciseRequest) GetNameOk() (*string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return &o.Name, true
-}
-
-// SetName sets field value
-func (o *CreateWeightExerciseRequest) SetName(v string) {
-	o.Name = v
 }
 
 // GetType returns the Type field value
@@ -105,6 +85,78 @@ func (o *CreateWeightExerciseRequest) GetTypeOk() (*string, bool) {
 // SetType sets field value
 func (o *CreateWeightExerciseRequest) SetType(v string) {
 	o.Type = v
+}
+
+// GetUserId returns the UserId field value
+func (o *CreateWeightExerciseRequest) GetUserId() int64 {
+	if o == nil {
+		var ret int64
+		return ret
+	}
+
+	return o.UserId
+}
+
+// GetUserIdOk returns a tuple with the UserId field value
+// and a boolean to check if the value has been set.
+func (o *CreateWeightExerciseRequest) GetUserIdOk() (*int64, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.UserId, true
+}
+
+// SetUserId sets field value
+func (o *CreateWeightExerciseRequest) SetUserId(v int64) {
+	o.UserId = v
+}
+
+// GetWorkoutId returns the WorkoutId field value
+func (o *CreateWeightExerciseRequest) GetWorkoutId() int64 {
+	if o == nil {
+		var ret int64
+		return ret
+	}
+
+	return o.WorkoutId
+}
+
+// GetWorkoutIdOk returns a tuple with the WorkoutId field value
+// and a boolean to check if the value has been set.
+func (o *CreateWeightExerciseRequest) GetWorkoutIdOk() (*int64, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.WorkoutId, true
+}
+
+// SetWorkoutId sets field value
+func (o *CreateWeightExerciseRequest) SetWorkoutId(v int64) {
+	o.WorkoutId = v
+}
+
+// GetName returns the Name field value
+func (o *CreateWeightExerciseRequest) GetName() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.Name
+}
+
+// GetNameOk returns a tuple with the Name field value
+// and a boolean to check if the value has been set.
+func (o *CreateWeightExerciseRequest) GetNameOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.Name, true
+}
+
+// SetName sets field value
+func (o *CreateWeightExerciseRequest) SetName(v string) {
+	o.Name = v
 }
 
 // GetNotes returns the Notes field value if set, zero value otherwise.
@@ -137,30 +189,6 @@ func (o *CreateWeightExerciseRequest) HasNotes() bool {
 // SetNotes gets a reference to the given string and assigns it to the Notes field.
 func (o *CreateWeightExerciseRequest) SetNotes(v string) {
 	o.Notes = &v
-}
-
-// GetSets returns the Sets field value
-func (o *CreateWeightExerciseRequest) GetSets() int32 {
-	if o == nil {
-		var ret int32
-		return ret
-	}
-
-	return o.Sets
-}
-
-// GetSetsOk returns a tuple with the Sets field value
-// and a boolean to check if the value has been set.
-func (o *CreateWeightExerciseRequest) GetSetsOk() (*int32, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return &o.Sets, true
-}
-
-// SetSets sets field value
-func (o *CreateWeightExerciseRequest) SetSets(v int32) {
-	o.Sets = v
 }
 
 // GetReps returns the Reps field value
@@ -221,12 +249,13 @@ func (o CreateWeightExerciseRequest) MarshalJSON() ([]byte, error) {
 
 func (o CreateWeightExerciseRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["name"] = o.Name
 	toSerialize["type"] = o.Type
+	toSerialize["user_id"] = o.UserId
+	toSerialize["workout_id"] = o.WorkoutId
+	toSerialize["name"] = o.Name
 	if !IsNil(o.Notes) {
 		toSerialize["notes"] = o.Notes
 	}
-	toSerialize["sets"] = o.Sets
 	toSerialize["reps"] = o.Reps
 	toSerialize["weight"] = o.Weight
 	return toSerialize, nil
@@ -237,9 +266,10 @@ func (o *CreateWeightExerciseRequest) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"name",
 		"type",
-		"sets",
+		"user_id",
+		"workout_id",
+		"name",
 		"reps",
 		"weight",
 	}

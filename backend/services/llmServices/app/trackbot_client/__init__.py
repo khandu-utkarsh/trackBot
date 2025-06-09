@@ -33,12 +33,12 @@ __all__ = [
     "ApiKeyError",
     "ApiAttributeError",
     "ApiException",
-    "BaseExercise",
-    "CardioExercise",
+    "CardioExerciseResponse",
     "Conversation",
     "CreateCardioExerciseRequest",
     "CreateConversationRequest",
     "CreateConversationResponse",
+    "CreateExercise201Response",
     "CreateExerciseRequest",
     "CreateMessageRequest",
     "CreateWeightExerciseRequest",
@@ -47,13 +47,10 @@ __all__ = [
     "DeleteConversationRequest",
     "DeleteConversationResponse",
     "Error",
-    "Exercise",
-    "ExerciseType",
     "GoogleLoginRequest",
     "LLMServiceMessageRequest",
     "LLMServiceMessageResponse",
     "ListConversationsResponse",
-    "ListExercisesResponse",
     "ListMessagesRequest",
     "ListMessagesResponse",
     "ListWorkoutsResponse",
@@ -62,7 +59,7 @@ __all__ = [
     "UpdateConversationRequest",
     "UpdateWorkoutRequest",
     "User",
-    "WeightExercise",
+    "WeightExerciseResponse",
     "Workout",
     "WorkoutListParams",
 ]
@@ -86,12 +83,12 @@ from trackbot_client.exceptions import ApiAttributeError as ApiAttributeError
 from trackbot_client.exceptions import ApiException as ApiException
 
 # import models into sdk package
-from trackbot_client.models.base_exercise import BaseExercise as BaseExercise
-from trackbot_client.models.cardio_exercise import CardioExercise as CardioExercise
+from trackbot_client.models.cardio_exercise_response import CardioExerciseResponse as CardioExerciseResponse
 from trackbot_client.models.conversation import Conversation as Conversation
 from trackbot_client.models.create_cardio_exercise_request import CreateCardioExerciseRequest as CreateCardioExerciseRequest
 from trackbot_client.models.create_conversation_request import CreateConversationRequest as CreateConversationRequest
 from trackbot_client.models.create_conversation_response import CreateConversationResponse as CreateConversationResponse
+from trackbot_client.models.create_exercise201_response import CreateExercise201Response as CreateExercise201Response
 from trackbot_client.models.create_exercise_request import CreateExerciseRequest as CreateExerciseRequest
 from trackbot_client.models.create_message_request import CreateMessageRequest as CreateMessageRequest
 from trackbot_client.models.create_weight_exercise_request import CreateWeightExerciseRequest as CreateWeightExerciseRequest
@@ -100,13 +97,10 @@ from trackbot_client.models.create_workout_response import CreateWorkoutResponse
 from trackbot_client.models.delete_conversation_request import DeleteConversationRequest as DeleteConversationRequest
 from trackbot_client.models.delete_conversation_response import DeleteConversationResponse as DeleteConversationResponse
 from trackbot_client.models.error import Error as Error
-from trackbot_client.models.exercise import Exercise as Exercise
-from trackbot_client.models.exercise_type import ExerciseType as ExerciseType
 from trackbot_client.models.google_login_request import GoogleLoginRequest as GoogleLoginRequest
 from trackbot_client.models.llm_service_message_request import LLMServiceMessageRequest as LLMServiceMessageRequest
 from trackbot_client.models.llm_service_message_response import LLMServiceMessageResponse as LLMServiceMessageResponse
 from trackbot_client.models.list_conversations_response import ListConversationsResponse as ListConversationsResponse
-from trackbot_client.models.list_exercises_response import ListExercisesResponse as ListExercisesResponse
 from trackbot_client.models.list_messages_request import ListMessagesRequest as ListMessagesRequest
 from trackbot_client.models.list_messages_response import ListMessagesResponse as ListMessagesResponse
 from trackbot_client.models.list_workouts_response import ListWorkoutsResponse as ListWorkoutsResponse
@@ -115,6 +109,6 @@ from trackbot_client.models.message_type import MessageType as MessageType
 from trackbot_client.models.update_conversation_request import UpdateConversationRequest as UpdateConversationRequest
 from trackbot_client.models.update_workout_request import UpdateWorkoutRequest as UpdateWorkoutRequest
 from trackbot_client.models.user import User as User
-from trackbot_client.models.weight_exercise import WeightExercise as WeightExercise
+from trackbot_client.models.weight_exercise_response import WeightExerciseResponse as WeightExerciseResponse
 from trackbot_client.models.workout import Workout as Workout
 from trackbot_client.models.workout_list_params import WorkoutListParams as WorkoutListParams

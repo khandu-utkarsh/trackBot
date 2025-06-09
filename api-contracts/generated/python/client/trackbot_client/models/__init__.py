@@ -15,12 +15,12 @@
 
 
 # import models into model package
-from trackbot_client.models.base_exercise import BaseExercise
-from trackbot_client.models.cardio_exercise import CardioExercise
+from trackbot_client.models.cardio_exercise_response import CardioExerciseResponse
 from trackbot_client.models.conversation import Conversation
 from trackbot_client.models.create_cardio_exercise_request import CreateCardioExerciseRequest
 from trackbot_client.models.create_conversation_request import CreateConversationRequest
 from trackbot_client.models.create_conversation_response import CreateConversationResponse
+from trackbot_client.models.create_exercise201_response import CreateExercise201Response
 from trackbot_client.models.create_exercise_request import CreateExerciseRequest
 from trackbot_client.models.create_message_request import CreateMessageRequest
 from trackbot_client.models.create_weight_exercise_request import CreateWeightExerciseRequest
@@ -29,13 +29,10 @@ from trackbot_client.models.create_workout_response import CreateWorkoutResponse
 from trackbot_client.models.delete_conversation_request import DeleteConversationRequest
 from trackbot_client.models.delete_conversation_response import DeleteConversationResponse
 from trackbot_client.models.error import Error
-from trackbot_client.models.exercise import Exercise
-from trackbot_client.models.exercise_type import ExerciseType
 from trackbot_client.models.google_login_request import GoogleLoginRequest
 from trackbot_client.models.llm_service_message_request import LLMServiceMessageRequest
 from trackbot_client.models.llm_service_message_response import LLMServiceMessageResponse
 from trackbot_client.models.list_conversations_response import ListConversationsResponse
-from trackbot_client.models.list_exercises_response import ListExercisesResponse
 from trackbot_client.models.list_messages_request import ListMessagesRequest
 from trackbot_client.models.list_messages_response import ListMessagesResponse
 from trackbot_client.models.list_workouts_response import ListWorkoutsResponse
@@ -44,6 +41,6 @@ from trackbot_client.models.message_type import MessageType
 from trackbot_client.models.update_conversation_request import UpdateConversationRequest
 from trackbot_client.models.update_workout_request import UpdateWorkoutRequest
 from trackbot_client.models.user import User
-from trackbot_client.models.weight_exercise import WeightExercise
+from trackbot_client.models.weight_exercise_response import WeightExerciseResponse
 from trackbot_client.models.workout import Workout
 from trackbot_client.models.workout_list_params import WorkoutListParams

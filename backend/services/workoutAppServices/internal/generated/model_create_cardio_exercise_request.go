@@ -22,9 +22,14 @@ var _ MappedNullable = &CreateCardioExerciseRequest{}
 
 // CreateCardioExerciseRequest struct for CreateCardioExerciseRequest
 type CreateCardioExerciseRequest struct {
+	// Type of exercise
+	Type string `json:"type"`
+	// ID of the user creating the exercise
+	UserId int64 `json:"user_id"`
+	// ID of the workout this exercise belongs to
+	WorkoutId int64 `json:"workout_id"`
 	// Name of the exercise
 	Name string `json:"name"`
-	Type string `json:"type"`
 	// Additional notes
 	Notes *string `json:"notes,omitempty"`
 	// Distance in meters
@@ -39,10 +44,12 @@ type _CreateCardioExerciseRequest CreateCardioExerciseRequest
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateCardioExerciseRequest(name string, type_ string, distance float32, duration int32) *CreateCardioExerciseRequest {
+func NewCreateCardioExerciseRequest(type_ string, userId int64, workoutId int64, name string, distance float32, duration int32) *CreateCardioExerciseRequest {
 	this := CreateCardioExerciseRequest{}
-	this.Name = name
 	this.Type = type_
+	this.UserId = userId
+	this.WorkoutId = workoutId
+	this.Name = name
 	this.Distance = distance
 	this.Duration = duration
 	return &this
@@ -54,30 +61,6 @@ func NewCreateCardioExerciseRequest(name string, type_ string, distance float32,
 func NewCreateCardioExerciseRequestWithDefaults() *CreateCardioExerciseRequest {
 	this := CreateCardioExerciseRequest{}
 	return &this
-}
-
-// GetName returns the Name field value
-func (o *CreateCardioExerciseRequest) GetName() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Name
-}
-
-// GetNameOk returns a tuple with the Name field value
-// and a boolean to check if the value has been set.
-func (o *CreateCardioExerciseRequest) GetNameOk() (*string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return &o.Name, true
-}
-
-// SetName sets field value
-func (o *CreateCardioExerciseRequest) SetName(v string) {
-	o.Name = v
 }
 
 // GetType returns the Type field value
@@ -102,6 +85,78 @@ func (o *CreateCardioExerciseRequest) GetTypeOk() (*string, bool) {
 // SetType sets field value
 func (o *CreateCardioExerciseRequest) SetType(v string) {
 	o.Type = v
+}
+
+// GetUserId returns the UserId field value
+func (o *CreateCardioExerciseRequest) GetUserId() int64 {
+	if o == nil {
+		var ret int64
+		return ret
+	}
+
+	return o.UserId
+}
+
+// GetUserIdOk returns a tuple with the UserId field value
+// and a boolean to check if the value has been set.
+func (o *CreateCardioExerciseRequest) GetUserIdOk() (*int64, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.UserId, true
+}
+
+// SetUserId sets field value
+func (o *CreateCardioExerciseRequest) SetUserId(v int64) {
+	o.UserId = v
+}
+
+// GetWorkoutId returns the WorkoutId field value
+func (o *CreateCardioExerciseRequest) GetWorkoutId() int64 {
+	if o == nil {
+		var ret int64
+		return ret
+	}
+
+	return o.WorkoutId
+}
+
+// GetWorkoutIdOk returns a tuple with the WorkoutId field value
+// and a boolean to check if the value has been set.
+func (o *CreateCardioExerciseRequest) GetWorkoutIdOk() (*int64, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.WorkoutId, true
+}
+
+// SetWorkoutId sets field value
+func (o *CreateCardioExerciseRequest) SetWorkoutId(v int64) {
+	o.WorkoutId = v
+}
+
+// GetName returns the Name field value
+func (o *CreateCardioExerciseRequest) GetName() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.Name
+}
+
+// GetNameOk returns a tuple with the Name field value
+// and a boolean to check if the value has been set.
+func (o *CreateCardioExerciseRequest) GetNameOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.Name, true
+}
+
+// SetName sets field value
+func (o *CreateCardioExerciseRequest) SetName(v string) {
+	o.Name = v
 }
 
 // GetNotes returns the Notes field value if set, zero value otherwise.
@@ -194,8 +249,10 @@ func (o CreateCardioExerciseRequest) MarshalJSON() ([]byte, error) {
 
 func (o CreateCardioExerciseRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["name"] = o.Name
 	toSerialize["type"] = o.Type
+	toSerialize["user_id"] = o.UserId
+	toSerialize["workout_id"] = o.WorkoutId
+	toSerialize["name"] = o.Name
 	if !IsNil(o.Notes) {
 		toSerialize["notes"] = o.Notes
 	}
@@ -209,8 +266,10 @@ func (o *CreateCardioExerciseRequest) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"name",
 		"type",
+		"user_id",
+		"workout_id",
+		"name",
 		"distance",
 		"duration",
 	}
