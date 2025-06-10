@@ -79,9 +79,8 @@ func SetupRouter(userHandler *handlers.UserHandler,
 				routesLogger.Println("🔑 Auth me endpoint hit") //! Logging the request.
 				authHandler.Me(w, r)
 			})
-
-			RegisterUserRoutes(r, userHandler, workoutHandler, exerciseHandler, conversationHandler, messageHandler)
 		})
+		RegisterUserRoutes(r, userHandler, workoutHandler, exerciseHandler, conversationHandler, messageHandler)
 	})
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {

@@ -8,12 +8,11 @@ logger = logging.getLogger(__name__)
 
 class AgentService:
     """
-    Service class for managing agent interactions.
+    Service class that provides a simplified interface to the TrackBotAgent.
+    This class handles the high-level conversation flow and state management.
     """
     
     def __init__(self, messages: List[BaseMessage], user_id: int):
-        self.messages = messages
-        self.user_id = user_id
         self.agent = TrackBotAgent()
         self.state = AgentState(
             messages=messages,
@@ -24,66 +23,30 @@ class AgentService:
             next_action="process_messages"
         )
     
-    async def process_messages(
-        self, 
-    ) -> BaseMessage:
+    async def process_messages(self) -> BaseMessage:
         """
-        Process messages through the agent workflow.
-        
-        Args:
-            
-        Returns:
-            Processing result including response and metadata
-        """        
-        logger.info(f"Processing messages for user {self.user_id}")
-        
+        Process the current conversation state through the agent.
+        Returns the last message from the agent's response.
+        """
+        logger.info(f"Processing messages for user {self.state['user_id']}")
         try:
-            # Create or get agent
-            agent = TrackBotAgent()
-            
-            # Prepare initial state
-            initial_state: AgentState = self.state
-            
-            # Run the agent
-            self.state : AgentState = await agent.run(initial_state)
-            
-
-            #We will be only returning the last message from the agent
-            last_message = self.state["messages"][-1]            
-            logger.info(f"Processing completed for user {self.user_id}")
-            return last_message
-            
+            result_state = await self.agent.run(self.state)
+            self.state = result_state
+            return result_state["messages"][-1]
         except Exception as e:
             logger.error(f"Error processing messages: {e}")
             raise
 
-    async def continue_from_interruption(
-        self, 
-        user_response: BaseMessage, 
-    ) -> BaseMessage:
+    async def continue_from_interruption(self, user_response: BaseMessage) -> BaseMessage:
         """
-        Continue a session after user input.
-        
-        Args:
-            session_id: Session ID to continue
-            user_response: User's response to continue with
-            
-        Returns:
-            Continuation result
+        Continue the conversation after receiving user input.
+        Returns the last message from the agent's response.
         """
-        logger.info(f"Continuing from interruption for user {self.user_id}")
-        
+        logger.info(f"Continuing conversation for user {self.state['user_id']}")
         try:
-            # Continue from interruption
-            result : AgentState = await self.agent.continue_from_interruption(self.state, user_response)
-            # Update session state
-            self.state = result
-            
-            #We will be only returning the last message from the agent
-            last_message = self.state.messages[-1]            
-            logger.info(f"Processing completed for user {self.user_id}")
-            return last_message
-            
+            result_state = await self.agent.continue_from_interruption(self.state, user_response)
+            self.state = result_state
+            return result_state.messages[-1]
         except Exception as e:
-            logger.error(f"Error processing messages: {e}")
+            logger.error(f"Error continuing conversation: {e}")
             raise

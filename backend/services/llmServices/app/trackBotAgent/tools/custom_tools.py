@@ -1,172 +1,84 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Union
 from langchain_core.tools import tool
 import logging
 from trackbot_client.api_client import ApiClient
 from trackbot_client.api.workouts_api import WorkoutsApi
 from trackbot_client.api.exercises_api import ExercisesApi
 from trackbot_client.models.create_workout_request import CreateWorkoutRequest
-from trackbot_client.models.create_exercise_request import CreateExerciseRequest
+from trackbot_client.models.create_cardio_exercise_request import CreateCardioExerciseRequest
+from trackbot_client.models.create_strength_exercise_request import CreateStrengthExerciseRequest
+from trackbot_client.configuration import Configuration
+
 logger = logging.getLogger(__name__)
 
-# Initialize API client and APIs
-api_client = ApiClient()
+
+# Initialize API client and APIs with correct host
+api_client = ApiClient(configuration=Configuration(host="http://workout-app:8080/api"))
 workouts_api = WorkoutsApi(api_client)
 exercises_api = ExercisesApi(api_client)
 
 @tool("create_workout", description="Create a new workout", args_schema=CreateWorkoutRequest)
-async def create_workout(input: dict) -> str:
+async def create_workout(input: Dict[str, Any]) -> str:
     """
     Create a new workout.
     
     Args:
-        CreateWorkoutRequest: CreateWorkoutRequest object
+        input: Dictionary containing workout details (name, description, etc.)
         
     Returns:
-        Workout creation status and information
+        str: Success or error message with workout details
     """
-
-    print(f"Input: {input}")
-
-    CreateWorkoutRequest = CreateWorkoutRequest.model_validate_json(input)
-    logger.info(f"Creating workout: {CreateWorkoutRequest.name}")
     try:
-        workout = workouts_api.create_workout(CreateWorkoutRequest)
+        workout_request = CreateWorkoutRequest.model_validate(input)
+        logger.info(f"Creating workout: {workout_request.name}")
+        
+        workout = workouts_api.create_workout(workout_request)
         return f"Successfully created workout: {workout.name} (ID: {workout.id})"
     except Exception as e:
-        return f"Error creating workout: {str(e)}"
+        logger.error(f"Error creating workout: {str(e)}")
+        return f"Failed to create workout: {str(e)}"
 
-@tool
-async def get_workout(workout_id: str) -> str:
+@tool("create_cardio_exercise", description="Create a new cardio exercise", args_schema=CreateCardioExerciseRequest)
+async def create_cardio_exercise(user_id: int, workout_id: int, name: str, distance: Union[int, float], duration: int, notes: Optional[str] = None) -> str:
     """
-    Get a workout by ID.
+    Create a new cardio exercise.
     
     Args:
-        workout_id: ID of the workout to retrieve
+        input: Dictionary containing cardio exercise details (name, distance, time, etc.)
         
     Returns:
-        Workout information
+        str: Success or error message with exercise details
     """
-    logger.info(f"Getting workout: {workout_id}")
     try:
-        workout = workouts_api.get_workout_by_id(workout_id)
-        return f"Workout: {workout.name} (ID: {workout.id}) - {workout.description}"
+        cardio_request = CreateCardioExerciseRequest(user_id=user_id, workout_id=workout_id, name=name, distance=distance, duration=duration, notes=notes)
+        logger.info(f"Creating cardio exercise: {cardio_request.name}")
+        
+        exercise = exercises_api.create_cardio_exercise(user_id=user_id, workout_id=workout_id, create_cardio_exercise_request=cardio_request)
+        return f"Successfully created cardio exercise: {exercise.name} (ID: {exercise.id})"
     except Exception as e:
-        return f"Error getting workout: {str(e)}"
+        logger.error(f"Error creating cardio exercise: {str(e)}")
+        return f"Failed to create cardio exercise: {str(e)}"
 
-@tool
-async def get_user_workouts(user_id: str, limit: Optional[int] = None, offset: Optional[int] = None) -> str:
+@tool("create_strength_exercise", description="Create a new strength exercise", args_schema=CreateStrengthExerciseRequest)
+async def create_strength_exercise(user_id: int, workout_id: int, name: str, reps: int, weight: Union[int, float], notes: Optional[str] = None) -> str:
     """
-    Get workouts for a specific user.
+    Create a new strength exercise.
     
     Args:
-        user_id: ID of the user
-        limit: Maximum number of workouts to return
-        offset: Offset for pagination
+        input: Dictionary containing strength exercise details (name, reps, weights, etc.)
         
     Returns:
-        List of user workouts
+        str: Success or error message with exercise details
     """
-    logger.info(f"Getting workouts for user: {user_id}")
     try:
-        workouts = workouts_api.users_user_id_workouts_get(user_id, limit=limit, offset=offset)
-        workout_list = [f"{w.name} (ID: {w.id})" for w in workouts.workouts]
-        return f"Workouts for user {user_id}: {', '.join(workout_list)}"
-    except Exception as e:
-        return f"Error getting user workouts: {str(e)}"
-
-@tool
-async def delete_workout(workout_id: str) -> str:
-    """
-    Delete a workout by ID.
-    
-    Args:
-        workout_id: ID of the workout to delete
+        strength_request = CreateStrengthExerciseRequest(user_id=user_id, workout_id=workout_id, name=name, reps=reps, weight=weight, notes=notes)
+        logger.info(f"Creating strength exercise: {strength_request.name}")
         
-    Returns:
-        Deletion status
-    """
-    logger.info(f"Deleting workout: {workout_id}")
-    try:
-        workouts_api.delete_workout(workout_id)
-        return f"Successfully deleted workout: {workout_id}"
+        exercise = exercises_api.create_strength_exercise(user_id=user_id, workout_id=workout_id, create_strength_exercise_request=strength_request)
+        return f"Successfully created strength exercise: {exercise.name} (ID: {exercise.id})"
     except Exception as e:
-        return f"Error deleting workout: {str(e)}"
-
-@tool("create_exercise", description="Create a new exercise", args_schema=CreateExerciseRequest)
-async def create_exercise(input: dict) -> str:
-    """
-    Create a new exercise.
-    
-    Args:
-        createExerciseRequest: CreateExerciseRequest object
-        
-    Returns:
-        Exercise creation status and information
-    """
-    print(f"Input: {input}")
-    CreateExerciseRequest = CreateExerciseRequest.model_validate_json(input)
-    logger.info(f"Creating exercise: {CreateExerciseRequest.name}")
-    try:
-        exercise = exercises_api.create_exercise(CreateExerciseRequest)
-        return f"Successfully created exercise: {exercise.name} (ID: {exercise.id})"
-    except Exception as e:
-        return f"Error creating exercise: {str(e)}"
-
-@tool
-async def get_exercise(exercise_id: str) -> str:
-    """
-    Get an exercise by ID.
-    
-    Args:
-        exercise_id: ID of the exercise to retrieve
-        
-    Returns:
-        Exercise information
-    """
-    logger.info(f"Getting exercise: {exercise_id}")
-    try:
-        exercise = exercises_api.get_exercise_by_id(exercise_id)
-        return f"Exercise: {exercise.name} (ID: {exercise.id}, Type: {exercise.type})"
-    except Exception as e:
-        return f"Error getting exercise: {str(e)}"
-
-@tool
-async def list_exercises(limit: Optional[int] = None, offset: Optional[int] = None) -> str:
-    """
-    List exercises with optional pagination.
-    
-    Args:
-        limit: Maximum number of exercises to return
-        offset: Offset for pagination
-        
-    Returns:
-        List of exercises
-    """
-    logger.info("Listing exercises")
-    try:
-        exercises = exercises_api.list_exercises(limit=limit, offset=offset)
-        exercise_list = [f"{e.name} (ID: {e.id}, Type: {e.type})" for e in exercises.exercises]
-        return f"Exercises: {', '.join(exercise_list)}"
-    except Exception as e:
-        return f"Error listing exercises: {str(e)}"
-
-@tool
-async def delete_exercise(exercise_id: str) -> str:
-    """
-    Delete an exercise by ID.
-    
-    Args:
-        exercise_id: ID of the exercise to delete
-        
-    Returns:
-        Deletion status
-    """
-    logger.info(f"Deleting exercise: {exercise_id}")
-    try:
-        exercises_api.delete_exercise(exercise_id)
-        return f"Successfully deleted exercise: {exercise_id}"
-    except Exception as e:
-        return f"Error deleting exercise: {str(e)}"
+        logger.error(f"Error creating strength exercise: {str(e)}")
+        return f"Failed to create strength exercise: {str(e)}"
 
 def get_available_tools() -> Dict[str, Any]:
     """
@@ -178,12 +90,7 @@ def get_available_tools() -> Dict[str, Any]:
     return {
         # Workout management tools
         "create_workout": create_workout,
-        "get_workout": get_workout,
-        "get_user_workouts": get_user_workouts,
-        "delete_workout": delete_workout,
         # Exercise management tools
-        "create_exercise": create_exercise,
-        "get_exercise": get_exercise,
-        "list_exercises": list_exercises,
-        "delete_exercise": delete_exercise,
-    } 
+        "create_cardio_exercise": create_cardio_exercise,
+        "create_strength_exercise": create_strength_exercise,
+    }

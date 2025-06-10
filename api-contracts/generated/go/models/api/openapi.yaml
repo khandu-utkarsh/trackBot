@@ -20,9 +20,9 @@ info:
   version: 1.0.0
 servers:
 - description: Development server
-  url: http://localhost:8080/api/v1
+  url: http://localhost:8080/api
 - description: Production server
-  url: https://api.trackbotapp.com/v1
+  url: https://api.trackbotapp.com/
 tags:
 - description: User management operations
   name: Users

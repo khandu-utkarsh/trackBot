@@ -10,7 +10,12 @@ logger = logging.getLogger(__name__)
 
 class TrackBotAgent:
     """
-    Agent class that orchestrates the LangGraph workflow.
+    Agent class that orchestrates the LangGraph workflow for workout logging.
+    The workflow follows these steps:
+    1. Process user input through LLM
+    2. If more information is needed, ask user
+    3. If all information is available, execute tools
+    4. Process tool results and end conversation
     """
     
     def __init__(self):
@@ -18,7 +23,7 @@ class TrackBotAgent:
     
     def _build_graph(self) -> StateGraph:
         """
-        Build the LangGraph workflow.
+        Build the LangGraph workflow with clear state transitions.
         """
         agent_builder = StateGraph(AgentState)
         
@@ -36,28 +41,28 @@ class TrackBotAgent:
             "llm_call",
             self._decide_next_step,
             {
-                "tools": "tools",
-                "user_input": "user_input",
-                END: END,
+                "tools": "tools",        # Execute tools if needed
+                "user_input": "user_input",  # Ask user for more info
+                END: END,               # End if complete
             }
         )
 
-        # Add conditional logic from user_input to handle pause
+        # Add conditional logic from user_input
         agent_builder.add_conditional_edges(
             "user_input",
             self._decide_after_user_input,
             {
-                "pause": END,  # End execution to allow for interruption
-                "continue": "llm_call",
-                END: END,
+                "pause": END,           # End to wait for user response
+                "continue": "llm_call", # Process user response
+                END: END,              # End if complete
             }
         )
 
-        # Compile and return the agent with interruption capability
+        # Compile the graph with interruption capability
         checkpointer = MemorySaver()
         return agent_builder.compile(
             checkpointer=checkpointer,
-            interrupt_before=["user_input"]  # Interrupt before user input for manual handling
+            interrupt_before=["user_input"]  # Allow interruption before user input
         )
     
     def _decide_next_step(self, state: AgentState) -> str:
@@ -68,10 +73,13 @@ class TrackBotAgent:
         logger.info(f"Next action determined: {next_action}")
         
         if next_action == "tools":
+            logger.info("Proceeding to tool execution")
             return "tools"
         elif next_action == "user_input":
+            logger.info("Requesting user input")
             return "user_input"
         else:
+            logger.info("Ending conversation")
             return END
 
     def _decide_after_user_input(self, state: AgentState) -> str:
@@ -82,37 +90,40 @@ class TrackBotAgent:
         logger.info(f"After user input, next action: {next_action}")
         
         if next_action == "pause":
+            logger.info("Pausing for user response")
             return "pause"
-        elif next_action == "llm_call" or next_action == "continue":
+        elif next_action in ["llm_call", "continue"]:
+            logger.info("Continuing with LLM processing")
             return "continue"
         else:
+            logger.info("Ending conversation")
             return END
     
-    async def run(self, initial_state: AgentState) -> AgentState:
+    async def run(self, state: AgentState) -> AgentState:
         """
-        Run the agent workflow.
+        Run the agent workflow with the given state.
         
         Args:
-            initial_state: Initial state for the agent
+            state: Current state for the agent
             
         Returns:
-            Final state after execution or interruption
+            Updated state after execution
         """
-        logger.info("Starting agent execution")
+        logger.info(f"Starting agent execution for user {state['user_id']}")
         
         try:            
-            # Run the graph
-            config = {"configurable": {"thread_id": "unique_thread_id"}}
-            result = await self.graph.ainvoke(initial_state, config=config)
+            # Run the graph with a unique thread ID
+            config = {"configurable": {"thread_id": f"thread_{state['user_id']}"}}
+            result = await self.graph.ainvoke(state, config=config)
             
-            logger.info("Agent execution completed")
+            logger.info(f"Agent execution completed for user {state['user_id']}")
             return result
             
         except Exception as e:
             logger.error(f"Error in agent execution: {e}")
             raise
     
-    async def continue_from_interruption(self, state: AgentState, user_response: str) -> AgentState:
+    async def continue_from_interruption(self, state: AgentState, user_response: BaseMessage) -> AgentState:
         """
         Continue execution after user input interruption.
         
@@ -121,23 +132,23 @@ class TrackBotAgent:
             user_response: User's response to continue
             
         Returns:
-            Final state after continuation
+            Updated state after continuation
         """
-        logger.info("Continuing from interruption")
+        logger.info(f"Continuing from interruption for user {state['user_id']}")
         
         try:
-            # Add user response to messages
+            # Update state with user response
             updated_state = dict(state)
-            updated_state["messages"] = state["messages"] + [HumanMessage(content=user_response)]
+            updated_state["messages"] = state["messages"] + [user_response]
             updated_state["pending_input_prompt"] = None
             updated_state["status"] = "active"
-            updated_state["next_action"] = "continue"  # Signal to continue processing
+            updated_state["next_action"] = "continue"
             
             # Continue execution from the interruption point
-            config = {"configurable": {"thread_id": "unique_thread_id"}}
+            config = {"configurable": {"thread_id": f"thread_{state['user_id']}"}}
             result = await self.graph.ainvoke(updated_state, config=config)
             
-            logger.info("Continuation completed")
+            logger.info(f"Continuation completed for user {state['user_id']}")
             return result
             
         except Exception as e:
