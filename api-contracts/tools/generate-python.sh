@@ -14,16 +14,13 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-# Directories
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get the directory where the script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 API_CONTRACTS_DIR="$(dirname "$SCRIPT_DIR")"
-OPENAPI_FILE="$API_CONTRACTS_DIR/openapi.yaml"
 OUTPUT_DIR="$API_CONTRACTS_DIR/generated/python"
-CLIENT_PACKAGE_NAME="trackbot_client"
-
-TARGET_DIR="$API_CONTRACTS_DIR/../backend/services/llmServices/app/$CLIENT_PACKAGE_NAME"
-
-
+CLIENT_PACKAGE_NAME="openapi-trackbot-models"
+TARGET_DIR="$API_CONTRACTS_DIR/../backend/trackBot/app/models/"
+# Debug information
 echo "SCRIPT_DIR: $SCRIPT_DIR"
 echo "API_CONTRACTS_DIR: $API_CONTRACTS_DIR"
 echo "OPENAPI_FILE: $OPENAPI_FILE"
@@ -37,27 +34,28 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # Clean previous generation
-echo -e "${YELLOW} Cleaning previous generated files...${NC}"
+echo -e "${YELLOW}Cleaning previous generated files...${NC}"
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-
-## Commenting out the client generation for now
-## TODO: Uncomment this when we have a use case for it
-
 # Generate Python HTTP client
-echo -e "${BLUE} Generating Python HTTP client...${NC}"
+echo -e "${BLUE}Generating Python HTTP client...${NC}"
 docker run --rm \
-  -v "$API_CONTRACTS_DIR:/local" \
-  openapitools/openapi-generator-cli generate \
-  -i /local/openapi.yaml \
-  -g python \
-  -o /local/generated/python/client \
-  --package-name trackbot_client \
-  --additional-properties=packageName=trackbot_client,packageVersion=1.0.0,library=urllib3 \
-  --global-property=apiTests=false,modelTests=false,apiDocs=false,modelDocs=false \
-  --ignore-file-override=/local/.openapi-generator-ignore
+  -v "$API_CONTRACTS_DIR:/workspace" \
+  -w /workspace \
+  koxudaxi/datamodel-code-generator:latest \
+  --input openapi.yaml \
+  --input-file-type openapi \
+  --output generated/python/models.py \
+  --use-standard-collections \
+  --target-python-version 3.10
 
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Failed to generate Python models. Please check the error above.${NC}"
+    exit 1
+fi
+
+echo -e "${BLUE}Python models generated successfully!${NC}"
 
 UNNEEDED_FILES=(
   .travis.yml .gitignore .openapi-generator-ignore README.md git_push.sh
@@ -66,19 +64,26 @@ UNNEEDED_FILES=(
 )
 
 for file in "${UNNEEDED_FILES[@]}"; do
-  rm -rf "$OUTPUT_DIR/client/$file"
+  rm -rf "$API_CONTRACTS_DIR/generated/python/$file"
 done
 
-
 # Copy models to potential Python services
-echo -e "${YELLOW} Setting up Python service directories...${NC}"
+echo -e "${YELLOW}Setting up Python service directories...${NC}"
 
+# Create target directory structure
+#echo -e "${BLUE}Creating target directory structure...${NC}"
+#mkdir -p "$TARGET_DIR"
 
-rm -rf "$TARGET_DIR"
-mkdir -p "$(dirname "$TARGET_DIR")"
-cp -r "$OUTPUT_DIR/client/$CLIENT_PACKAGE_NAME" "$TARGET_DIR"
+# Copy the generated models
+echo -e "${BLUE}Copying generated models...${NC}"
+cp "$OUTPUT_DIR/models.py" "$TARGET_DIR/"
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}Failed to copy models to target directory.${NC}"
+    exit 1
+fi
 
 echo -e "${GREEN}Python code generation completed successfully!${NC}"
-echo -e "${BLUE} Generated files are in: $OUTPUT_DIR${NC}"
-echo -e "${BLUE} Models copied to backend services${NC}"
+echo -e "${BLUE}Generated files are in: $OUTPUT_DIR${NC}"
+echo -e "${BLUE}Models copied to: $TARGET_DIR${NC}"
 

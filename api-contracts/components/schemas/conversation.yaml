@@ -7,7 +7,7 @@ components:
         - id
         - user_id
         - title
-        - created_at
+        - updated_at
       properties:
         id:
           type: integer
@@ -25,10 +25,10 @@ components:
           type: string
           description: Conversation title.
           example: "Workout Planning"
-        created_at:
+        updated_at:
           type: string
           format: date-time
-          description: Timestamp of creation.
+          description: Timestamp of update.
           example: "2024-01-15T10:30:00Z"
           readOnly: true
       additionalProperties: false
@@ -52,7 +52,7 @@ components:
         - id
         - title
         - user_id
-        - created_at
+        - updated_at
       properties:
         id:
           type: integer
@@ -64,7 +64,7 @@ components:
           type: integer
           format: int64
           readOnly: true
-        created_at:
+        updated_at:
           type: string
           format: date-time
           readOnly: true

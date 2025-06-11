@@ -28,10 +28,6 @@ servers:
 tags:
   - name: Users
     description: User management operations
-  - name: Workouts
-    description: Workout session management
-  - name: Exercises
-    description: Exercise tracking and logging
   - name: Conversations
     description: AI conversation management
   - name: Messages
@@ -96,178 +92,6 @@ paths:
                 $ref: './components/schemas/user.yaml#/components/schemas/User'
         '409':
           $ref: './components/responses/errors.yaml#/components/responses/Conflict'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-
-  # User endpoints
-  #No user endpoint would be there
-
-  # Workout endpoints
-  /users/{userId}/workouts:
-    get:
-      summary: List workouts for a user
-      tags: [Workouts]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/UserIdPath'
-        - $ref: './components/parameters/common.yaml#/YearQuery'
-        - $ref: './components/parameters/common.yaml#/MonthQuery'
-        - $ref: './components/parameters/common.yaml#/DayQuery'
-      responses:
-        '200':
-          description: List of workouts retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/workout.yaml#/components/schemas/ListWorkoutsResponse'
-        '400':
-          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-    post:
-      summary: Create a new workout
-      description: Create a new workout session for a user
-      operationId: createWorkout
-      tags: [Workouts]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/UserIdPath'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: './components/schemas/workout.yaml#/components/schemas/CreateWorkoutRequest'
-      responses:
-        '201':
-          description: Workout created successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/workout.yaml#/components/schemas/CreateWorkoutResponse'
-        '400':
-          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-
-  /users/{userId}/workouts/{workoutId}:
-    get:
-      summary: Get workout by ID
-      description: Retrieve a specific workout by its ID
-      operationId: getWorkoutById
-      tags: [Workouts]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
-      responses:
-        '200':
-          description: Workout details retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/workout.yaml#/components/schemas/Workout'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-    put:
-      summary: Update workout
-      description: Update an existing workout
-      operationId: updateWorkout
-      tags: [Workouts]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: './components/schemas/workout.yaml#/components/schemas/UpdateWorkoutRequest'
-      responses:
-        '200':
-          description: Workout updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/workout.yaml#/components/schemas/Workout'
-        '400':
-          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-    delete:
-      summary: Delete workout
-      description: Delete a workout and all associated exercises
-      operationId: deleteWorkout
-      tags: [Workouts]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
-      responses:
-        '204':
-          $ref: './components/responses/errors.yaml#/components/responses/NoContent'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-
-  # Exercise endpoints (nested under users and workouts)
-  /users/{userId}/workouts/{workoutId}/cardioExercises:
-    post:
-      summary: Create a new cardio exercise
-      description: Add a new cardio exercise to a workout
-      operationId: createCardioExercise
-      tags: [Exercises]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/UserIdPath'
-        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: './components/schemas/exercise.yaml#/components/schemas/CreateCardioExerciseRequest'
-      responses:
-        '201':
-          description: Cardio exercise created successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/exercise.yaml#/components/schemas/CardioExerciseResponse'
-        '400':
-          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
-
-  /users/{userId}/workouts/{workoutId}/strengthExercises:
-    post:
-      summary: Create a new strength exercise
-      description: Add a new strength exercise to a workout
-      operationId: createStrengthExercise
-      tags: [Exercises]
-      parameters:
-        - $ref: './components/parameters/common.yaml#/UserIdPath'
-        - $ref: './components/parameters/common.yaml#/WorkoutIdPath'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: './components/schemas/exercise.yaml#/components/schemas/CreateStrengthExerciseRequest'
-      responses:
-        '201':
-          description: Strength exercise created successfully
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/exercise.yaml#/components/schemas/StrengthExerciseResponse'
-        '400':
-          $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
-        '404':
-          $ref: './components/responses/errors.yaml#/components/responses/NotFound'
         '500':
           $ref: './components/responses/errors.yaml#/components/responses/InternalServerError'
 
@@ -443,7 +267,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './components/schemas/message.yaml#/components/schemas/Message'
+                $ref: './components/schemas/message.yaml#/components/schemas/ListMessagesResponse'
         '400':
           $ref: './components/responses/errors.yaml#/components/responses/BadRequest'
         '404':
@@ -497,29 +321,6 @@ components:
     GoogleLoginRequest:
       $ref: './components/schemas/user.yaml#/components/schemas/GoogleLoginRequest'
 
-    Workout:
-      $ref: './components/schemas/workout.yaml#/components/schemas/Workout'
-    WorkoutListParams:
-      $ref: './components/schemas/workout.yaml#/components/schemas/WorkoutListParams'
-    CreateWorkoutRequest:
-      $ref: './components/schemas/workout.yaml#/components/schemas/CreateWorkoutRequest'
-    UpdateWorkoutRequest:
-      $ref: './components/schemas/workout.yaml#/components/schemas/UpdateWorkoutRequest'
-    CreateWorkoutResponse:
-      $ref: './components/schemas/workout.yaml#/components/schemas/CreateWorkoutResponse'
-    ListWorkoutsResponse:
-      $ref: './components/schemas/workout.yaml#/components/schemas/ListWorkoutsResponse'
-
-    # Exercise schemas
-    CreateCardioExerciseRequest:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/CreateCardioExerciseRequest'
-    CreateStrengthExerciseRequest:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/CreateStrengthExerciseRequest'
-    CardioExerciseResponse:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/CardioExerciseResponse'
-    StrengthExerciseResponse:
-      $ref: './components/schemas/exercise.yaml#/components/schemas/StrengthExerciseResponse'
-
     Conversation:
       $ref: './components/schemas/conversation.yaml#/components/schemas/Conversation'
     CreateConversationRequest:
@@ -545,10 +346,6 @@ components:
       $ref: './components/schemas/message.yaml#/components/schemas/ListMessagesRequest'
     ListMessagesResponse:
       $ref: './components/schemas/message.yaml#/components/schemas/ListMessagesResponse'
-    LLMServiceMessageRequest:
-      $ref: './components/schemas/message.yaml#/components/schemas/LLMServiceMessageRequest'
-    LLMServiceMessageResponse:
-      $ref: './components/schemas/message.yaml#/components/schemas/LLMServiceMessageResponse'
 
     Error:
       $ref: './components/responses/errors.yaml#/components/schemas/Error'

@@ -24,61 +24,6 @@ import type { RequestArgs } from './base';
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
 /**
- * 
- * @export
- * @interface CardioExerciseResponse
- */
-export interface CardioExerciseResponse {
-    /**
-     * Unique identifier for the exercise
-     * @type {number}
-     * @memberof CardioExerciseResponse
-     */
-    'id': number;
-    /**
-     * ID of the user who created the exercise
-     * @type {number}
-     * @memberof CardioExerciseResponse
-     */
-    'user_id': number;
-    /**
-     * ID of the workout this exercise belongs to
-     * @type {number}
-     * @memberof CardioExerciseResponse
-     */
-    'workout_id': number;
-    /**
-     * Name of the exercise
-     * @type {string}
-     * @memberof CardioExerciseResponse
-     */
-    'name': string;
-    /**
-     * Additional notes
-     * @type {string}
-     * @memberof CardioExerciseResponse
-     */
-    'notes'?: string;
-    /**
-     * Distance in meters
-     * @type {number}
-     * @memberof CardioExerciseResponse
-     */
-    'distance': number;
-    /**
-     * Duration in seconds
-     * @type {number}
-     * @memberof CardioExerciseResponse
-     */
-    'duration': number;
-    /**
-     * Timestamp when the exercise was created
-     * @type {string}
-     * @memberof CardioExerciseResponse
-     */
-    'created_at': string;
-}
-/**
  * Represents a conversation.
  * @export
  * @interface Conversation
@@ -103,54 +48,11 @@ export interface Conversation {
      */
     'title': string;
     /**
-     * Timestamp of creation.
+     * Timestamp of update.
      * @type {string}
      * @memberof Conversation
      */
-    'created_at': string;
-}
-/**
- * 
- * @export
- * @interface CreateCardioExerciseRequest
- */
-export interface CreateCardioExerciseRequest {
-    /**
-     * ID of the user creating the exercise
-     * @type {number}
-     * @memberof CreateCardioExerciseRequest
-     */
-    'user_id': number;
-    /**
-     * ID of the workout this exercise belongs to
-     * @type {number}
-     * @memberof CreateCardioExerciseRequest
-     */
-    'workout_id': number;
-    /**
-     * Name of the exercise
-     * @type {string}
-     * @memberof CreateCardioExerciseRequest
-     */
-    'name': string;
-    /**
-     * Additional notes
-     * @type {string}
-     * @memberof CreateCardioExerciseRequest
-     */
-    'notes'?: string;
-    /**
-     * Distance in meters
-     * @type {number}
-     * @memberof CreateCardioExerciseRequest
-     */
-    'distance': number;
-    /**
-     * Duration in seconds
-     * @type {number}
-     * @memberof CreateCardioExerciseRequest
-     */
-    'duration': number;
+    'updated_at': string;
 }
 /**
  * Request to create a conversation.
@@ -194,7 +96,7 @@ export interface CreateConversationResponse {
      * @type {string}
      * @memberof CreateConversationResponse
      */
-    'created_at': string;
+    'updated_at': string;
 }
 /**
  * Payload to create a new message.
@@ -203,11 +105,11 @@ export interface CreateConversationResponse {
  */
 export interface CreateMessageRequest {
     /**
-     * Content of the message.
+     * Langchain message json.
      * @type {string}
      * @memberof CreateMessageRequest
      */
-    'content': string;
+    'langchain_message': string;
     /**
      * 
      * @type {MessageType}
@@ -217,75 +119,6 @@ export interface CreateMessageRequest {
 }
 
 
-/**
- * 
- * @export
- * @interface CreateStrengthExerciseRequest
- */
-export interface CreateStrengthExerciseRequest {
-    /**
-     * ID of the user creating the exercise
-     * @type {number}
-     * @memberof CreateStrengthExerciseRequest
-     */
-    'user_id': number;
-    /**
-     * ID of the workout this exercise belongs to
-     * @type {number}
-     * @memberof CreateStrengthExerciseRequest
-     */
-    'workout_id': number;
-    /**
-     * Name of the exercise
-     * @type {string}
-     * @memberof CreateStrengthExerciseRequest
-     */
-    'name': string;
-    /**
-     * Additional notes
-     * @type {string}
-     * @memberof CreateStrengthExerciseRequest
-     */
-    'notes'?: string;
-    /**
-     * Repetitions per set
-     * @type {number}
-     * @memberof CreateStrengthExerciseRequest
-     */
-    'reps': number;
-    /**
-     * Weight in kilograms
-     * @type {number}
-     * @memberof CreateStrengthExerciseRequest
-     */
-    'weight': number;
-}
-/**
- * Request to create a new workout.
- * @export
- * @interface CreateWorkoutRequest
- */
-export interface CreateWorkoutRequest {
-    /**
-     * ID of the user creating the workout.
-     * @type {number}
-     * @memberof CreateWorkoutRequest
-     */
-    'user_id'?: number;
-}
-/**
- * Response returned after creating a workout.
- * @export
- * @interface CreateWorkoutResponse
- */
-export interface CreateWorkoutResponse {
-    /**
-     * ID of the created workout.
-     * @type {number}
-     * @memberof CreateWorkoutResponse
-     */
-    'id': number;
-}
 /**
  * Request to delete a conversation and all its messages.
  * @export
@@ -342,56 +175,6 @@ export interface GoogleLoginRequest {
      * @memberof GoogleLoginRequest
      */
     'googleToken': string;
-}
-/**
- * Request to the LLM service to process a conversation.
- * @export
- * @interface LLMServiceMessageRequest
- */
-export interface LLMServiceMessageRequest {
-    /**
-     * 
-     * @type {Array<Message>}
-     * @memberof LLMServiceMessageRequest
-     */
-    'messages': Array<Message>;
-    /**
-     * ID of the user making the request.
-     * @type {number}
-     * @memberof LLMServiceMessageRequest
-     */
-    'user_id': number;
-    /**
-     * ID of the conversation to which these messages belong.
-     * @type {number}
-     * @memberof LLMServiceMessageRequest
-     */
-    'conversation_id': number;
-}
-/**
- * Response from the LLM service to process a conversation.
- * @export
- * @interface LLMServiceMessageResponse
- */
-export interface LLMServiceMessageResponse {
-    /**
-     * 
-     * @type {Message}
-     * @memberof LLMServiceMessageResponse
-     */
-    'message': Message;
-    /**
-     * Time taken to generate the response in milliseconds.
-     * @type {number}
-     * @memberof LLMServiceMessageResponse
-     */
-    'response_time_ms'?: number;
-    /**
-     * Identifier of the model used to generate the response.
-     * @type {string}
-     * @memberof LLMServiceMessageResponse
-     */
-    'model_name'?: string;
 }
 /**
  * Response containing a list of conversations.
@@ -451,19 +234,6 @@ export interface ListMessagesResponse {
     'messages': Array<Message>;
 }
 /**
- * Response containing a list of workouts.
- * @export
- * @interface ListWorkoutsResponse
- */
-export interface ListWorkoutsResponse {
-    /**
-     * 
-     * @type {Array<Workout>}
-     * @memberof ListWorkoutsResponse
-     */
-    'workouts': Array<Workout>;
-}
-/**
  * Represents a message in a conversation.
  * @export
  * @interface Message
@@ -474,25 +244,25 @@ export interface Message {
      * @type {number}
      * @memberof Message
      */
-    'id'?: number;
+    'id': number;
     /**
      * Conversation ID this message belongs to.
      * @type {number}
      * @memberof Message
      */
-    'conversation_id'?: number;
+    'conversation_id': number;
     /**
      * User ID who sent the message.
      * @type {number}
      * @memberof Message
      */
-    'user_id'?: number;
+    'user_id': number;
     /**
-     * Content of the message.
+     * Langchain message json.
      * @type {string}
      * @memberof Message
      */
-    'content': string;
+    'langchain_message': string;
     /**
      * 
      * @type {MessageType}
@@ -505,68 +275,8 @@ export interface Message {
      * @memberof Message
      */
     'created_at'?: string;
-    /**
-     * Additional metadata passed with the message.
-     * @type {object}
-     * @memberof Message
-     */
-    'additional_kwargs'?: object;
-    /**
-     * Metadata returned by the model provider.
-     * @type {object}
-     * @memberof Message
-     */
-    'response_metadata'?: object;
-    /**
-     * Type of message.
-     * @type {string}
-     * @memberof Message
-     */
-    'type'?: MessageTypeEnum;
-    /**
-     * Optional name of the message sender/tool.
-     * @type {string}
-     * @memberof Message
-     */
-    'name'?: string | null;
-    /**
-     * Unique message ID from the model provider.
-     * @type {string}
-     * @memberof Message
-     */
-    'llm_id'?: string;
-    /**
-     * Tool calls made by the model in this message.
-     * @type {Array<object>}
-     * @memberof Message
-     */
-    'tool_calls'?: Array<object>;
-    /**
-     * Tool calls that failed to parse or execute.
-     * @type {Array<object>}
-     * @memberof Message
-     */
-    'invalid_tool_calls'?: Array<object>;
-    /**
-     * Token usage metadata.
-     * @type {object}
-     * @memberof Message
-     */
-    'usage_metadata'?: object;
-    /**
-     * Whether this message was part of an example conversation.
-     * @type {boolean}
-     * @memberof Message
-     */
-    'example'?: boolean;
 }
 
-export const MessageTypeEnum = {
-    Ai: 'ai',
-    Human: 'human'
-} as const;
-
-export type MessageTypeEnum = typeof MessageTypeEnum[keyof typeof MessageTypeEnum];
 
 /**
  * Type of message sender
@@ -576,8 +286,7 @@ export type MessageTypeEnum = typeof MessageTypeEnum[keyof typeof MessageTypeEnu
 
 export const MessageType = {
     User: 'user',
-    Assistant: 'assistant',
-    System: 'system'
+    Assistant: 'assistant'
 } as const;
 
 export type MessageType = typeof MessageType[keyof typeof MessageType];
@@ -609,61 +318,6 @@ export interface ModelError {
     'details'?: { [key: string]: any; };
 }
 /**
- * 
- * @export
- * @interface StrengthExerciseResponse
- */
-export interface StrengthExerciseResponse {
-    /**
-     * Unique identifier for the exercise
-     * @type {number}
-     * @memberof StrengthExerciseResponse
-     */
-    'id': number;
-    /**
-     * ID of the user who created the exercise
-     * @type {number}
-     * @memberof StrengthExerciseResponse
-     */
-    'user_id': number;
-    /**
-     * ID of the workout this exercise belongs to
-     * @type {number}
-     * @memberof StrengthExerciseResponse
-     */
-    'workout_id': number;
-    /**
-     * Name of the exercise
-     * @type {string}
-     * @memberof StrengthExerciseResponse
-     */
-    'name': string;
-    /**
-     * Additional notes
-     * @type {string}
-     * @memberof StrengthExerciseResponse
-     */
-    'notes'?: string;
-    /**
-     * Repetitions per set
-     * @type {number}
-     * @memberof StrengthExerciseResponse
-     */
-    'reps': number;
-    /**
-     * Weight in kilograms
-     * @type {number}
-     * @memberof StrengthExerciseResponse
-     */
-    'weight': number;
-    /**
-     * Timestamp when the exercise was created
-     * @type {string}
-     * @memberof StrengthExerciseResponse
-     */
-    'created_at': string;
-}
-/**
  * Request to update a conversation.
  * @export
  * @interface UpdateConversationRequest
@@ -675,19 +329,6 @@ export interface UpdateConversationRequest {
      * @memberof UpdateConversationRequest
      */
     'title'?: string;
-}
-/**
- * Request to update a workout.
- * @export
- * @interface UpdateWorkoutRequest
- */
-export interface UpdateWorkoutRequest {
-    /**
-     * ID of the user who owns the workout.
-     * @type {number}
-     * @memberof UpdateWorkoutRequest
-     */
-    'user_id'?: number;
 }
 /**
  * Represents a registered user in the system.
@@ -725,68 +366,6 @@ export interface User {
      * @memberof User
      */
     'created_at'?: string | null;
-}
-/**
- * Represents a workout session.
- * @export
- * @interface Workout
- */
-export interface Workout {
-    /**
-     * Unique identifier for the workout.
-     * @type {number}
-     * @memberof Workout
-     */
-    'id': number;
-    /**
-     * ID of the user who owns the workout.
-     * @type {number}
-     * @memberof Workout
-     */
-    'user_id': number;
-    /**
-     * When the workout was created.
-     * @type {string}
-     * @memberof Workout
-     */
-    'created_at': string;
-    /**
-     * When the workout was last updated.
-     * @type {string}
-     * @memberof Workout
-     */
-    'updated_at': string;
-}
-/**
- * Parameters for filtering workout list.
- * @export
- * @interface WorkoutListParams
- */
-export interface WorkoutListParams {
-    /**
-     * 
-     * @type {number}
-     * @memberof WorkoutListParams
-     */
-    'user_id'?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkoutListParams
-     */
-    'year'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkoutListParams
-     */
-    'month'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof WorkoutListParams
-     */
-    'day'?: string;
 }
 
 /**
@@ -1220,215 +799,6 @@ export class ConversationsApi extends BaseAPI {
 
 
 /**
- * ExercisesApi - axios parameter creator
- * @export
- */
-export const ExercisesApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * Add a new cardio exercise to a workout
-         * @summary Create a new cardio exercise
-         * @param {number} userId User ID
-         * @param {number} workoutId Workout ID
-         * @param {CreateCardioExerciseRequest} createCardioExerciseRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createCardioExercise: async (userId: number, workoutId: number, createCardioExerciseRequest: CreateCardioExerciseRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            assertParamExists('createCardioExercise', 'userId', userId)
-            // verify required parameter 'workoutId' is not null or undefined
-            assertParamExists('createCardioExercise', 'workoutId', workoutId)
-            // verify required parameter 'createCardioExerciseRequest' is not null or undefined
-            assertParamExists('createCardioExercise', 'createCardioExerciseRequest', createCardioExerciseRequest)
-            const localVarPath = `/users/{userId}/workouts/{workoutId}/cardioExercises`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
-                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(createCardioExerciseRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Add a new strength exercise to a workout
-         * @summary Create a new strength exercise
-         * @param {number} userId User ID
-         * @param {number} workoutId Workout ID
-         * @param {CreateStrengthExerciseRequest} createStrengthExerciseRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createStrengthExercise: async (userId: number, workoutId: number, createStrengthExerciseRequest: CreateStrengthExerciseRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            assertParamExists('createStrengthExercise', 'userId', userId)
-            // verify required parameter 'workoutId' is not null or undefined
-            assertParamExists('createStrengthExercise', 'workoutId', workoutId)
-            // verify required parameter 'createStrengthExerciseRequest' is not null or undefined
-            assertParamExists('createStrengthExercise', 'createStrengthExerciseRequest', createStrengthExerciseRequest)
-            const localVarPath = `/users/{userId}/workouts/{workoutId}/strengthExercises`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)))
-                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(createStrengthExerciseRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * ExercisesApi - functional programming interface
- * @export
- */
-export const ExercisesApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ExercisesApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * Add a new cardio exercise to a workout
-         * @summary Create a new cardio exercise
-         * @param {number} userId User ID
-         * @param {number} workoutId Workout ID
-         * @param {CreateCardioExerciseRequest} createCardioExerciseRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async createCardioExercise(userId: number, workoutId: number, createCardioExerciseRequest: CreateCardioExerciseRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CardioExerciseResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createCardioExercise(userId, workoutId, createCardioExerciseRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExercisesApi.createCardioExercise']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Add a new strength exercise to a workout
-         * @summary Create a new strength exercise
-         * @param {number} userId User ID
-         * @param {number} workoutId Workout ID
-         * @param {CreateStrengthExerciseRequest} createStrengthExerciseRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async createStrengthExercise(userId: number, workoutId: number, createStrengthExerciseRequest: CreateStrengthExerciseRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StrengthExerciseResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createStrengthExercise(userId, workoutId, createStrengthExerciseRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ExercisesApi.createStrengthExercise']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * ExercisesApi - factory interface
- * @export
- */
-export const ExercisesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ExercisesApiFp(configuration)
-    return {
-        /**
-         * Add a new cardio exercise to a workout
-         * @summary Create a new cardio exercise
-         * @param {number} userId User ID
-         * @param {number} workoutId Workout ID
-         * @param {CreateCardioExerciseRequest} createCardioExerciseRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createCardioExercise(userId: number, workoutId: number, createCardioExerciseRequest: CreateCardioExerciseRequest, options?: RawAxiosRequestConfig): AxiosPromise<CardioExerciseResponse> {
-            return localVarFp.createCardioExercise(userId, workoutId, createCardioExerciseRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Add a new strength exercise to a workout
-         * @summary Create a new strength exercise
-         * @param {number} userId User ID
-         * @param {number} workoutId Workout ID
-         * @param {CreateStrengthExerciseRequest} createStrengthExerciseRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createStrengthExercise(userId: number, workoutId: number, createStrengthExerciseRequest: CreateStrengthExerciseRequest, options?: RawAxiosRequestConfig): AxiosPromise<StrengthExerciseResponse> {
-            return localVarFp.createStrengthExercise(userId, workoutId, createStrengthExerciseRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * ExercisesApi - object-oriented interface
- * @export
- * @class ExercisesApi
- * @extends {BaseAPI}
- */
-export class ExercisesApi extends BaseAPI {
-    /**
-     * Add a new cardio exercise to a workout
-     * @summary Create a new cardio exercise
-     * @param {number} userId User ID
-     * @param {number} workoutId Workout ID
-     * @param {CreateCardioExerciseRequest} createCardioExerciseRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExercisesApi
-     */
-    public createCardioExercise(userId: number, workoutId: number, createCardioExerciseRequest: CreateCardioExerciseRequest, options?: RawAxiosRequestConfig) {
-        return ExercisesApiFp(this.configuration).createCardioExercise(userId, workoutId, createCardioExerciseRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Add a new strength exercise to a workout
-     * @summary Create a new strength exercise
-     * @param {number} userId User ID
-     * @param {number} workoutId Workout ID
-     * @param {CreateStrengthExerciseRequest} createStrengthExerciseRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ExercisesApi
-     */
-    public createStrengthExercise(userId: number, workoutId: number, createStrengthExerciseRequest: CreateStrengthExerciseRequest, options?: RawAxiosRequestConfig) {
-        return ExercisesApiFp(this.configuration).createStrengthExercise(userId, workoutId, createStrengthExerciseRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
  * MessagesApi - axios parameter creator
  * @export
  */
@@ -1629,7 +999,7 @@ export const MessagesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createMessage(userId: number, conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Message>> {
+        async createMessage(userId: number, conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListMessagesResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createMessage(userId, conversationId, createMessageRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MessagesApi.createMessage']?.[localVarOperationServerIndex]?.url;
@@ -1700,7 +1070,7 @@ export const MessagesApiFactory = function (configuration?: Configuration, baseP
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createMessage(userId: number, conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig): AxiosPromise<Message> {
+        createMessage(userId: number, conversationId: number, createMessageRequest: CreateMessageRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListMessagesResponse> {
             return localVarFp.createMessage(userId, conversationId, createMessageRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -2039,432 +1409,6 @@ export class UsersApi extends BaseAPI {
      */
     public logout(options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).logout(options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * WorkoutsApi - axios parameter creator
- * @export
- */
-export const WorkoutsApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * Create a new workout session for a user
-         * @summary Create a new workout
-         * @param {number} userId User ID
-         * @param {CreateWorkoutRequest} createWorkoutRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createWorkout: async (userId: number, createWorkoutRequest: CreateWorkoutRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            assertParamExists('createWorkout', 'userId', userId)
-            // verify required parameter 'createWorkoutRequest' is not null or undefined
-            assertParamExists('createWorkout', 'createWorkoutRequest', createWorkoutRequest)
-            const localVarPath = `/users/{userId}/workouts`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(createWorkoutRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Delete a workout and all associated exercises
-         * @summary Delete workout
-         * @param {number} workoutId Workout ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteWorkout: async (workoutId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'workoutId' is not null or undefined
-            assertParamExists('deleteWorkout', 'workoutId', workoutId)
-            const localVarPath = `/users/{userId}/workouts/{workoutId}`
-                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Retrieve a specific workout by its ID
-         * @summary Get workout by ID
-         * @param {number} workoutId Workout ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getWorkoutById: async (workoutId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'workoutId' is not null or undefined
-            assertParamExists('getWorkoutById', 'workoutId', workoutId)
-            const localVarPath = `/users/{userId}/workouts/{workoutId}`
-                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Update an existing workout
-         * @summary Update workout
-         * @param {number} workoutId Workout ID
-         * @param {UpdateWorkoutRequest} updateWorkoutRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateWorkout: async (workoutId: number, updateWorkoutRequest: UpdateWorkoutRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'workoutId' is not null or undefined
-            assertParamExists('updateWorkout', 'workoutId', workoutId)
-            // verify required parameter 'updateWorkoutRequest' is not null or undefined
-            assertParamExists('updateWorkout', 'updateWorkoutRequest', updateWorkoutRequest)
-            const localVarPath = `/users/{userId}/workouts/{workoutId}`
-                .replace(`{${"workoutId"}}`, encodeURIComponent(String(workoutId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateWorkoutRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary List workouts for a user
-         * @param {number} userId User ID
-         * @param {string} [year] Filter by year (YYYY format)
-         * @param {string} [month] Filter by month (MM format)
-         * @param {string} [day] Filter by day (DD format)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        usersUserIdWorkoutsGet: async (userId: number, year?: string, month?: string, day?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'userId' is not null or undefined
-            assertParamExists('usersUserIdWorkoutsGet', 'userId', userId)
-            const localVarPath = `/users/{userId}/workouts`
-                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (year !== undefined) {
-                localVarQueryParameter['year'] = year;
-            }
-
-            if (month !== undefined) {
-                localVarQueryParameter['month'] = month;
-            }
-
-            if (day !== undefined) {
-                localVarQueryParameter['day'] = day;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * WorkoutsApi - functional programming interface
- * @export
- */
-export const WorkoutsApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = WorkoutsApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * Create a new workout session for a user
-         * @summary Create a new workout
-         * @param {number} userId User ID
-         * @param {CreateWorkoutRequest} createWorkoutRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async createWorkout(userId: number, createWorkoutRequest: CreateWorkoutRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateWorkoutResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createWorkout(userId, createWorkoutRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['WorkoutsApi.createWorkout']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Delete a workout and all associated exercises
-         * @summary Delete workout
-         * @param {number} workoutId Workout ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async deleteWorkout(workoutId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteWorkout(workoutId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['WorkoutsApi.deleteWorkout']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Retrieve a specific workout by its ID
-         * @summary Get workout by ID
-         * @param {number} workoutId Workout ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getWorkoutById(workoutId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Workout>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getWorkoutById(workoutId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['WorkoutsApi.getWorkoutById']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * Update an existing workout
-         * @summary Update workout
-         * @param {number} workoutId Workout ID
-         * @param {UpdateWorkoutRequest} updateWorkoutRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async updateWorkout(workoutId: number, updateWorkoutRequest: UpdateWorkoutRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Workout>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateWorkout(workoutId, updateWorkoutRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['WorkoutsApi.updateWorkout']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary List workouts for a user
-         * @param {number} userId User ID
-         * @param {string} [year] Filter by year (YYYY format)
-         * @param {string} [month] Filter by month (MM format)
-         * @param {string} [day] Filter by day (DD format)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async usersUserIdWorkoutsGet(userId: number, year?: string, month?: string, day?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListWorkoutsResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.usersUserIdWorkoutsGet(userId, year, month, day, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['WorkoutsApi.usersUserIdWorkoutsGet']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * WorkoutsApi - factory interface
- * @export
- */
-export const WorkoutsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = WorkoutsApiFp(configuration)
-    return {
-        /**
-         * Create a new workout session for a user
-         * @summary Create a new workout
-         * @param {number} userId User ID
-         * @param {CreateWorkoutRequest} createWorkoutRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createWorkout(userId: number, createWorkoutRequest: CreateWorkoutRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateWorkoutResponse> {
-            return localVarFp.createWorkout(userId, createWorkoutRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Delete a workout and all associated exercises
-         * @summary Delete workout
-         * @param {number} workoutId Workout ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteWorkout(workoutId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteWorkout(workoutId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Retrieve a specific workout by its ID
-         * @summary Get workout by ID
-         * @param {number} workoutId Workout ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getWorkoutById(workoutId: number, options?: RawAxiosRequestConfig): AxiosPromise<Workout> {
-            return localVarFp.getWorkoutById(workoutId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Update an existing workout
-         * @summary Update workout
-         * @param {number} workoutId Workout ID
-         * @param {UpdateWorkoutRequest} updateWorkoutRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateWorkout(workoutId: number, updateWorkoutRequest: UpdateWorkoutRequest, options?: RawAxiosRequestConfig): AxiosPromise<Workout> {
-            return localVarFp.updateWorkout(workoutId, updateWorkoutRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary List workouts for a user
-         * @param {number} userId User ID
-         * @param {string} [year] Filter by year (YYYY format)
-         * @param {string} [month] Filter by month (MM format)
-         * @param {string} [day] Filter by day (DD format)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        usersUserIdWorkoutsGet(userId: number, year?: string, month?: string, day?: string, options?: RawAxiosRequestConfig): AxiosPromise<ListWorkoutsResponse> {
-            return localVarFp.usersUserIdWorkoutsGet(userId, year, month, day, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * WorkoutsApi - object-oriented interface
- * @export
- * @class WorkoutsApi
- * @extends {BaseAPI}
- */
-export class WorkoutsApi extends BaseAPI {
-    /**
-     * Create a new workout session for a user
-     * @summary Create a new workout
-     * @param {number} userId User ID
-     * @param {CreateWorkoutRequest} createWorkoutRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof WorkoutsApi
-     */
-    public createWorkout(userId: number, createWorkoutRequest: CreateWorkoutRequest, options?: RawAxiosRequestConfig) {
-        return WorkoutsApiFp(this.configuration).createWorkout(userId, createWorkoutRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Delete a workout and all associated exercises
-     * @summary Delete workout
-     * @param {number} workoutId Workout ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof WorkoutsApi
-     */
-    public deleteWorkout(workoutId: number, options?: RawAxiosRequestConfig) {
-        return WorkoutsApiFp(this.configuration).deleteWorkout(workoutId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Retrieve a specific workout by its ID
-     * @summary Get workout by ID
-     * @param {number} workoutId Workout ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof WorkoutsApi
-     */
-    public getWorkoutById(workoutId: number, options?: RawAxiosRequestConfig) {
-        return WorkoutsApiFp(this.configuration).getWorkoutById(workoutId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Update an existing workout
-     * @summary Update workout
-     * @param {number} workoutId Workout ID
-     * @param {UpdateWorkoutRequest} updateWorkoutRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof WorkoutsApi
-     */
-    public updateWorkout(workoutId: number, updateWorkoutRequest: UpdateWorkoutRequest, options?: RawAxiosRequestConfig) {
-        return WorkoutsApiFp(this.configuration).updateWorkout(workoutId, updateWorkoutRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary List workouts for a user
-     * @param {number} userId User ID
-     * @param {string} [year] Filter by year (YYYY format)
-     * @param {string} [month] Filter by month (MM format)
-     * @param {string} [day] Filter by day (DD format)
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof WorkoutsApi
-     */
-    public usersUserIdWorkoutsGet(userId: number, year?: string, month?: string, day?: string, options?: RawAxiosRequestConfig) {
-        return WorkoutsApiFp(this.configuration).usersUserIdWorkoutsGet(userId, year, month, day, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

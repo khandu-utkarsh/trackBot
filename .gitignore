@@ -29,6 +29,7 @@ yarn-error.log*
 .env.database.docker
 .env.llmApp.docker
 .env.workoutApp.docker
+.env.trackBot.docker
 
 #No executable files
 *.exe
