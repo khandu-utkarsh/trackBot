@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { chatAPI, Conversation } from '@/lib/api';
 import ChatInputBar from './ChatInputBar';
 import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
+import { CreateConversationResponse, ListMessagesResponse, MessageType } from '@/lib/types/generated';
 
 let chatIdTemp : number = 0;
 function ChatPageComponent() {
@@ -29,23 +30,18 @@ function ChatPageComponent() {
   const createNewConversation = async (inputMessage: string) => {
     let conversation : Conversation | null = null;
     try {
-          conversation = await chatAPI.createConversation(user.id, {
+          let conversationResponse : CreateConversationResponse = await chatAPI.createConversation(user.id, {
             title: 'New Chat ' + chatIdTemp.toString(),
           });
-          if(conversation){ 
-            chatIdTemp++;
 
-            //!Send message to the conversation.
-              const message = await chatAPI.createMessage(user.id, conversation.id, {
-              content: inputMessage,
-              message_type: 'user',                
-            });
-            if(message){
-              console.log("Message sent to the conversation.");
-            }
-            else{
-              console.error('Error sending message: Message is null');
-            }
+          if(conversationResponse.id){
+            chatIdTemp++;
+            conversation = {
+              id: conversationResponse.id,
+              title: conversationResponse.title,
+              user_id: conversationResponse.user_id,
+              updated_at: conversationResponse.updated_at,
+            };
           }
           else{
             console.error('Error creating conversation: Conversation is null');
@@ -63,6 +59,18 @@ function ChatPageComponent() {
           const newMap = new Map(conversations);
           newMap.set(conversationCreated.id, conversationCreated);
           setConversations(newMap);
+
+          //!Send message to the conversation.
+          const message : ListMessagesResponse = await chatAPI.createMessage(user.id, conversationCreated.id, {
+            langchain_message: inputMessage,
+            message_type: MessageType.User,                
+          });
+          if(message.messages.length > 0){
+            console.log("Message sent to the conversation.");
+          }
+          else{
+            console.error('Error sending message: Message is null');
+          }
 
           //!Message sent, route to the conversation page.
           router.replace(`/chat/${conversationCreated.id}`);

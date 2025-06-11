@@ -30,6 +30,10 @@ def create_conversation(user_id: int, conversation: openapiModels.CreateConversa
     db.commit()
     db.refresh(db_conversation)
 
+    #Once conversation is created, we need to create the message, used to create the conversation.
+
+
+
     response = openapiModels.CreateConversationResponse(
         id=db_conversation.id,
         title=db_conversation.title,
@@ -168,36 +172,36 @@ async def create_message(user_id: int, conversation_id: int, message: openapiMod
     if user.id != conversation.user_id: 
         raise HTTPException(status_code=403, detail="User does not have access to this conversation")
 
-    lm = HumanMessage(content=message.langchain_message)
-    lm_json = lm.model_dump_json()
-
-    db_message = Message(user_id=user_id, conversation_id=conversation_id, type="user", langchain_message=lm_json)
-    db.add(db_message)
-    db.commit()
-    db.refresh(db_message)
-
-    # Initialize the agent with PostgreSQL checkpointing
-    agent = TrackBotAgent(user_id=user_id, conversation_id=conversation_id)
-    
-    # Create initial state
-    state = AgentState(
+    state: AgentState = AgentState(
         user_id=user_id,
         conversation_id=conversation_id,
-        messages=[BaseMessage.from_json(message.langchain_message) for message in conversation.messages],
+        messages=[BaseMessage.model_validate_json(message.langchain_message) for message in conversation.messages],
         tools_called=[],
         pending_input_prompt=None,
         status="started",
         next_action="process_messages"
     )
 
+    human_message = HumanMessage(content=message.langchain_message)
+    db_message = Message(user_id=user_id, conversation_id=conversation_id, type="user", langchain_message=human_message.model_dump_json())
+    db.add(db_message)
+    db.commit()
+    db.refresh(db_message)
+
+    state["messages"].append(human_message)
+
+    # Initialize the agent with PostgreSQL checkpointing
+    agent = TrackBotAgent.create(user_id=user_id, conversation_id=conversation_id)
+    
+    # Create initial state as a dictionary matching AgentState type
+ 
+
     original_messages_count = len(state["messages"])
     try:
         # Run the agent with a unique thread ID
-        config = {"configurable": {"thread_id": f"thread_{user_id}_{conversation_id}"}}
-        result = await agent.run(state, config=config)
+        result = await agent.run(state)
         
         # Create assistant's response message
-
         responseMessages = []
         for i in range(original_messages_count, len(result["messages"])):
             message = result["messages"][i]

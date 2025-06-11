@@ -3,19 +3,23 @@ import {
   Conversation, 
   Message, 
   CreateConversationRequest, 
+  CreateConversationResponse,
   CreateMessageRequest,
+  ListMessagesResponse,
   UpdateConversationRequest,
   DeleteConversationRequest,
+  DeleteConversationResponse,
+  ListConversationsResponse,
 } from '@/lib/types/generated';
 
 class ChatAPI {
   // Conversation methods
-  async getConversations(userId: number): Promise<Conversation[]> {
+  async getConversations(userId: number): Promise<ListConversationsResponse> {
     const response = await conversationsApi.listConversations(userId);
-    return response.data.conversations;
+    return response.data;
   }
 
-  async createConversation(userId: number, data: CreateConversationRequest): Promise<Conversation> {
+  async createConversation(userId: number, data: CreateConversationRequest): Promise<CreateConversationResponse> {
     const response = await conversationsApi.createConversation(userId, data);
     return response.data;
   }
@@ -30,18 +34,19 @@ class ChatAPI {
     return response.data;
   }
 
-  async deleteConversation(userId: number, conversationId: number, confirm: boolean = true): Promise<void> {
+  async deleteConversation(userId: number, conversationId: number, confirm: boolean = true): Promise<DeleteConversationResponse> {
     const deleteRequest: DeleteConversationRequest = { confirm };
-    await conversationsApi.deleteConversation(userId, conversationId, deleteRequest);
+    const response = await conversationsApi.deleteConversation(userId, conversationId, deleteRequest);
+    return response.data;
   }
 
   // Message methods
-  async getMessages(userId: number, conversationId: number, limit?: number, offset?: number): Promise<Message[]> {
+  async getMessages(userId: number, conversationId: number, limit?: number, offset?: number): Promise<ListMessagesResponse> {
     const response = await messagesApi.listMessages(userId, conversationId, limit, offset);
-    return response.data.messages;
+    return response.data;
   }
 
-  async createMessage(userId: number, conversationId: number, data: CreateMessageRequest): Promise<Message> {
+  async createMessage(userId: number, conversationId: number, data: CreateMessageRequest): Promise<ListMessagesResponse> {
     const response = await messagesApi.createMessage(userId, conversationId, data);
     return response.data;
   }
@@ -52,7 +57,8 @@ class ChatAPI {
   }
 
   async deleteMessage(userId: number, conversationId: number, messageId: number, confirm: boolean = true): Promise<void> {
-    await messagesApi.deleteMessage(userId, conversationId, messageId, confirm);
+    const options = { params: { confirm } };
+    await messagesApi.deleteMessage(userId, conversationId, messageId, options);
   }
 }
 

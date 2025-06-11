@@ -20,15 +20,13 @@ class TrackBotAgent:
     4. Process tool results and end conversation
     """
     
-    def __init__(self, user_id: int, conversation_id: int):
+    def __init__(self, user_id: int, conversation_id: int, graph: StateGraph):
         self.user_id = user_id
         self.conversation_id = conversation_id
-        self.graph = self._build_graph()
+        self.graph = graph
     
-    def _build_graph(self) -> StateGraph:
-        """
-        Build the LangGraph workflow with clear state transitions.
-        """
+    @classmethod
+    def create(cls, user_id: int, conversation_id: int) -> "TrackBotAgent":
         agent_builder = StateGraph(AgentState)
         
         # Add nodes
@@ -40,89 +38,49 @@ class TrackBotAgent:
         agent_builder.add_edge(START, "llm_call")
         agent_builder.add_edge("tools", "llm_call")
 
-        # Add conditional logic from llm_call
+        # Add conditional edges
         agent_builder.add_conditional_edges(
             "llm_call",
-            self._decide_next_step,
-            {
-                "tools": "tools",        # Execute tools if needed
-                "user_input": "user_input",  # Ask user for more info
-                END: END,               # End if complete
-            }
+            cls._decide_next_step,
+            {"tools": "tools", "user_input": "user_input", END: END}
         )
 
-        # Add conditional logic from user_input
         agent_builder.add_conditional_edges(
             "user_input",
-            self._decide_after_user_input,
-            {
-                "pause": END,           # End to wait for user response
-                "continue": "llm_call", # Process user response
-                END: END,              # End if complete
-            }
+            cls._decide_after_user_input,
+            {"pause": END, "continue": "llm_call", END: END}
         )
 
-        # Compile the graph with PostgreSQL checkpointing
+        # Create the PostgresSaver instance
         checkpointer = PostgresSaver.from_conn_string(settings.DATABASE_URL)
-        return agent_builder.compile(
-            checkpointer=checkpointer,
-            interrupt_before=["user_input"]  # Allow interruption before user input
+        
+        # Compile the graph with the checkpointer
+        graph = agent_builder.compile(
+            interrupt_before=["user_input"],
         )
+        
+        return cls(user_id, conversation_id, graph)
     
-    def _decide_next_step(self, state: AgentState) -> str:
-        """
-        Decide the next step based on the current state.
-        """
+    @staticmethod
+    def _decide_next_step(state: AgentState) -> str:
         next_action = state.get("next_action", "end")
-        logger.info(f"Next action determined: {next_action}")
-        
-        if next_action == "tools":
-            logger.info("Proceeding to tool execution")
-            return "tools"
-        elif next_action == "user_input":
-            logger.info("Requesting user input")
-            return "user_input"
-        else:
-            logger.info("Ending conversation")
-            return END
+        return {"tools": "tools", "user_input": "user_input", END: END}.get(next_action, END)
 
-    def _decide_after_user_input(self, state: AgentState) -> str:
-        """
-        Decide what to do after user input node processing.
-        """
+    @staticmethod
+    def _decide_after_user_input(state: AgentState) -> str:
         next_action = state.get("next_action", "end")
-        logger.info(f"After user input, next action: {next_action}")
-        
-        if next_action == "pause":
-            logger.info("Pausing for user response")
-            return "pause"
-        elif next_action in ["llm_call", "continue"]:
-            logger.info("Continuing with LLM processing")
-            return "continue"
-        else:
-            logger.info("Ending conversation")
-            return END
+        return {"pause": "pause", "llm_call": "continue", "continue": "continue"}.get(next_action, END)
     
     async def run(self, state: AgentState) -> AgentState:
         """
-        Run the agent workflow with the given state.
-        
-        Args:
-            state: Current state for the agent
-            
-        Returns:
-            Updated state after execution
+        Run the agent with the given state.
         """
-        logger.info(f"Starting agent execution for user {state['user_id']}")
+        config = {
+            "configurable": {
+                "thread_id": f"{self.user_id}_{self.conversation_id}"
+            }
+        }
         
-        try:            
-            # Run the graph with a unique thread ID
-            config = {"configurable": {"thread_id": f"thread_{self.conversation_id}"}}
-            result = await self.graph.ainvoke(state, config=config)
-            
-            logger.info(f"Agent execution completed for user {state['user_id']}")
-            return result
-            
-        except Exception as e:
-            logger.error(f"Error in agent execution: {e}")
-            raise
+        # Run the graph with the state
+        result = await self.graph.ainvoke(state, config=config)
+        return result

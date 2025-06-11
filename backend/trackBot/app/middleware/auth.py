@@ -1,6 +1,6 @@
 from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer
-from app.utils.jwt import verify_token
+from app.utils.jwt import verify_jwt_token
 import logging
 from config.settings import get_settings
 from typing import Optional
@@ -29,7 +29,7 @@ async def verify_token_middleware(request: Request, call_next):
 
     try:
         # Verify token and get user context
-        payload = verify_token(token)
+        payload = verify_jwt_token(token)
         request.state.user = User(
             id=payload["user_id"],
             email=payload["email"],
@@ -67,7 +67,7 @@ async def verify_token(request: Request) -> User:
 
     try:
         # Verify token and get user context
-        payload = verify_token(token)
+        payload = verify_jwt_token(token)
         user = User(
             id=payload["user_id"],
             email=payload["email"],
@@ -76,6 +76,7 @@ async def verify_token(request: Request) -> User:
         )
         
         logger.info(f"JWT validation successful for user: {payload['email']}")
+        request.state.user = user
         return user
     except Exception as e:
         logger.error(f"JWT validation failed: {str(e)}")

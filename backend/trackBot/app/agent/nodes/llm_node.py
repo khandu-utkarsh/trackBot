@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from agent.state import AgentState
 import logging
 from langchain.chat_models import init_chat_model
@@ -64,7 +64,9 @@ async def llm_node(state: AgentState) -> AgentState:
         llm_with_tools = llm.bind_tools(availableToolsArray)
 
         # Build complete message sequence with system prompt
-        messages = [SystemMessage(content=systemMessage)] + state["messages"]
+        messages = []
+        messages.append(SystemMessage(content=systemMessage))
+        messages.extend(state["messages"])
 
         # Call the LLM
         responseFromLLM = await llm_with_tools.ainvoke(messages)

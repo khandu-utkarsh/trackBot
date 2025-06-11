@@ -52,8 +52,8 @@ services:
       - "5678:5678" # Python debugger port
     env_file:
       - backend/trackBot/.env.trackBot.docker
-    #environment:
-    #  - ENABLE_DEBUGGER=true
+    environment:
+      - ENABLE_DEBUGGER=true
     volumes:
       - ./backend/trackBot:/app
       - python_packages:/usr/local/lib/python3.11/site-packages

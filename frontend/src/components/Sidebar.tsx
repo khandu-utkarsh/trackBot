@@ -14,9 +14,10 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useRouter, useParams} from 'next/navigation';
-import { chatAPI, Conversation, User } from '@/lib/api';
+import { chatAPI, Conversation, ListConversationsResponse, User } from '@/lib/api';
 import { useRequireAuth, useConversations } from '@/contexts/AuthContext';
 import SidebarList from './SidebarList';
+import { DeleteConversationResponse } from '@/lib/types/generated';
 
 const DRAWER_WIDTH = 240;
 
@@ -64,7 +65,9 @@ export default function Sidebar() {
 
   //!For loading the conversations from the backend
   const loadConversations = async (user: User) => {
-    let data : Conversation[] = [];
+    let data : ListConversationsResponse = {
+      conversations: [],
+    };
     try {
       data = await chatAPI.getConversations(user.id);
     } catch (err) {
@@ -72,7 +75,7 @@ export default function Sidebar() {
     }
 
     const newMap = new Map(conversations);
-    data.forEach(conversation => {
+    data.conversations.forEach(conversation => {
       newMap.set(conversation.id, conversation);
     });
     setConversations(newMap);
@@ -91,11 +94,11 @@ export default function Sidebar() {
       return;
     }
     try {
-      await chatAPI.deleteConversation(user.id, conversationId, true);
+      const response : DeleteConversationResponse = await chatAPI.deleteConversation(user.id, conversationId, true);
       //!Doesn't make sense to reload everything, simply delete from the map using the id.
       if (user) {
         const newMap = new Map(conversations);
-        newMap.delete(conversationId);
+        newMap.delete(response.id);
         setConversations(newMap);
       }
       

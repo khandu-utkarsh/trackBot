@@ -13,7 +13,9 @@ from middleware.logging import LoggingMiddleware
 from middleware.cors import configure_cors
 from middleware.request_id import RequestIDMiddleware
 from config.database import init_db
+from config.init_langgraph_db import init_langgraph_checkpointing
 import logging
+from contextlib import asynccontextmanager
 
 # Configure logging
 logging.basicConfig(
@@ -23,7 +25,16 @@ logging.basicConfig(
 
 settings = get_settings()
 
-app = FastAPI(title=settings.PROJECT_NAME)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    init_db()
+    await init_langgraph_checkpointing()
+    yield
+    # Shutdown
+    pass
+
+app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
 # Add middleware in the correct order
 app.add_middleware(ErrorHandlerMiddleware)  # Outermost
@@ -34,10 +45,6 @@ app.middleware("http")(recovery_middleware)
 configure_cors(app)  # Innermost
 
 app.include_router(api_router, prefix=settings.API_STR)
-
-@app.on_event("startup")
-async def startup_event():
-    init_db()
 
 if __name__ == "__main__":
     import uvicorn

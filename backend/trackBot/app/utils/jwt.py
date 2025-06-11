@@ -77,7 +77,7 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
     encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_token(token: str) -> Dict[str, Any]:
+def verify_jwt_token(token: str) -> Dict[str, Any]:
     """
     Verify and decode a JWT token
     """

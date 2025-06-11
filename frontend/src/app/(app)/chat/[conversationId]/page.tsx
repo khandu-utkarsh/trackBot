@@ -12,6 +12,7 @@ import { chatAPI, Message, User } from '@/lib/api';
 import { useRequireAuth} from '@/contexts/AuthContext';
 import ChatInputBar from '@/components/ChatInputBar';
 import Chatbox from '@/components/Chatbox';
+import { CreateMessageRequest, ListMessagesResponse, MessageType } from '@/lib/types/generated';
 
 export default function ChatPageContent() {
 
@@ -47,8 +48,8 @@ export default function ChatPageContent() {
       // Load conversation details
      
       // Load messages
-      const apiMessages = await chatAPI.getMessages(user.id, convId, 100, 0);      
-      setMessages(apiMessages);
+      const apiMessages: ListMessagesResponse = await chatAPI.getMessages(user.id, convId, 100, 0);      
+      setMessages(apiMessages.messages);
     } catch (err) {
       setApiError('Failed to load conversation');
       console.error('Error loading conversation:', err);
@@ -64,12 +65,12 @@ export default function ChatPageContent() {
     const interval = 1000;
 
     while (retries < maxRetries) {
-      const updatedMessages = await chatAPI.getMessages(user.id, conversationId, 100, 0);
+      const updatedMessages: ListMessagesResponse = await chatAPI.getMessages(user.id, conversationId, 100, 0);
 
-      if(updatedMessages.length > messages.length) {
-        setMessages(updatedMessages);
-        return;
-      }
+      //!I want to append the new messages to the existing messages.
+      setMessages(updatedMessages.messages);
+      return;
+      
 
       retries++;
       await new Promise(resolve => setTimeout(resolve, interval));
@@ -83,31 +84,25 @@ export default function ChatPageContent() {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading || !user?.id) return;
 
-    const userMessage: Message = {
-      id: 0,
-      content: inputMessage.trim(),
+    const userMessage: CreateMessageRequest = {
+      langchain_message: inputMessage.trim(),
       message_type: 'user',
-      created_at: new Date().toISOString(),
-      conversation_id: conversationId,
-      user_id: user.id,
     };
 
-    setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
     setApiError(null);
 
     try {
       // Send message to backend
-      await chatAPI.createMessage(user.id, conversationId, {
-        content: userMessage.content,
-        message_type: 'user',
-      });
+      const outputMessage: ListMessagesResponse = await chatAPI.createMessage(user.id, conversationId, userMessage);
+      setMessages(outputMessage.messages);
+
 
       // The backend will automatically generate an AI response
       // We need to poll for new messages or implement WebSocket
       // For now, let's poll after a short delay
-      await pollForAIResponse(user);
+      //await pollForAIResponse(user);
       setIsLoading(false);
 
     } catch (error) {
@@ -115,11 +110,10 @@ export default function ChatPageContent() {
       setApiError('Failed to send message. Please try again.');
       const errorMessage: Message = {
         id: 0,
-        content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
-        message_type: 'assistant',
-        created_at: new Date().toISOString(),
         conversation_id: conversationId,
         user_id: user.id,
+        langchain_message: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
+        message_type: MessageType.Assistant,
       };
       setMessages(prev => [...prev, errorMessage]);
       setIsLoading(false);

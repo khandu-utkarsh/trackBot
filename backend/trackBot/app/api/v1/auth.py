@@ -121,22 +121,14 @@ async def logout(request: Request, db: Session = Depends(get_db)):
     """
     Handle user logout
     """
-    user = request.state.user
+    user : User = request.state.user
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
     
-    response = User(
-        id=user.id,
-        email=user.email,
-        name=user.name,
-        picture=user.picture,
-        created_at=user.created_at,
-        updated_at=user.updated_at
-    )
-    return response
+    return user
 
 @router.get("/me", response_model=User)
 async def get_current_user(request: Request, db: Session = Depends(get_db)):
@@ -150,12 +142,4 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)):
             detail="User not found"
         )
     
-    response = User(
-        id=user.id,
-        email=user.email,
-        name=user.name,
-        picture=user.picture,
-        created_at=user.created_at,
-        updated_at=user.updated_at
-    )
-    return response 
+    return user
