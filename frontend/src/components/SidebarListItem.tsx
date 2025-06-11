@@ -115,7 +115,7 @@ export default function SidebarListItem({
                 No messages yet
               </Typography>
               <Typography variant="caption" color="text.secondary" display="block">
-                {formatTimestamp(conversation.created_at)}
+                {formatTimestamp(conversation.updated_at)}
               </Typography>
             </>
           }
