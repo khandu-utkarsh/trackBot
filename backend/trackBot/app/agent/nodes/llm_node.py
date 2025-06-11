@@ -4,7 +4,7 @@ from agent.state import AgentState
 import logging
 from langchain.chat_models import init_chat_model
 from config.settings import get_settings
-from trackBotAgent.tools.custom_tools import get_available_tools
+from app.tools.exercise_tools import get_available_tools
 from langchain_core.prompts import ChatPromptTemplate
 
 logger = logging.getLogger(__name__)

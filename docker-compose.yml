@@ -6,7 +6,7 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15
-    container_name: workout-db-dev
+    container_name: trackbot-db-dev
     env_file:
       - backend/.env.database.docker
     ports:
@@ -37,25 +37,25 @@ services:
       - /app/node_modules
       - /app/.next
     depends_on:
-      - workout-app
+      - trackbot-backend
     stdin_open: true
     tty: true
 
   # LLM Service (Python/FastAPI) - Development with hot reload
-  trackBotBackend:
+  trackbot-backend:
     build:
       context: ./backend/trackBot
       dockerfile: Dockerfile.dev
-    container_name: trackBot-dev
+    container_name: trackbot-dev
     ports:
       - "8080:8080"
       - "5678:5678" # Python debugger port
     env_file:
-      - backend/services/trackBot/.env.llmApp.docker
-    environment:
-      - ENABLE_DEBUGGER=true
+      - backend/trackBot/.env.trackBot.docker
+    #environment:
+    #  - ENABLE_DEBUGGER=true
     volumes:
-      - ./backend/services/trackBot:/app
+      - ./backend/trackBot:/app
       - python_packages:/usr/local/lib/python3.11/site-packages
     stdin_open: true
     tty: true

@@ -5,10 +5,10 @@ from app.utils.jwt import create_access_token, validate_google_jwt
 from pydantic import BaseModel
 from typing import Optional, List
 from app.models.models import GoogleLoginRequest, User
-from app.models.database import User as DBUser
+from app.models.trackBot_models import User as DBUser
 from fastapi.responses import JSONResponse
 from datetime import timedelta
-from middleware.auth import verify_token_middleware
+from middleware.auth import verify_token
 
 routerLogin = APIRouter()
 
@@ -111,11 +111,7 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-router = APIRouter()
-
-@router.middleware("http")
-async def protected_middleware(request: Request, call_next):
-    return await verify_token_middleware(request, call_next)
+router = APIRouter(dependencies=[Depends(verify_token)])
 
 @router.post("/logout", response_model=User)
 async def logout(request: Request, db: Session = Depends(get_db)):

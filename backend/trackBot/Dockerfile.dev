@@ -21,11 +21,13 @@ RUN pip install --no-cache-dir \
     watchdog \
     python-multipart
 
-# Copy source code
+# Copy all source code including start-dev.sh
 COPY . .
 
-# Create startup script for development with debugging
-COPY start-dev.sh /app/start-dev.sh
+# Verify start-dev.sh exists and show its contents
+RUN ls -la && cat start-dev.sh
+
+# Make start-dev.sh executable
 RUN chmod +x /app/start-dev.sh
 
 # Expose ports

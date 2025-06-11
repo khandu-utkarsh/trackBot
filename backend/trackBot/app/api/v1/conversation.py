@@ -6,20 +6,17 @@ import app.models.models as openapiModels
 from pydantic import BaseModel
 from datetime import datetime
 from langchain_core.messages import HumanMessage, BaseMessage
-from app.models.database import User, Conversation, Message
+from app.models.trackBot_models import User, Conversation, Message
 from app.models.trackBot_models import PersistedAgentState
 from app.agent.trackBot_agent import TrackBotAgent
 from app.agent.state.state import AgentState
 import logging
-from middleware.auth import verify_token_middleware
+from middleware.auth import verify_token
+from fastapi import Depends
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
-
-@router.middleware("http")
-async def protected_middleware(request: Request, call_next):
-    return await verify_token_middleware(request, call_next)
+router = APIRouter(dependencies=[Depends(verify_token)])
 
 # Conversation endpoints
 @router.post("/users/{user_id}/conversations/", response_model=openapiModels.CreateConversationResponse)

@@ -15,8 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
 # Define the path to the .env files
-LLM_ENV_FILE="$ROOT_DIR/backend/services/llmServices/.env.llmApp.docker"
-WORKOUT_APP_ENV_FILE="$ROOT_DIR/backend/services/workoutAppServices/.env.workoutApp.docker"
+LLM_ENV_FILE="$ROOT_DIR/backend/trackBot/.env.trackBot.docker"
 DATABASE_ENV_FILE="$ROOT_DIR/backend/.env.database.docker"
 FRONTEND_ENV_FILE="$ROOT_DIR/frontend/.env.frontend.docker"
 
@@ -42,7 +41,6 @@ check_env() {
     local missing_files=()
     local env_files=(
         "$LLM_ENV_FILE"
-        "$WORKOUT_APP_ENV_FILE"
         "$FRONTEND_ENV_FILE"
         "$DATABASE_ENV_FILE"
     )
@@ -136,40 +134,35 @@ status() {
     print_status "Service URLs:"
     echo "  Frontend:    http://localhost:3000"
     echo "  Backend:     http://localhost:8080"
-    echo "  LLM Service: http://localhost:8081"
     echo "  Database:    localhost:5432"
     echo
     print_status "Debug ports:"
-    echo "  Go Delve:    localhost:2345"
     echo "  Python:      localhost:5678"
 }
 
 # Database shell
 db_shell() {
     print_status "Connecting to database..."
-    docker exec -it workout-db-dev psql -U postgres -d workout_app_dev
+    docker exec -it trackbot-db-dev psql -U postgres -d trackBot_app_dev
 }
 
 # Container shell
 shell() {
-    service=${1:-"workout-app"}
+    service=${1:-"backend"}
     print_status "Opening shell for $service..."
     case $service in
         "frontend")
             docker exec -it workout-frontend-dev sh
             ;;
-        "backend"|"workout-app")
-            docker exec -it workout-app-dev sh
-            ;;
-        "llm"|"llm-service")
-            docker exec -it llm-service-dev bash
+        "backend")
+            docker exec -it trackbot-dev sh
             ;;
         "db"|"postgres")
-            docker exec -it workout-db-dev bash
+            docker exec -it trackbot-db-dev bash
             ;;
         *)
             print_error "Unknown service: $service"
-            print_status "Available services: frontend, backend, llm, db"
+            print_status "Available services: frontend, backend, db"
             exit 1
             ;;
     esac
@@ -189,7 +182,7 @@ show_help() {
     echo "  logs      Show logs for all services or specific service"
     echo "  status    Show container status and service URLs"
     echo "  db        Open database shell"
-    echo "  shell     Open shell for service (frontend|backend|llm|db)"
+    echo "  shell     Open shell for service (frontend|backend|db)"
     echo "  help      Show this help message"
     echo
     echo "Examples:"

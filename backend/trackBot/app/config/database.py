@@ -20,5 +20,5 @@ def get_db():
         db.close()
 
 def init_db():
-    from backend.trackBot.app.models.trackBot_models import Base
+    from app.models.trackBot_models import Base
     Base.metadata.create_all(bind=engine) 

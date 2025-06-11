@@ -48,7 +48,9 @@ docker run --rm \
   --input-file-type openapi \
   --output generated/python/models.py \
   --use-standard-collections \
-  --target-python-version 3.10
+  --target-python-version 3.10 \
+  --output-model-type pydantic_v2.BaseModel
+
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Failed to generate Python models. Please check the error above.${NC}"
