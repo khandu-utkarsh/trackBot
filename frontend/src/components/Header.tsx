@@ -77,9 +77,9 @@ export default function Header() {
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-              <MenuItem onClick={handleDashboard}>
+              {/*<MenuItem onClick={handleDashboard}>
                 Dashboard
-              </MenuItem>
+              </MenuItem>*/}
               <MenuItem onClick={handleSignOut}>
                 Sign Out
               </MenuItem>

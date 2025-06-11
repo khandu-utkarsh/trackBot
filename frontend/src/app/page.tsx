@@ -3,7 +3,7 @@
 import { useRequireAuth } from '../contexts/AuthContext';
 import LandingPageComponent from '../components/Landing';
 import { Box, CircularProgress, Typography } from '@mui/material';
-import ChatApp from '../components/ChatPage';
+import ChatApp from '../components/NewChatPageComponent';
 import LoggedInLayout from '@/components/LoggedInLayout';
 
 export default function HomePage() {

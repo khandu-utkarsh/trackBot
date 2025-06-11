@@ -92,9 +92,8 @@ def _update_tools_called(existing_tools: List[Dict[str, Any]], new_tool_calls: L
     """
     Update the list of called tools with new tool calls.
     """
-    updated_tools = list(existing_tools)
-    
-    for tool_call in new_tool_calls:
+    updated_tools = list(existing_tools or [])
+    for tool_call in new_tool_calls or []:
         updated_tools.append({
             "tool_name": tool_call["name"],
             "args": tool_call["args"],

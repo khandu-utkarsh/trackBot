@@ -8,7 +8,7 @@ import {
   Alert,
 } from '@mui/material';
 import { useParams} from 'next/navigation';
-import { chatAPI, Message } from '@/lib/api';
+import { chatAPI, Message, User } from '@/lib/api';
 import { useRequireAuth} from '@/contexts/AuthContext';
 import ChatInputBar from '@/components/ChatInputBar';
 import Chatbox from '@/components/Chatbox';
@@ -57,6 +57,29 @@ export default function ChatPageContent() {
     }
   };
 
+  // Start polling after sending message
+  const pollForAIResponse = async (user: User) => {
+    let retries = 0;
+    const maxRetries = 10;
+    const interval = 1000;
+
+    while (retries < maxRetries) {
+      const updatedMessages = await chatAPI.getMessages(user.id, conversationId, 100, 0);
+
+      if(updatedMessages.length > messages.length) {
+        setMessages(updatedMessages);
+        return;
+      }
+
+      retries++;
+      await new Promise(resolve => setTimeout(resolve, interval));
+    }
+
+    console.warn('AI response polling timed out');
+  };
+
+
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading || !user?.id) return;
 
@@ -84,16 +107,8 @@ export default function ChatPageContent() {
       // The backend will automatically generate an AI response
       // We need to poll for new messages or implement WebSocket
       // For now, let's poll after a short delay
-      setTimeout(async () => {
-        try {
-          const updatedMessages = await chatAPI.getMessages(user.id, conversationId, 100, 0);
-          setMessages(updatedMessages);
-        } catch (err) {
-          console.error('Error fetching updated messages:', err);
-        } finally {
-          setIsLoading(false);
-        }
-      }, 2000); // Wait 2 seconds for AI response
+      await pollForAIResponse(user);
+      setIsLoading(false);
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -115,7 +130,7 @@ export default function ChatPageContent() {
 
 
 
-  // Show message if user is not authenticated
+  
   if (!isAuthenticated || !user) {
     return (
       <Box sx={{ 
