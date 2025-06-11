@@ -16,12 +16,15 @@ const formatTime = (date: Date) => {
 
 
 export default function ChatMessage({ message }: { message: Message }) {
+
+
+    const messageContent = JSON.parse(message.langchain_message);
     return (
     <Box
             key={message.id}
             sx={{
                     display: 'flex',
-                    flexDirection: message.message_type === 'user' ? 'row-reverse' : 'row',
+                    flexDirection: messageContent.type === 'human' ? 'row-reverse' : 'row',
                     gap: 2,
                     alignItems: 'flex-start',
                 }}
@@ -31,11 +34,11 @@ export default function ChatMessage({ message }: { message: Message }) {
                 sx={{
                         p: 2.5,
                         maxWidth: '70%',
-                        bgcolor: message.message_type === 'user' ? 'primary.main' : 'background.paper',
-                        color: message.message_type === 'user' ? 'primary.contrastText' : 'text.primary',
+                        bgcolor: messageContent.type === 'human' ? 'primary.main' : 'background.paper',
+                        color: messageContent.type === 'human' ? 'primary.contrastText' : 'text.primary',
                         borderRadius: 3,
                         position: 'relative',
-                        ...(message.message_type === 'user' ? {borderTopRightRadius: 8,} : {borderTopLeftRadius: 8,}),
+                        ...(messageContent.type === 'human' ? {borderTopRightRadius: 8,} : {borderTopLeftRadius: 8,}),
                 }}
         >
             <Typography 
@@ -44,10 +47,10 @@ export default function ChatMessage({ message }: { message: Message }) {
                     whiteSpace: 'pre-wrap', 
                     lineHeight: 1.6,
                     fontSize: '1rem',
-                    textAlign: message.message_type === 'user' ? 'right' : 'left',
+                    textAlign: messageContent.type === 'human' ? 'right' : 'left',
                 }}
             >
-                {message.content}
+                {messageContent.content}
             </Typography>
             <Typography 
                 variant="caption" 
@@ -55,11 +58,11 @@ export default function ChatMessage({ message }: { message: Message }) {
                     display: 'block', 
                     mt: 1.5, 
                     opacity: 0.7,
-                    textAlign: message.message_type === 'user' ? 'right' : 'left',
+                    textAlign: messageContent.type === 'human' ? 'right' : 'left',
                     fontSize: '0.75rem'
                 }}
             >
-                {formatTime(new Date(message.created_at))}
+                {message.created_at ? formatTime(new Date(message.created_at)) : ''}
             </Typography>
         </Paper>
     </Box>
