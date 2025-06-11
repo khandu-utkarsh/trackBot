@@ -75,4 +75,4 @@ class PersistedAgentState(Base):
     created_at = Column(DateTime, default=datetime.now(UTC))
     updated_at = Column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
 
-    conversation = relationship("Conversation", back_populates="states")
+    #conversation = relationship("Conversation", back_populates="states")

@@ -9,6 +9,9 @@ from app.models.trackBot_models import User as DBUser
 from fastapi.responses import JSONResponse
 from datetime import timedelta
 from middleware.auth import verify_token
+from config.settings import get_settings
+
+settings = get_settings()
 
 routerLogin = APIRouter()
 
@@ -84,19 +87,19 @@ async def google_login(request: GoogleLoginRequest, db: Session = Depends(get_db
             email=user.email,
             name=user.name,
             picture=user.picture,
-            created_at=user.created_at,
-            updated_at=user.updated_at
+            created_at=user.created_at
         )
 
         # 5. Set secure HttpOnly cookie
-        response = JSONResponse(content=responseUser.model_dump())
+        response = responseUser.model_dump(mode="json")
+        response = JSONResponse(content=response)
         response.set_cookie(
             key="trackbot_auth_token",
             value=token,
             httponly=True,
             secure=True,
             samesite="strict",
-            max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,  # Convert minutes to seconds
+            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,  # Convert minutes to seconds
             path="/"
         )
         

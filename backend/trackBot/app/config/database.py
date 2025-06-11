@@ -11,7 +11,6 @@ DB_URL = settings.DATABASE_URL
 engine = create_engine(DB_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-@contextmanager
 def get_db():
     db = SessionLocal()
     try:

@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://postgres:postgres@postgres:5432/workoutdb"
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID")
     TRACKBOT_JWT_SECRET_KEY: str = os.getenv("TRACKBOT_JWT_SECRET_KEY")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 300
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
     class Config:
         case_sensitive = False
 
