@@ -69,11 +69,9 @@ async def llm_node(state: AgentState) -> AgentState:
         messages.extend(state["messages"])
 
         # Call the LLM
-        responseFromLLM = await llm_with_tools.ainvoke(messages)
-        logger.info("LLM response received")
+        aiResponse = await llm_with_tools.ainvoke(messages)
+        logger.info("LLM response received")        
 
-        aiResponse: AIMessage = responseFromLLM
-        
         # Determine the next action based on response content and tool calls
         next_action = _determine_next_action(aiResponse)
         logger.info(f"Next action determined: {next_action}")

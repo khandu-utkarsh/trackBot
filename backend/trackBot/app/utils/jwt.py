@@ -14,7 +14,6 @@ settings = get_settings()
 # JWT Configuration
 JWT_SECRET_KEY = settings.TRACKBOT_JWT_SECRET_KEY
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 5  # 5 minutes like in Go service
 
 class GoogleJWTClaims(BaseModel):
     sub: str
@@ -66,7 +65,7 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
     if expires_delta:
         expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(UTC) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode.update({
         "exp": expire,

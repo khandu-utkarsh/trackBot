@@ -96,6 +96,10 @@ export default function ChatPageContent() {
     try {
       // Send message to backend
       const outputMessage: ListMessagesResponse = await chatAPI.createMessage(user.id, conversationId, userMessage);
+
+      // Add the output message to the messages array
+      // For development ease, we are returning all messsages right now.
+      //setMessages(prev => [...prev, ...outputMessage.messages]);
       setMessages(outputMessage.messages);
 
 

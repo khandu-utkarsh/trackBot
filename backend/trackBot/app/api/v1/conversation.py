@@ -5,7 +5,7 @@ from app.config.database import get_db
 import app.models.models as openapiModels
 from pydantic import BaseModel
 from datetime import datetime
-from langchain_core.messages import HumanMessage, BaseMessage
+from langchain_core.messages import HumanMessage, BaseMessage, AIMessage, SystemMessage, ToolMessage
 from app.models.trackBot_models import User, Conversation, Message
 from app.models.trackBot_models import PersistedAgentState
 from app.agent.trackBot_agent import TrackBotAgent
@@ -13,6 +13,9 @@ from app.agent.state.state import AgentState
 import logging
 from middleware.auth import verify_token
 from fastapi import Depends
+from langchain_core.messages import messages_from_dict
+import json
+
 
 logger = logging.getLogger(__name__)
 
@@ -155,8 +158,8 @@ def delete_conversation(user_id: int, conversation_id: int, db: Session = Depend
     return response
 
 # Message endpoints
-@router.post("/users/{user_id}/conversations/{conversation_id}/messages/", response_model=openapiModels.ListMessagesResponse)
-async def create_message(user_id: int, conversation_id: int, message: openapiModels.CreateMessageRequest, db: Session = Depends(get_db)):
+async def _validate_conversation_access(user_id: int, conversation_id: int, db: Session) -> Conversation:
+    """Validate user and conversation access."""
     conversation = db.query(Conversation).filter(
         Conversation.id == conversation_id,
         Conversation.user_id == user_id
@@ -171,67 +174,114 @@ async def create_message(user_id: int, conversation_id: int, message: openapiMod
 
     if user.id != conversation.user_id: 
         raise HTTPException(status_code=403, detail="User does not have access to this conversation")
+    
+    return conversation
 
+def _convert_db_messages_to_langchain(conversation: Conversation) -> List[BaseMessage]:
+    """Convert database messages to LangChain message format."""
+    langChainMessages = []
+    for message in conversation.messages:
+        msg_dict = json.loads(message.langchain_message)
+        msg_type = msg_dict["type"]
+        if msg_type == "human":
+            msg = HumanMessage(**msg_dict)
+            langChainMessages.append(msg)
+        elif msg_type == "ai":
+            msg = AIMessage(**msg_dict)
+            langChainMessages.append(msg)
+        elif msg_type == "system":
+            msg = SystemMessage(**msg_dict)
+            langChainMessages.append(msg)
+        elif msg_type == "tool":
+            msg = ToolMessage(**msg_dict)
+            langChainMessages.append(msg)
+        else:
+            raise ValueError(f"Unknown message type: {msg_type}")
+    return langChainMessages
+
+def _log_message_to_db(user_id: int, conversation_id: int, message: BaseMessage, message_type: str, db: Session) -> Message:
+    """Log a message to the database."""
+    db_message = Message(
+        user_id=user_id,
+        conversation_id=conversation_id,
+        type=message_type,
+        langchain_message=message.model_dump_json()
+    )
+    db.add(db_message)
+    db.commit()
+    db.refresh(db_message)
+    return db_message
+
+def _convert_to_openapi_message(db_message: Message) -> openapiModels.Message:
+    """Convert database message to OpenAPI model."""
+    return openapiModels.Message(
+        id=db_message.id,
+        conversation_id=db_message.conversation_id,
+        user_id=db_message.user_id,
+        langchain_message=db_message.langchain_message,
+        message_type=db_message.type,
+        created_at=db_message.created_at
+    )
+
+@router.post("/users/{user_id}/conversations/{conversation_id}/messages/", response_model=openapiModels.ListMessagesResponse)
+async def create_message(user_id: int, conversation_id: int, message: openapiModels.CreateMessageRequest, db: Session = Depends(get_db)):
+    # Step 1: Validate access
+    conversation = await _validate_conversation_access(user_id, conversation_id, db)
+    
+    # Step 2: Convert existing messages to LangChain format
+    langChainMessages = _convert_db_messages_to_langchain(conversation)
+    
+    # Step 3: Create and log the new user message
+    human_message = HumanMessage(content=message.langchain_message)
+    db_message = _log_message_to_db(user_id, conversation_id, human_message, "user", db)
+    
+    # Step 4: Create agent state
     state: AgentState = AgentState(
         user_id=user_id,
         conversation_id=conversation_id,
-        messages=[BaseMessage.model_validate_json(message.langchain_message) for message in conversation.messages],
+        messages=langChainMessages + [human_message],
         tools_called=[],
         pending_input_prompt=None,
         status="started",
         next_action="process_messages"
     )
-
-    human_message = HumanMessage(content=message.langchain_message)
-    db_message = Message(user_id=user_id, conversation_id=conversation_id, type="user", langchain_message=human_message.model_dump_json())
-    db.add(db_message)
-    db.commit()
-    db.refresh(db_message)
-
-    state["messages"].append(human_message)
-
-    # Initialize the agent with PostgreSQL checkpointing
-    agent = TrackBotAgent.create(user_id=user_id, conversation_id=conversation_id)
     
-    # Create initial state as a dictionary matching AgentState type
- 
-
+    # Step 5: Initialize and run the agent
+    agent = TrackBotAgent.create(user_id=user_id, conversation_id=conversation_id)
     original_messages_count = len(state["messages"])
+    
     try:
-        # Run the agent with a unique thread ID
+        # Run the agent
         result = await agent.run(state)
         
-        # Create assistant's response message
-        responseMessages = []
+        # Step 6: Log agent responses to DB and prepare response
+
         for i in range(original_messages_count, len(result["messages"])):
             message = result["messages"][i]
-            db_message_reply = Message(
-                user_id=user_id,
-                conversation_id=conversation_id,
-                type= "assistant" if message.type == "ai" else "other",
-                langchain_message=message.model_dump_json()
-            )
-            db.add(db_message_reply)
-            db.commit()
-            db.refresh(db_message_reply)
+            
+            # Determine message type
+            message_type = "other"
+            if message.type == "ai":
+                message_type = "assistant"
+            elif message.type == "human":
+                message_type = "user"
+            
+            # Log to DB and convert to OpenAPI model
+            db_message = _log_message_to_db(user_id, conversation_id, message, message_type, db)
 
-            om = openapiModels.Message(
-                id=db_message_reply.id,
-                conversation_id=db_message_reply.conversation_id,
-                user_id=db_message_reply.user_id,
-                langchain_message=db_message_reply.langchain_message,
-                message_type=db_message_reply.type,
-                created_at=db_message_reply.created_at
-            )
-            responseMessages.append(om)
+        # Step 7: Preparing the responses
+        responseMessages = []
+        for message in conversation.messages:
+            responseMessages.append(_convert_to_openapi_message(message))
+        
+        responseMessages.sort(key=lambda x: x.created_at, reverse=True)
 
-        response = openapiModels.ListMessagesResponse(messages=responseMessages)
-        return response
+        return openapiModels.ListMessagesResponse(messages=responseMessages)
         
     except Exception as e:
         logger.error(f"Error in agent execution: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
+ 
 @router.get("/users/{user_id}/conversations/{conversation_id}/messages/", response_model=openapiModels.ListMessagesResponse)
 def get_conversation_messages(user_id: int, conversation_id: int, limit: int = 50, offset: int = 0, db: Session = Depends(get_db)):
     conversation = db.query(Conversation).filter(

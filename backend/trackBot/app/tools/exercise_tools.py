@@ -3,6 +3,8 @@ from langchain_core.tools import tool
 from models.trackBot_models import Exercise
 from sqlalchemy.orm import Session
 import logging
+from app.config.database import get_db, SessionLocal
+from fastapi import Depends
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +62,7 @@ async def create_cardio_exercise(user_id: int, name: str, distance: Union[int, f
         )
         
         # Get database session
-        db = Session()
+        db = SessionLocal()
         try:
             db.add(exercise)
             db.commit()
@@ -100,7 +102,7 @@ async def create_strength_exercise(user_id: int, name: str, reps: int, weight: U
         )
         
         # Get database session
-        db = Session()
+        db = SessionLocal()
         try:
             db.add(exercise)
             db.commit()

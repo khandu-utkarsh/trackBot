@@ -2,6 +2,7 @@ import ChatMessage, { Message } from "./ChatMessage";
 import AIThinkingMessage from "./AIThinkingMessage";
 import { Box } from "@mui/material";
 import { useRef, useEffect } from "react";
+import { MessageType } from "@/lib/types/generated/api";
 
 export default function ChatMessageList({ messages, isLoading }: { messages: Message[], isLoading: boolean}) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -27,7 +28,11 @@ export default function ChatMessageList({ messages, isLoading }: { messages: Mes
                 gap: 3,
             }}
         >
-        {messages.map((message) => (<ChatMessage key={message.id} message={message} />))}
+        {messages
+        .filter((message) => message.message_type !== MessageType.Other)
+        .map((message) => (
+            <ChatMessage key={message.id} message={message} />
+        ))}
         {isLoading && ( <AIThinkingMessage />)}
         <div ref={messagesEndRef} />
         </Box>

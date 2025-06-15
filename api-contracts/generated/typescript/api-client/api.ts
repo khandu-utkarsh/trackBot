@@ -286,7 +286,8 @@ export interface Message {
 
 export const MessageType = {
     User: 'user',
-    Assistant: 'assistant'
+    Assistant: 'assistant',
+    Other: 'other'
 } as const;
 
 export type MessageType = typeof MessageType[keyof typeof MessageType];
