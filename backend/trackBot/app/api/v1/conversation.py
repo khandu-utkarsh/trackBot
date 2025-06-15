@@ -274,7 +274,7 @@ async def create_message(user_id: int, conversation_id: int, message: openapiMod
         for message in conversation.messages:
             responseMessages.append(_convert_to_openapi_message(message))
         
-        responseMessages.sort(key=lambda x: x.created_at, reverse=True)
+        responseMessages.sort(key=lambda x: x.id, reverse=True)
 
         return openapiModels.ListMessagesResponse(messages=responseMessages)
         

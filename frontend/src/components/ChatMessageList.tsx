@@ -16,6 +16,22 @@ export default function ChatMessageList({ messages, isLoading }: { messages: Mes
     }, [messages]);
 
 
+    const filteredMessages = messages.filter(
+        (message) => {
+            if (message.message_type === MessageType.Other) {
+                return false;
+            }
+
+            const messageContent = JSON.parse(message.langchain_message);
+            let content = messageContent.content;
+            if(content?.length > 0) {
+                return true;
+            }
+            return false;    
+        }
+    );
+
+    console.log(filteredMessages);
     return (
         <Box 
             className="messages-list-container"
@@ -28,11 +44,7 @@ export default function ChatMessageList({ messages, isLoading }: { messages: Mes
                 gap: 3,
             }}
         >
-        {messages
-        .filter((message) => message.message_type !== MessageType.Other)
-        .map((message) => (
-            <ChatMessage key={message.id} message={message} />
-        ))}
+        {filteredMessages.map((message) => ( <ChatMessage key={message.id} message={message} /> ))}
         {isLoading && ( <AIThinkingMessage />)}
         <div ref={messagesEndRef} />
         </Box>
